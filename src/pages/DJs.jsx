@@ -1,11 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Search, Filter, Star } from 'lucide-react';
+import ParticlesBackground from '../components/ParticlesBackground';
 import { getDJList } from '../services/api';
 
 const DJs = () => {
@@ -56,6 +57,27 @@ const DJs = () => {
         ? prev.filter(g => g !== genre)
         : [...prev, genre]
     );
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5
+      }
+    }
   };
 
   const DJCardSkeleton = () => (
@@ -113,115 +135,188 @@ const DJs = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background py-16 px-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8 animate-slide-up">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground mb-2">Top DJs in Chennai</h1>
-              <p className="text-muted-foreground">Book the best talent for your next event</p>
-            </div>
-            <Button variant="outline" className="text-primary hover:text-primary">
-              View All DJs →
-            </Button>
-          </div>
-          
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Search DJs by name, genre, or location..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Button variant="outline">
-              <Filter className="h-4 w-4 mr-2" />
-              Filters
-            </Button>
-          </div>
-
-          {/* Availability Filter */}
-          <div className="flex gap-2 mb-4">
-            <button
-              onClick={() => setAvailabilityFilter('all')}
-              className={`filter-btn ${availabilityFilter === 'all' ? 'active' : ''}`}
+    <div className="min-h-screen bg-background relative">
+      <ParticlesBackground />
+      
+      <motion.div 
+        className="min-h-screen bg-background py-16 px-4 relative z-10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className="max-w-7xl mx-auto">
+          <motion.div 
+            className="mb-8"
+            initial={{ y: -50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8 }}
+          >
+            <motion.div 
+              className="flex justify-between items-center mb-6"
+              variants={itemVariants}
             >
-              All
-            </button>
-            <button
-              onClick={() => setAvailabilityFilter('available')}
-              className={`filter-btn ${availabilityFilter === 'available' ? 'active' : ''}`}
-            >
-              Available
-            </button>
-            <button
-              onClick={() => setAvailabilityFilter('busy')}
-              className={`filter-btn ${availabilityFilter === 'busy' ? 'active' : ''}`}
-            >
-              Busy
-            </button>
-          </div>
-
-          {/* Genre Filter */}
-          <div className="flex flex-wrap gap-2 mb-6">
-            {genres.map((genre) => (
-              <button
-                key={genre}
-                onClick={() => handleGenreToggle(genre)}
-                className={`filter-btn text-sm ${selectedGenres.includes(genre) ? 'active' : ''}`}
-              >
-                {genre}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-6 animate-fade-in">
-          {filteredDJs.map((dj, index) => (
-            <Card key={dj.id} className="dj-card animate-scale-in" style={{animationDelay: `${index * 0.1}s`}}>
-              <div className="text-center">
-                <div className="dj-avatar">
-                  <span className="text-2xl font-bold text-foreground">{dj.name.charAt(0)}</span>
-                </div>
-                <Badge className={`status-badge mb-2 ${dj.available ? 'status-available' : 'status-busy'}`}>
-                  {dj.available ? 'Available' : 'Busy'}
-                </Badge>
-                <h3 className="font-semibold text-foreground mb-1">{dj.name}</h3>
-                <div className="flex items-center justify-center mb-2">
-                  <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                  <span className="text-sm text-muted-foreground ml-1">{dj.rating}</span>
-                </div>
-                <div className="flex gap-1 justify-center mb-3 flex-wrap">
-                  <Badge variant="secondary" className="text-xs">{dj.genre}</Badge>
-                  <Badge variant="secondary" className="text-xs">EDM</Badge>
-                </div>
-                <Button variant="outline" size="sm" className="w-full hover:bg-primary hover:text-primary-foreground transition-all duration-200">
-                  View Profile
-                </Button>
+              <div>
+                <h1 className="text-3xl font-bold text-foreground mb-2">Top DJs in Chennai</h1>
+                <p className="text-muted-foreground">Book the best talent for your next event</p>
               </div>
-            </Card>
-          ))}
-        </div>
-
-        {filteredDJs.length === 0 && (
-          <div className="text-center py-12 animate-fade-in">
-            <p className="text-muted-foreground">No DJs found matching your criteria.</p>
-            <Button 
-              variant="outline" 
-              className="mt-4"
-              onClick={() => {
-                setSearchTerm('');
-                setSelectedGenres([]);
-                setAvailabilityFilter('all');
-              }}
+              <Button variant="outline" className="text-primary hover:text-primary">
+                View All DJs →
+              </Button>
+            </motion.div>
+            
+            {/* Search and filters with animations */}
+            <motion.div 
+              className="flex flex-col md:flex-row gap-4 mb-6"
+              initial={{ y: 30, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
             >
-              Clear Filters
-            </Button>
-          </div>
-        )}
-      </div>
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  placeholder="Search DJs by name, genre, or location..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button variant="outline">
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filters
+                </Button>
+              </motion.div>
+            </motion.div>
+
+            {/* Availability filters with animations */}
+            <motion.div 
+              className="flex gap-2 mb-4"
+              initial={{ x: -50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+            >
+              {['all', 'available', 'busy'].map((filter) => (
+                <motion.button
+                  key={filter}
+                  onClick={() => setAvailabilityFilter(filter)}
+                  className={`px-4 py-2 rounded-lg border transition-all duration-200 ${
+                    availabilityFilter === filter ? 'bg-primary text-primary-foreground border-primary' : 'bg-transparent border-border text-muted-foreground hover:border-primary/50'
+                  }`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {filter === 'all' ? 'All' : filter === 'available' ? 'Available' : 'Busy'}
+                </motion.button>
+              ))}
+            </motion.div>
+
+            {/* Genre filters with animations */}
+            <motion.div 
+              className="flex flex-wrap gap-2 mb-6"
+              initial={{ y: 30, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
+              {genres.map((genre, index) => (
+                <motion.button
+                  key={genre}
+                  onClick={() => handleGenreToggle(genre)}
+                  className={`px-3 py-1 text-sm rounded-lg border transition-all duration-200 ${
+                    selectedGenres.includes(genre) ? 'bg-primary text-primary-foreground border-primary' : 'bg-transparent border-border text-muted-foreground hover:border-primary/50'
+                  }`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                >
+                  {genre}
+                </motion.button>
+              ))}
+            </motion.div>
+          </motion.div>
+
+          <motion.div 
+            className="grid grid-cols-2 md:grid-cols-5 gap-6"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            {loading ? (
+              [...Array(10)].map((_, i) => (
+                <motion.div key={i} variants={itemVariants}>
+                  <DJCardSkeleton />
+                </motion.div>
+              ))
+            ) : (
+              filteredDJs.map((dj, index) => (
+                <motion.div
+                  key={dj.id}
+                  variants={itemVariants}
+                  whileHover={{ scale: 1.05, y: -10 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <Card className="dj-card h-full">
+                    <div className="text-center">
+                      <motion.div 
+                        className="dj-avatar"
+                        whileHover={{ rotate: 360 }}
+                        transition={{ duration: 0.6 }}
+                      >
+                        <span className="text-2xl font-bold text-foreground">{dj.name.charAt(0)}</span>
+                      </motion.div>
+                      <Badge className={`status-badge mb-2 ${dj.available ? 'status-available' : 'status-busy'}`}>
+                        {dj.available ? 'Available' : 'Busy'}
+                      </Badge>
+                      <h3 className="font-semibold text-foreground mb-1">{dj.name}</h3>
+                      <div className="flex items-center justify-center mb-2">
+                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                        <span className="text-sm text-muted-foreground ml-1">{dj.rating}</span>
+                      </div>
+                      <div className="flex gap-1 justify-center mb-3 flex-wrap">
+                        <Badge variant="secondary" className="text-xs">{dj.genre}</Badge>
+                        <Badge variant="secondary" className="text-xs">EDM</Badge>
+                      </div>
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Button variant="outline" size="sm" className="w-full hover:bg-primary hover:text-primary-foreground transition-all duration-200">
+                          View Profile
+                        </Button>
+                      </motion.div>
+                    </div>
+                  </Card>
+                </motion.div>
+              ))
+            )}
+          </motion.div>
+
+          {filteredDJs.length === 0 && (
+            <motion.div 
+              className="text-center py-12"
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <p className="text-muted-foreground">No DJs found matching your criteria.</p>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button 
+                  variant="outline" 
+                  className="mt-4"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setSelectedGenres([]);
+                    setAvailabilityFilter('all');
+                  }}
+                >
+                  Clear Filters
+                </Button>
+              </motion.div>
+            </motion.div>
+          )}
+        </div>
+      </motion.div>
     </div>
   );
 };
