@@ -1,4 +1,3 @@
-
 import axios from "axios";
 
 const api = axios.create({
@@ -18,12 +17,15 @@ export const loginUser = async (credentials) => {
   else if (credentials.email.includes("admin")) role = "Admin";
 
   return {
-    token: "dummy_jwt_token_" + Date.now(),
-    user: { 
-      id: 1, 
-      name: "Test User", 
-      email: credentials.email,
-      role: role 
+    success: true,
+    data: {
+      token: "dummy_jwt_token_" + Date.now(),
+      user: { 
+        id: 1, 
+        name: "Test User", 
+        email: credentials.email,
+        role: role 
+      }
     }
   };
 };
@@ -33,12 +35,15 @@ export const registerUser = async (userData) => {
   await new Promise(resolve => setTimeout(resolve, 1000));
   
   return {
-    token: "dummy_jwt_token_" + Date.now(),
-    user: { 
-      id: Date.now(), 
-      name: userData.name, 
-      email: userData.email,
-      role: userData.role 
+    success: true,
+    data: {
+      token: "dummy_jwt_token_" + Date.now(),
+      user: { 
+        id: Date.now(), 
+        name: userData.name, 
+        email: userData.email,
+        role: userData.role 
+      }
     }
   };
 };
@@ -47,117 +52,201 @@ export const registerUser = async (userData) => {
 export const getDJList = async () => {
   await new Promise(resolve => setTimeout(resolve, 800));
   
-  return [
-    { 
-      id: 1, 
-      name: "DJ Sonic", 
-      genre: "EDM", 
-      rating: 4.8, 
-      price: 25000,
-      location: "Mumbai",
-      image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400",
-      bio: "Professional DJ with 8+ years of experience in electronic dance music."
-    },
-    { 
-      id: 2, 
-      name: "DJ Blaze", 
-      genre: "Hip-hop", 
-      rating: 4.6,
-      price: 20000,
-      location: "Delhi",
-      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400",
-      bio: "Hip-hop specialist known for high-energy performances and crowd engagement."
-    },
-    { 
-      id: 3, 
-      name: "DJ Luna", 
-      genre: "House", 
-      rating: 4.9,
-      price: 30000,
-      location: "Bangalore",
-      image: "https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=400",
-      bio: "House music expert with a unique style that keeps the dance floor packed."
-    }
-  ];
+  return {
+    success: true,
+    data: [
+      { 
+        id: 1, 
+        name: "DJ Sonic", 
+        genre: "EDM", 
+        rating: 4.8, 
+        price: 25000,
+        location: "Mumbai",
+        image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400",
+        bio: "Professional DJ with 8+ years of experience in electronic dance music."
+      },
+      { 
+        id: 2, 
+        name: "DJ Blaze", 
+        genre: "Hip-hop", 
+        rating: 4.6,
+        price: 20000,
+        location: "Delhi",
+        image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400",
+        bio: "Hip-hop specialist known for high-energy performances and crowd engagement."
+      },
+      { 
+        id: 3, 
+        name: "DJ Luna", 
+        genre: "House", 
+        rating: 4.9,
+        price: 30000,
+        location: "Bangalore",
+        image: "https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=400",
+        bio: "House music expert with a unique style that keeps the dance floor packed."
+      },
+      { 
+        id: 4, 
+        name: "DJ Storm", 
+        genre: "Techno", 
+        rating: 4.7,
+        price: 28000,
+        location: "Chennai",
+        image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400",
+        bio: "Techno master creating immersive electronic experiences."
+      },
+      { 
+        id: 5, 
+        name: "DJ Vibe", 
+        genre: "Trance", 
+        rating: 4.8,
+        price: 32000,
+        location: "Hyderabad",
+        image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400",
+        bio: "Trance specialist taking audiences on melodic journeys."
+      }
+    ]
+  };
 };
 
 // Venue APIs
 export const getVenues = async () => {
   await new Promise(resolve => setTimeout(resolve, 800));
   
-  return [
-    { 
-      id: 1, 
-      name: "Club Infinity", 
-      location: "Bandra, Mumbai", 
-      capacity: 250,
-      type: "Nightclub",
-      image: "https://images.unsplash.com/photo-1571266028243-d220c2dc4bbe?w=600",
-      description: "Premier nightclub in the heart of Mumbai offering world-class entertainment."
-    },
-    { 
-      id: 2, 
-      name: "Bar Revolution", 
-      location: "Connaught Place, Delhi", 
-      capacity: 180,
-      type: "Bar & Lounge",
-      image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=600",
-      description: "Trendy bar and lounge with innovative cocktails and live music."
-    },
-    { 
-      id: 3, 
-      name: "Skybar Rooftop", 
-      location: "Koramangala, Bangalore", 
-      capacity: 120,
-      type: "Rooftop Bar",
-      image: "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=600",
-      description: "Rooftop bar with stunning city views and premium dining experience."
-    }
-  ];
+  return {
+    success: true,
+    data: [
+      { 
+        id: 1, 
+        name: "Skyline Lounge", 
+        location: "Bandra, Mumbai", 
+        capacity: 250,
+        type: "Nightclub",
+        image: "https://images.unsplash.com/photo-1571266028243-d220c2dc4bbe?w=600",
+        description: "Premier nightclub in the heart of Mumbai offering world-class entertainment.",
+        rating: 4.8
+      },
+      { 
+        id: 2, 
+        name: "Beach Club", 
+        location: "Connaught Place, Delhi", 
+        capacity: 180,
+        type: "Bar & Lounge",
+        image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=600",
+        description: "Trendy bar and lounge with innovative cocktails and live music.",
+        rating: 4.6
+      },
+      { 
+        id: 3, 
+        name: "Urban Beats", 
+        location: "Koramangala, Bangalore", 
+        capacity: 120,
+        type: "Rooftop Bar",
+        image: "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=600",
+        description: "Rooftop bar with stunning city views and premium dining experience.",
+        rating: 4.7
+      },
+      { 
+        id: 4, 
+        name: "Rhythm Bar", 
+        location: "T. Nagar, Chennai", 
+        capacity: 200,
+        type: "Music Bar",
+        image: "https://images.unsplash.com/photo-1571266028243-d220c2dc4bbe?w=600",
+        description: "Music-focused bar with excellent acoustics and live performances.",
+        rating: 4.5
+      }
+    ]
+  };
 };
 
 // Event APIs
 export const getEvents = async () => {
   await new Promise(resolve => setTimeout(resolve, 800));
   
-  return [
-    { 
-      id: 1, 
-      title: "Saturday Night Fever", 
-      venue: "Club Infinity", 
-      location: "Mumbai",
-      date: "June 15, 2024",
-      price: 1500,
-      genre: "EDM",
-      dj: "DJ Sonic",
-      status: "available",
-      image: "https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=600"
-    },
-    { 
-      id: 2, 
-      title: "Hip-Hop Night", 
-      venue: "Bar Revolution", 
-      location: "Delhi",
-      date: "June 22, 2024",
-      price: 1200,
-      genre: "Hip-Hop",
-      dj: "DJ Blaze",
-      status: "available",
-      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600"
-    },
-    { 
-      id: 3, 
-      title: "House Music Paradise", 
-      venue: "Skybar Rooftop", 
-      location: "Bangalore",
-      date: "June 29, 2024",
-      price: 2000,
-      genre: "House",
-      dj: "DJ Luna",
-      status: "sold-out",
-      image: "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=600"
-    }
-  ];
+  return {
+    success: true,
+    data: [
+      { 
+        id: 1, 
+        title: "Bounce Beats Party", 
+        venue: "Skyline Lounge", 
+        location: "Mumbai",
+        date: "June 15, 2024",
+        time: "9:00 PM",
+        price: 1500,
+        genre: "EDM",
+        dj: "DJ Sonic",
+        status: "available",
+        image: "https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=600"
+      },
+      { 
+        id: 2, 
+        title: "Urban Beat Night", 
+        venue: "Beach Club", 
+        location: "Delhi",
+        date: "June 22, 2024",
+        time: "8:30 PM",
+        price: 1200,
+        genre: "Hip-Hop",
+        dj: "DJ Blaze",
+        status: "available",
+        image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600"
+      },
+      { 
+        id: 3, 
+        title: "Bollywood Bash", 
+        venue: "Urban Beats", 
+        location: "Bangalore",
+        date: "June 29, 2024",
+        time: "10:00 PM",
+        price: 2000,
+        genre: "Bollywood",
+        dj: "DJ Luna",
+        status: "sold-out",
+        image: "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=600"
+      },
+      { 
+        id: 4, 
+        title: "Retro Night", 
+        venue: "Rhythm Bar", 
+        location: "Chennai",
+        date: "July 5, 2024",
+        time: "9:30 PM",
+        price: 1800,
+        genre: "Retro",
+        dj: "DJ Storm",
+        status: "available",
+        image: "https://images.unsplash.com/photo-1571266028243-d220c2dc4bbe?w=600"
+      },
+      { 
+        id: 5, 
+        title: "Trance Nation", 
+        venue: "Skyline Lounge", 
+        location: "Mumbai",
+        date: "July 12, 2024",
+        time: "11:00 PM",
+        price: 2500,
+        genre: "Trance",
+        dj: "DJ Vibe",
+        status: "available",
+        image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600"
+      },
+      { 
+        id: 6, 
+        title: "Deep House Revolution", 
+        venue: "Urban Beats", 
+        location: "Bangalore",
+        date: "July 19, 2024",
+        time: "8:00 PM",
+        price: 1600,
+        genre: "House",
+        dj: "DJ Luna",
+        status: "available",
+        image: "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=600"
+      }
+    ]
+  };
 };
 
 // Booking APIs
