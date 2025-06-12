@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import { Menu, X, User, LogOut } from 'lucide-react';
+import { ThemeToggle } from './ThemeToggle';
 
 const Navbar = () => {
   const { isAuthenticated, user, logout } = useAuth();
@@ -38,45 +39,46 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-background border-b border-gray-800 sticky top-0 z-50">
+    <nav className="bg-background border-b border-border sticky top-0 z-50 backdrop-blur-md bg-background/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-green-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">H</span>
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-lg">H</span>
             </div>
-            <span className="text-2xl font-bold text-white">Hopznite</span>
+            <span className="text-2xl font-bold text-foreground">Hopznite</span>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             <Link 
               to="/events" 
-              className="text-gray-300 hover:text-white transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors font-medium"
             >
               Events
             </Link>
             <Link 
               to="/djs" 
-              className="text-gray-300 hover:text-white transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors font-medium"
             >
               DJs
             </Link>
             <Link 
               to="/venues" 
-              className="text-gray-300 hover:text-white transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors font-medium"
             >
               Venues
             </Link>
           </div>
 
-          {/* Desktop Auth */}
+          {/* Desktop Auth & Theme */}
           <div className="hidden md:flex items-center space-x-4">
+            <ThemeToggle />
             {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center space-x-2 text-white">
+                  <Button variant="ghost" className="flex items-center space-x-2">
                     <User className="w-4 h-4" />
                     <span>{user?.name}</span>
                   </Button>
@@ -94,22 +96,22 @@ const Navbar = () => {
             ) : (
               <div className="flex items-center space-x-4">
                 <Link to="/login">
-                  <Button variant="ghost" className="text-white">Login</Button>
+                  <Button variant="ghost">Login</Button>
                 </Link>
                 <Link to="/register">
-                  <Button className="bg-green-primary hover:bg-green-600">Sign Up</Button>
+                  <Button className="bg-primary hover:bg-primary/90">Sign Up</Button>
                 </Link>
               </div>
             )}
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center space-x-2">
+            <ThemeToggle />
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-white"
             >
               {isMobileMenuOpen ? (
                 <X className="w-6 h-6" />
@@ -122,35 +124,35 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-800">
+          <div className="md:hidden py-4 border-t border-border">
             <div className="flex flex-col space-y-4">
               <Link 
                 to="/events" 
-                className="text-gray-300 hover:text-white transition-colors"
+                className="text-muted-foreground hover:text-foreground transition-colors font-medium"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Events
               </Link>
               <Link 
                 to="/djs" 
-                className="text-gray-300 hover:text-white transition-colors"
+                className="text-muted-foreground hover:text-foreground transition-colors font-medium"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 DJs
               </Link>
               <Link 
                 to="/venues" 
-                className="text-gray-300 hover:text-white transition-colors"
+                className="text-muted-foreground hover:text-foreground transition-colors font-medium"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Venues
               </Link>
               
               {isAuthenticated ? (
-                <div className="pt-4 border-t border-gray-800">
+                <div className="pt-4 border-t border-border">
                   <Link 
                     to={getDashboardPath()}
-                    className="block text-gray-300 hover:text-white transition-colors mb-4"
+                    className="block text-muted-foreground hover:text-foreground transition-colors mb-4 font-medium"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Dashboard
@@ -168,12 +170,12 @@ const Navbar = () => {
                   </Button>
                 </div>
               ) : (
-                <div className="flex flex-col space-y-2 pt-4 border-t border-gray-800">
+                <div className="flex flex-col space-y-2 pt-4 border-t border-border">
                   <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button variant="ghost" className="w-full text-white">Login</Button>
+                    <Button variant="ghost" className="w-full">Login</Button>
                   </Link>
                   <Link to="/register" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button className="w-full bg-green-primary hover:bg-green-600">Sign Up</Button>
+                    <Button className="w-full bg-primary hover:bg-primary/90">Sign Up</Button>
                   </Link>
                 </div>
               )}

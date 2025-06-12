@@ -5,17 +5,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, MapPin, Clock, Users, Music, Ticket } from 'lucide-react';
+import GoogleCalendar from '../components/GoogleCalendar';
+import GoogleMaps from '../components/GoogleMaps';
 
 const EventDetails = () => {
   const { id } = useParams();
   
-  // Mock event data
+  // Mock event data - in real app, fetch based on id
   const event = {
     id: 1,
     title: "Saturday Night Fever",
     description: "The biggest electronic dance music event of the month featuring top DJs and incredible vibes.",
     date: "June 15, 2024",
-    time: "9:00 PM - 3:00 AM",
+    time: "9:00 PM",
     venue: "Club Infinity",
     location: "Bandra, Mumbai",
     dj: "DJ Sonic",
@@ -133,7 +135,7 @@ const EventDetails = () => {
                 </div>
               </div>
 
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-muted rounded-full h-2">
                 <div 
                   className="bg-primary h-2 rounded-full" 
                   style={{ width: `${(event.soldTickets / event.capacity) * 100}%` }}
@@ -154,27 +156,8 @@ const EventDetails = () => {
             </CardContent>
           </Card>
 
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle>Event Highlights</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Featured DJ</span>
-                  <span className="text-sm font-medium">{event.dj}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Music Genre</span>
-                  <Badge variant="secondary">{event.genre}</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Duration</span>
-                  <span className="text-sm font-medium">6 hours</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <GoogleCalendar event={event} />
+          <GoogleMaps venue={event.venue} location={event.location} />
         </div>
       </div>
     </div>
