@@ -13,6 +13,7 @@ import Autoplay from "embla-carousel-autoplay"
 import ParticlesBackground from '../components/ParticlesBackground';
 import { getDJList, getEvents, getVenues } from '../services/api';
 import { MapPin, Star, Calendar, Clock, Users, FileText, Globe, Music, Search, Filter } from 'lucide-react';
+import { isThisWeekend, isFuture } from 'date-fns';
 
 const Home = () => {
   const [featuredDJs, setFeaturedDJs] = useState([]);
@@ -28,7 +29,7 @@ const Home = () => {
   const [eventFilter, setEventFilter] = useState('Upcoming');
   const [loading, setLoading] = useState(true);
 
-  const carouselPlugin = useRef(Autoplay({ delay: 3000, stopOnInteraction: true }));
+  const carouselPlugin = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }));
 
   const genres = ['all', 'House', 'EDM', 'Techno', 'Hip Hop', 'R&B', 'Bollywood'];
   const eventFilters = ['Upcoming', 'This Weekend', 'Trending'];
@@ -82,11 +83,29 @@ const Home = () => {
     (selectedCity === 'all' || !selectedCity || venue.location.includes(selectedCity))
   );
 
-  const filteredEvents = upcomingEvents.filter(event =>
-    (event.title.toLowerCase().includes(eventSearchTerm.toLowerCase()) ||
-    event.venue.toLowerCase().includes(eventSearchTerm.toLowerCase())) &&
-    (selectedCity === 'all' || !selectedCity || event.location === selectedCity)
-  );
+  const filteredEvents = upcomingEvents.filter(event => {
+    const matchesSearch = (event.title.toLowerCase().includes(eventSearchTerm.toLowerCase()) ||
+                           event.venue.toLowerCase().includes(eventSearchTerm.toLowerCase())) &&
+                           (selectedCity === 'all' || !selectedCity || event.location === selectedCity);
+    
+    if (!matchesSearch) return false;
+
+    const eventDate = new Date(event.date);
+
+    if (eventFilter === 'Upcoming') {
+      // Check if the event date is in the future or today
+      return isFuture(eventDate) || new Date().toDateString() === eventDate.toDateString();
+    }
+    if (eventFilter === 'This Weekend') {
+      return isThisWeekend(eventDate);
+    }
+    if (eventFilter === 'Trending') {
+      // Simple logic for trending: could be based on status or a specific flag
+      return event.status !== 'sold-out';
+    }
+    
+    return true; // For 'All' or other filters
+  });
 
   // Animation variants
   const containerVariants = {
@@ -215,60 +234,55 @@ const Home = () => {
 
       {/* Hero Section */}
       <motion.section 
-        className="relative bg-black py-20 px-4 z-10"
+        className="relative bg-black h-[500px] z-10"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
       >
-        <div className="max-w-7xl mx-auto">
-          <Carousel
-            plugins={[carouselPlugin.current]}
-            className="w-full"
-            onMouseEnter={carouselPlugin.current.stop}
-            onMouseLeave={carouselPlugin.current.reset}
-          >
-            <CarouselContent>
-              {carouselItems.map((item, index) => (
-                <CarouselItem key={index}>
-                  <div className="p-1">
-                    <Card className="bg-transparent border-none shadow-none">
-                      <CardContent className="flex flex-col md:flex-row items-center justify-between p-6">
-                        <div className="flex-1 mb-4 md:mb-0">
-                          <Badge className="mb-4 bg-white/10 text-white border-white/20">
+        <Carousel
+          plugins={[carouselPlugin.current]}
+          className="w-full h-full"
+          onMouseEnter={carouselPlugin.current.stop}
+          onMouseLeave={carouselPlugin.current.reset}
+        >
+          <CarouselContent className="h-full">
+            {carouselItems.map((item, index) => (
+              <CarouselItem key={index} className="h-full">
+                <div className="relative w-full h-full text-white">
+                   <img src={item.image} alt={item.title || item.name} className="w-full h-full object-cover"/>
+                   <div className="absolute inset-0 bg-black/60"></div>
+                   <div className="absolute inset-0 flex items-center">
+                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+                        <motion.div 
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.8, delay: 0.2 }}
+                        >
+                          <Badge className="mb-4 bg-white/10 text-white border-white/20 backdrop-blur-sm">
                             {item.title ? `Summer Beach Party - ${new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : 'Top Venue'}
                           </Badge>
-                          <h1 className="text-4xl lg:text-6xl font-bold text-white mb-4">
+                          <h1 className="text-4xl lg:text-6xl font-bold mb-4">
                             {item.title || item.name}
                           </h1>
-                          <div className="flex items-center gap-2 text-gray-400 mb-6">
+                          <div className="flex items-center gap-2 text-gray-300 mb-6">
                             <MapPin className="w-4 h-4" />
-                            <span>{item.location}, {selectedCountry}</span>
+                            <span>{item.location}</span>
                           </div>
                           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                            <Button size="lg" variant="outline" className="bg-transparent border-white text-white hover:bg-white hover:text-black">
-                              {item.title ? 'Book Now' : 'Explore Venue'}
+                            <Button size="lg" asChild className="bg-white text-black hover:bg-gray-200">
+                               <Link to={item.title ? `/events/${item.id}` : `/venues/${item.id}`}>Explore {item.title ? 'Event' : 'Venue'}</Link>
                             </Button>
                           </motion.div>
-                        </div>
-                        <motion.div 
-                          className="w-full md:w-96 h-64 bg-gray-900/50 border border-gray-800 rounded-lg flex items-center justify-center"
-                          whileHover={{ scale: 1.02, rotateY: 5 }}
-                          transition={{ type: "spring", stiffness: 300 }}
-                        >
-                          <div className="w-16 h-16 bg-gray-800/50 rounded-full flex items-center justify-center">
-                            <Music className="w-8 h-8 text-gray-500" />
-                          </div>
                         </motion.div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="hidden md:flex bg-white/10 border-white/20 text-white hover:bg-white/20" />
-            <CarouselNext className="hidden md:flex bg-white/10 border-white/20 text-white hover:bg-white/20" />
-          </Carousel>
-        </div>
+                     </div>
+                   </div>
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="hidden md:flex left-4 bg-white/10 border-white/20 text-white hover:bg-white/20" />
+          <CarouselNext className="hidden md:flex right-4 bg-white/10 border-white/20 text-white hover:bg-white/20" />
+        </Carousel>
       </motion.section>
 
       {/* Section 2: Top DJs with Filters */}
@@ -329,11 +343,11 @@ const Home = () => {
             <Link to="/venues" className="text-white hover:text-gray-300 font-medium">View All Venues →</Link>
           </motion.div>
           
-          <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6" variants={containerVariants}>
+          <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6" variants={containerVariants}>
             {loading ? (
-              [...Array(4)].map((_, i) => <motion.div key={i} variants={itemVariants}><CardSkeleton /></motion.div>)
+              [...Array(5)].map((_, i) => <motion.div key={i} variants={itemVariants}><CardSkeleton /></motion.div>)
             ) : (
-              filteredVenues.slice(0, 4).map((venue) => (
+              filteredVenues.slice(0, 5).map((venue) => (
                 <motion.div key={venue.id} variants={itemVariants} whileHover={{ y: -5 }} transition={{ type: "spring", stiffness: 300 }}>
                   <Card className="bg-gray-900/50 border border-gray-800 overflow-hidden h-full">
                     <div className="aspect-video bg-gray-800 relative">
@@ -377,11 +391,11 @@ const Home = () => {
             </div>
           </motion.div>
           
-          <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" variants={containerVariants}>
+          <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6" variants={containerVariants}>
             {loading ? (
-              [...Array(3)].map((_, i) => <motion.div key={i} variants={itemVariants}><CardSkeleton /></motion.div>)
+              [...Array(5)].map((_, i) => <motion.div key={i} variants={itemVariants}><CardSkeleton /></motion.div>)
             ) : (
-              filteredEvents.slice(0, 3).map((event, index) => (
+              filteredEvents.slice(0, 5).map((event, index) => (
                 <motion.div key={event.id} variants={itemVariants} whileHover={{ y: -5 }} transition={{ type: "spring", stiffness: 300 }}>
                   <Card className="bg-gray-900/50 border border-gray-800 overflow-hidden h-full">
                     <div className="aspect-video bg-gray-800 relative">
@@ -396,7 +410,9 @@ const Home = () => {
                       <div className="flex gap-1 mb-3"><Badge variant="secondary" className="bg-gray-700 text-gray-300">{event.genre}</Badge></div>
                       <div className="flex items-center justify-between">
                         <span className="text-lg font-bold text-white">₹{event.price}</span>
-                        <Button size="sm" className="bg-white text-black hover:bg-gray-200">Book Now</Button>
+                        <Button asChild size="sm" className="bg-white text-black hover:bg-gray-200">
+                          <Link to={`/events/${event.id}`}>Book Now</Link>
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -417,12 +433,13 @@ const Home = () => {
             </div>
             <Link to="/companies" className="text-white hover:text-gray-300 font-medium">View All Companies →</Link>
           </motion.div>
-          <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" variants={containerVariants}>
+          <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6" variants={containerVariants}>
             {[
               { name: 'EventPro', rating: 4.8, description: 'Full-service event management for corporate and private events', events: '120 events organized', avatar: 'E' },
               { name: 'Celebration Masters', rating: 4.7, description: 'Specializing in weddings and large-scale celebrations', events: '85 events organized', avatar: 'C' },
               { name: 'NightLife Events', rating: 4.9, description: 'Experts in club events and music festivals', events: '150 events organized', avatar: 'N' },
-              { name: 'Corporate Connect', rating: 4.6, description: 'Business conferences and corporate entertainment', events: '95 events organized', avatar: 'C' }
+              { name: 'Corporate Connect', rating: 4.6, description: 'Business conferences and corporate entertainment', events: '95 events organized', avatar: 'C' },
+              { name: 'Gala Planners', rating: 4.8, description: 'High-end galas and charity events.', events: '70 events organized', avatar: 'G' }
             ].map((company, index) => (
               <motion.div key={company.name} variants={itemVariants} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
                 <Card className="bg-gray-900/50 border border-gray-800 p-6 h-full">
@@ -496,9 +513,9 @@ const Home = () => {
       </motion.section>
 
       {/* Section 8: Get in Touch */}
-      <motion.section className="py-16 px-4 z-10 relative" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={containerVariants}>
+      <motion.section className="py-16 px-4 z-10 relative bg-black" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={containerVariants}>
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <motion.div variants={itemVariants}>
               <h2 className="text-3xl font-bold text-white mb-4">Get in Touch</h2>
               <p className="text-gray-400 mb-8">Have questions about Hopznite? We're here to help. Reach out to our team for support, partnership inquiries, or feedback.</p>
@@ -513,26 +530,28 @@ const Home = () => {
             </motion.div>
 
             <motion.div variants={itemVariants}>
-              <Card className="bg-gray-900/50 border border-gray-800 p-6">
-                <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Name</label>
-                      <Input placeholder="Your name" required className="bg-gray-800 border-gray-700 text-white" />
+              <Card className="bg-gray-900/50 border border-gray-800 p-8">
+                <form className="space-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div>
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">Name</label>
+                        <Input id="name" placeholder="Your name" required className="bg-gray-800 border-gray-700 text-white" />
+                      </div>
+                      <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                        <Input id="email" placeholder="Your email" type="email" required className="bg-gray-800 border-gray-700 text-white" />
+                      </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
-                      <Input placeholder="Your email" type="email" required className="bg-gray-800 border-gray-700 text-white" />
+                      <label htmlFor="subject" className="block text-sm font-medium text-gray-300 mb-2">Subject</label>
+                      <Input id="subject" placeholder="Subject" required className="bg-gray-800 border-gray-700 text-white" />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Subject</label>
-                      <Input placeholder="Subject" required className="bg-gray-800 border-gray-700 text-white" />
+                      <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-2">Message</label>
+                      <Textarea id="message" placeholder="Your message" rows={4} required className="bg-gray-800 border-gray-700 text-white" />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Message</label>
-                      <Textarea placeholder="Your message" rows={4} required className="bg-gray-800 border-gray-700 text-white" />
-                    </div>
-                  <Button className="w-full bg-white text-black hover:bg-gray-200">Send Message</Button>
-                </div>
+                  <Button type="submit" className="w-full bg-white text-black hover:bg-gray-200 py-3">Send Message</Button>
+                </form>
               </Card>
             </motion.div>
           </div>
