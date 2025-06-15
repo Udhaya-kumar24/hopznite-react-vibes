@@ -62,6 +62,7 @@ export const getDJList = async () => {
         rating: 4.8, 
         price: 25000,
         location: "Mumbai",
+        available: true,
         image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400",
         bio: "Professional DJ with 8+ years of experience in electronic dance music."
       },
@@ -72,6 +73,7 @@ export const getDJList = async () => {
         rating: 4.6,
         price: 20000,
         location: "Delhi",
+        available: false,
         image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400",
         bio: "Hip-hop specialist known for high-energy performances and crowd engagement."
       },
@@ -82,6 +84,7 @@ export const getDJList = async () => {
         rating: 4.9,
         price: 30000,
         location: "Bangalore",
+        available: true,
         image: "https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=400",
         bio: "House music expert with a unique style that keeps the dance floor packed."
       },
@@ -92,6 +95,7 @@ export const getDJList = async () => {
         rating: 4.7,
         price: 28000,
         location: "Chennai",
+        available: false,
         image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400",
         bio: "Techno master creating immersive electronic experiences."
       },
@@ -102,8 +106,64 @@ export const getDJList = async () => {
         rating: 4.8,
         price: 32000,
         location: "Hyderabad",
+        available: true,
         image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400",
         bio: "Trance specialist taking audiences on melodic journeys."
+      },
+      { 
+        id: 6, 
+        name: "DJ Retro", 
+        genre: "Bollywood", 
+        rating: 4.5,
+        price: 22000,
+        location: "Chennai",
+        available: true,
+        image: "https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=400",
+        bio: "Bollywood beats specialist for high-energy parties."
+      },
+      { 
+        id: 7, 
+        name: "DJ Ace", 
+        genre: "R&B", 
+        rating: 4.7,
+        price: 26000,
+        location: "Mumbai",
+        available: false,
+        image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400",
+        bio: "Smooth R&B grooves for a classy night."
+      },
+      { 
+        id: 8, 
+        name: "DJ Flash", 
+        genre: "EDM", 
+        rating: 4.9,
+        price: 35000,
+        location: "Delhi",
+        available: true,
+        image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400",
+        bio: "High-octane EDM DJ for the biggest festivals."
+      },
+      { 
+        id: 9, 
+        name: "DJ Queen", 
+        genre: "Hip-hop", 
+        rating: 4.8,
+        price: 29000,
+        location: "Chennai",
+        available: true,
+        image: "https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=400",
+        bio: "The queen of hip-hop, bringing fresh beats."
+      },
+      { 
+        id: 10, 
+        name: "DJ Zenith", 
+        genre: "Techno", 
+        rating: 4.6,
+        price: 27000,
+        location: "Bangalore",
+        available: false,
+        image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400",
+        bio: "Deep and dark techno journeys."
       }
     ]
   };
@@ -155,6 +215,16 @@ export const getVenues = async () => {
         image: "https://images.unsplash.com/photo-1571266028243-d220c2dc4bbe?w=600",
         description: "Music-focused bar with excellent acoustics and live performances.",
         rating: 4.5
+      },
+      { 
+        id: 5, 
+        name: "The Cave", 
+        location: "Jubilee Hills, Hyderabad", 
+        capacity: 150,
+        type: "Underground Club",
+        image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=600",
+        description: "An underground club experience with a focus on techno and house music.",
+        rating: 4.9
       }
     ]
   };

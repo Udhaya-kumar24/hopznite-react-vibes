@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel"
+import Autoplay from "embla-carousel-autoplay"
 import ParticlesBackground from '../components/ParticlesBackground';
 import { getDJList, getEvents, getVenues } from '../services/api';
 import { MapPin, Star, Calendar, Clock, Users, FileText, Globe, Music, Search, Filter } from 'lucide-react';
@@ -25,6 +27,8 @@ const Home = () => {
   const [selectedAvailability, setSelectedAvailability] = useState('all');
   const [eventFilter, setEventFilter] = useState('Upcoming');
   const [loading, setLoading] = useState(true);
+
+  const carouselPlugin = useRef(Autoplay({ delay: 3000, stopOnInteraction: false }));
 
   const genres = ['all', 'House', 'EDM', 'Techno', 'Hip Hop', 'R&B', 'Bollywood'];
   const eventFilters = ['Upcoming', 'This Weekend', 'Trending'];
@@ -67,7 +71,8 @@ const Home = () => {
     const matchesAvailability = selectedAvailability === 'all' || 
                                (selectedAvailability === 'available' && dj.available) ||
                                (selectedAvailability === 'busy' && !dj.available);
-    return matchesSearch && matchesGenre && matchesAvailability;
+    const matchesCity = selectedCity === 'all' || dj.location === selectedCity;
+    return matchesSearch && matchesGenre && matchesAvailability && matchesCity;
   });
 
   const filteredVenues = topVenues.filter(venue =>
@@ -118,6 +123,8 @@ const Home = () => {
       </CardContent>
     </Card>
   );
+
+  const carouselItems = [...upcomingEvents.slice(0, 5), ...topVenues.slice(0, 5)];
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -174,65 +181,56 @@ const Home = () => {
         transition={{ duration: 1 }}
       >
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between">
-            <motion.div 
-              className="flex-1"
-              initial={{ x: -100, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            >
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <Badge className="mb-4 bg-primary/20 text-primary border-primary/30">
-                  Summer Beach Party - May 28
-                </Badge>
-              </motion.div>
-              <motion.h1 
-                className="text-6xl font-bold text-foreground mb-4"
-                initial={{ y: 50, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-              >
-                Skyline Lounge
-              </motion.h1>
-              <motion.div 
-                className="flex items-center gap-2 text-muted-foreground mb-6"
-                initial={{ y: 30, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.6 }}
-              >
-                <MapPin className="w-4 h-4" />
-                <span>Mumbai, India</span>
-              </motion.div>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button size="lg" className="bg-primary hover:bg-primary/90">
-                  Explore Venue
-                </Button>
-              </motion.div>
-            </motion.div>
-            
-            <motion.div 
-              className="hidden lg:block"
-              initial={{ x: 100, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-            >
-              <motion.div 
-                className="w-96 h-64 bg-muted rounded-lg flex items-center justify-center"
-                whileHover={{ scale: 1.02, rotateY: 5 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <div className="w-16 h-16 bg-muted-foreground/20 rounded-full flex items-center justify-center">
-                  <Music className="w-8 h-8 text-muted-foreground" />
-                </div>
-              </motion.div>
-            </motion.div>
-          </div>
+          <Carousel
+            plugins={[carouselPlugin.current]}
+            className="w-full"
+            onMouseEnter={carouselPlugin.current.stop}
+            onMouseLeave={carouselPlugin.current.reset}
+          >
+            <CarouselContent>
+              {carouselItems.map((item, index) => (
+                <CarouselItem key={index}>
+                  <div className="p-1">
+                    <Card className="bg-card/80 backdrop-blur-sm">
+                      <CardContent className="flex flex-col md:flex-row items-center justify-between p-6">
+                        <div className="flex-1 mb-4 md:mb-0">
+                          <Badge className="mb-4 bg-primary/20 text-primary border-primary/30">
+                            {item.title ? 'Upcoming Event' : 'Top Venue'}
+                          </Badge>
+                          <h1 className="text-4xl lg:text-6xl font-bold text-foreground mb-4">
+                            {item.title || item.name}
+                          </h1>
+                          <div className="flex items-center gap-2 text-muted-foreground mb-6">
+                            <MapPin className="w-4 h-4" />
+                            <span>{item.location}</span>
+                          </div>
+                          <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <Button size="lg" className="bg-primary hover:bg-primary/90">
+                              {item.title ? 'Book Now' : 'Explore Venue'}
+                            </Button>
+                          </motion.div>
+                        </div>
+                        <motion.div 
+                          className="w-full md:w-96 h-64 bg-muted rounded-lg flex items-center justify-center"
+                          whileHover={{ scale: 1.02, rotateY: 5 }}
+                          transition={{ type: "spring", stiffness: 300 }}
+                        >
+                          <div className="w-16 h-16 bg-muted-foreground/20 rounded-full flex items-center justify-center">
+                            <Music className="w-8 h-8 text-muted-foreground" />
+                          </div>
+                        </motion.div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="hidden md:flex" />
+            <CarouselNext className="hidden md:flex" />
+          </Carousel>
         </div>
       </motion.section>
 
@@ -299,7 +297,7 @@ const Home = () => {
           </motion.div>
           
           <motion.div 
-            className="grid grid-cols-1 md:grid-cols-5 gap-6"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6"
             variants={containerVariants}
           >
             {loading ? (
@@ -390,7 +388,7 @@ const Home = () => {
           </motion.div>
           
           <motion.div 
-            className="grid grid-cols-1 md:grid-cols-5 gap-6"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6"
             variants={containerVariants}
           >
             {loading ? (
@@ -512,7 +510,7 @@ const Home = () => {
           </motion.div>
           
           <motion.div 
-            className="grid grid-cols-1 md:grid-cols-5 gap-6"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6"
             variants={containerVariants}
           >
             {loading ? (
@@ -601,7 +599,7 @@ const Home = () => {
           </motion.div>
           
           <motion.div 
-            className="grid grid-cols-1 md:grid-cols-5 gap-6"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
             variants={containerVariants}
           >
             {[
@@ -654,7 +652,7 @@ const Home = () => {
           <motion.p className="text-muted-foreground mb-12" variants={itemVariants}>
             The ultimate platform connecting DJs, venues, and music lovers across the globe
           </motion.p>
-          <motion.div className="grid grid-cols-1 md:grid-cols-5 gap-8" variants={containerVariants}>
+          <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-8" variants={containerVariants}>
             <motion.div className="text-center" variants={itemVariants}>
               <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center mx-auto mb-4">
                 <Music className="w-8 h-8 text-foreground" />
@@ -701,7 +699,7 @@ const Home = () => {
           <motion.p className="text-center text-muted-foreground mb-12" variants={itemVariants}>
             Hear from the people who use Hopznite every day
           </motion.p>
-          <motion.div className="grid grid-cols-1 md:grid-cols-5 gap-8" variants={containerVariants}>
+          <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-8" variants={containerVariants}>
             {[
               {
                 name: "Rahul Kumar",
@@ -783,20 +781,16 @@ const Home = () => {
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">Name</label>
-                    <Input placeholder="Your name" />
+                    <Input placeholder="Your name" required />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">Email</label>
-                    <Input placeholder="Your email" />
+                    <Input placeholder="Your email" type="email" required />
                   </div>
-                </div>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-foreground mb-2">Subject</label>
-                  <Input placeholder="Subject" />
                 </div>
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-foreground mb-2">Message</label>
-                  <Textarea placeholder="Your message" rows={4} />
+                  <Textarea placeholder="Your message" rows={4} required />
                 </div>
                 <Button className="w-full">Send Message</Button>
               </Card>
