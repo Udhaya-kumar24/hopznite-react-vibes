@@ -13,7 +13,7 @@ import Autoplay from "embla-carousel-autoplay"
 import ParticlesBackground from '../components/ParticlesBackground';
 import { getDJList, getEvents, getVenues } from '../services/api';
 import { MapPin, Star, Calendar, Clock, Users, FileText, Globe, Music, Search, Filter } from 'lucide-react';
-import { isThisWeekend, isFuture } from 'date-fns';
+import { isFuture, isSameWeek, isWeekend } from 'date-fns';
 
 const Home = () => {
   const [featuredDJs, setFeaturedDJs] = useState([]);
@@ -32,7 +32,7 @@ const Home = () => {
   const carouselPlugin = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }));
 
   const genres = ['all', 'House', 'EDM', 'Techno', 'Hip Hop', 'R&B', 'Bollywood'];
-  const eventFilters = ['Upcoming', 'This Weekend', 'Trending'];
+  const eventFilters = ['All', 'Upcoming', 'This Weekend', 'Trending'];
 
   useEffect(() => {
     const fetchFeaturedContent = async () => {
@@ -90,6 +90,10 @@ const Home = () => {
     
     if (!matchesSearch) return false;
 
+    if (eventFilter === 'All') {
+      return true;
+    }
+
     const eventDate = new Date(event.date);
 
     if (eventFilter === 'Upcoming') {
@@ -97,7 +101,7 @@ const Home = () => {
       return isFuture(eventDate) || new Date().toDateString() === eventDate.toDateString();
     }
     if (eventFilter === 'This Weekend') {
-      return isThisWeekend(eventDate);
+      return isWeekend(eventDate) && isSameWeek(eventDate, new Date(), { weekStartsOn: 1 });
     }
     if (eventFilter === 'Trending') {
       // Simple logic for trending: could be based on status or a specific flag
