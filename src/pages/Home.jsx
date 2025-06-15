@@ -108,7 +108,7 @@ const Home = () => {
       return event.status !== 'sold-out';
     }
     
-    return false;
+    return true;
   });
 
   // Animation variants
@@ -406,38 +406,41 @@ const Home = () => {
             </div>
           </motion.div>
           
-          <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6" variants={containerVariants}>
+          <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6" variants={containerVariants}>
             {loading ? (
               [...Array(5)].map((_, i) => <motion.div key={i} variants={itemVariants}><CardSkeleton /></motion.div>)
             ) : (
-              filteredEvents.slice(0, 5).map((event, index) => (
-                <motion.div key={event.id} variants={itemVariants} whileHover={{ y: -5 }} transition={{ type: "spring", stiffness: 300 }}>
-                  <Card className="bg-gray-900/50 border border-gray-800 overflow-hidden h-full">
-                    <div className="aspect-video bg-gray-800 relative">
-                      <img src={event.image} alt={event.title} className="w-full h-full object-cover"/>
-                      {index === 0 && <Badge className="absolute top-3 left-3 bg-yellow-400 text-black">Premium</Badge>}
-                    </div>
-                    <CardContent className="p-4">
-                      <h3 className="font-semibold text-white mb-2">{event.title}</h3>
-                      <div className="flex items-center text-sm text-gray-400 mb-1"><MapPin className="w-3 h-3 mr-1" />{event.venue}, {event.location}</div>
-                      <div className="flex items-center text-sm text-gray-400 mb-1"><Calendar className="w-3 h-3 mr-1" />{event.date}, {event.time}</div>
-                      <div className="flex items-center text-sm text-gray-400 mb-3"><Music className="w-3 h-3 mr-1" />{event.dj}</div>
-                      <div className="flex gap-1 mb-3"><Badge variant="secondary" className="bg-gray-700 text-gray-300">{event.genre}</Badge></div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-lg font-bold text-white">₹{event.price}</span>
-                        <Button asChild size="sm" className="bg-white text-black hover:bg-gray-200">
-                          <Link to={`/events/${event.id}`}>Book Now</Link>
-                        </Button>
+              filteredEvents.length > 0 ? (
+                filteredEvents.slice(0, 5).map((event) => (
+                  <motion.div key={event.id} variants={itemVariants} whileHover={{ y: -5 }} transition={{ type: "spring", stiffness: 300 }}>
+                    <Card className="bg-gray-900/50 border border-gray-800 overflow-hidden h-full group flex flex-col">
+                      <div className="aspect-video bg-gray-800 relative">
+                        <Link to={`/events/${event.id}`}>
+                          <img src={event.image} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
+                        </Link>
+                        {event.status === 'premium' && <Badge className="absolute top-3 left-3 bg-yellow-400 text-black z-10">Premium</Badge>}
                       </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))
-            )}
-            {filteredEvents.length === 0 && !loading && (
+                      <CardContent className="p-4 flex flex-col flex-grow">
+                        <h3 className="font-semibold text-white mb-2 truncate group-hover:text-primary">{event.title}</h3>
+                        <div className="flex items-center text-sm text-gray-400 mb-1"><MapPin className="w-4 h-4 mr-2 shrink-0" /> <span className="truncate">{event.venue}, {event.location}</span></div>
+                        <div className="flex items-center text-sm text-gray-400 mb-1"><Calendar className="w-4 h-4 mr-2 shrink-0" /> <span>{new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, {event.time}</span></div>
+                        <div className="flex items-center text-sm text-gray-400 mb-3"><Music className="w-4 h-4 mr-2 shrink-0" /> <span className="truncate">{event.dj}</span></div>
+                        <div className="flex gap-1 mb-3"><Badge variant="secondary" className="bg-gray-700 text-gray-300">{event.genre}</Badge></div>
+                        <div className="flex items-center justify-between mt-auto pt-2">
+                          <span className="text-lg font-bold text-white">₹{event.price}</span>
+                          <Button asChild size="sm" className="bg-white text-black hover:bg-gray-200">
+                            <Link to={`/events/${event.id}`}>Book Now</Link>
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))
+              ) : (
                 <div className="col-span-full text-center py-8">
                     <p className="text-gray-400">No events found matching your criteria.</p>
                 </div>
+              )
             )}
           </motion.div>
         </div>
