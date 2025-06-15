@@ -204,7 +204,7 @@ const Home = () => {
 
       {/* Hero Section */}
       <motion.section 
-        className="relative bg-background h-[250px] lg:h-[300px] z-10"
+        className="relative bg-background h-[250px] md:h-[300px] z-10"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
@@ -271,7 +271,7 @@ const Home = () => {
           </motion.div>
           
           <motion.div 
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
             variants={containerVariants}
           >
             {loading ? (
@@ -301,7 +301,7 @@ const Home = () => {
             <Link to="/venues" className="text-primary hover:text-primary/90 font-medium">View All Venues →</Link>
           </motion.div>
           
-          <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6" variants={containerVariants}>
+          <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6" variants={containerVariants}>
             {loading ? (
               [...Array(5)].map((_, i) => <motion.div key={i} variants={itemVariants}><CardSkeleton /></motion.div>)
             ) : (
@@ -354,7 +354,7 @@ const Home = () => {
             </div>
           </motion.div>
           
-          <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6" variants={containerVariants}>
+          <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6" variants={containerVariants}>
             {loading ? (
               [...Array(5)].map((_, i) => <motion.div key={i} variants={itemVariants}><CardSkeleton /></motion.div>)
             ) : (
@@ -404,7 +404,7 @@ const Home = () => {
             </div>
             <Link to="/companies" className="text-primary hover:text-primary/90 font-medium">View All Companies →</Link>
           </motion.div>
-          <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6" variants={containerVariants}>
+          <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" variants={containerVariants}>
             {[
               { name: 'EventPro', rating: 4.8, description: 'Full-service event management for corporate and private events', events: '120 events organized', avatar: 'E' },
               { name: 'Celebration Masters', rating: 4.7, description: 'Specializing in weddings and large-scale celebrations', events: '85 events organized', avatar: 'C' },
