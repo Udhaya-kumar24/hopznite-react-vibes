@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -237,7 +238,7 @@ const DJs = () => {
           </motion.div>
 
           <motion.div 
-            className="grid grid-cols-2 md:grid-cols-5 gap-6"
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
@@ -263,7 +264,7 @@ const DJs = () => {
                         whileHover={{ rotate: 360 }}
                         transition={{ duration: 0.6 }}
                       >
-                        <span className="text-2xl font-bold text-foreground">{dj.name.charAt(0)}</span>
+                        <img src={dj.image} alt={dj.name} className="w-full h-full object-cover rounded-full" />
                       </motion.div>
                       <Badge className={`status-badge mb-2 ${dj.available ? 'status-available' : 'status-busy'}`}>
                         {dj.available ? 'Available' : 'Busy'}
@@ -274,16 +275,17 @@ const DJs = () => {
                         <span className="text-sm text-muted-foreground ml-1">{dj.rating}</span>
                       </div>
                       <div className="flex gap-1 justify-center mb-3 flex-wrap">
-                        <Badge variant="secondary" className="text-xs">{dj.genre}</Badge>
-                        <Badge variant="secondary" className="text-xs">EDM</Badge>
+                        {(dj.genres || [dj.genre]).slice(0, 2).map((g) => <Badge key={g} variant="secondary" className="text-xs">{g}</Badge>)}
                       </div>
                       <motion.div
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
-                        <Button variant="outline" size="sm" className="w-full hover:bg-primary hover:text-primary-foreground transition-all duration-200">
-                          View Profile
-                        </Button>
+                        <Link to={`/djs/${dj.id}`}>
+                          <Button variant="outline" size="sm" className="w-full hover:bg-primary hover:text-primary-foreground transition-all duration-200">
+                            View Profile
+                          </Button>
+                        </Link>
                       </motion.div>
                     </div>
                   </Card>

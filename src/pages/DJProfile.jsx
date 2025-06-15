@@ -1,33 +1,72 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Star, MapPin, Music, Calendar, DollarSign } from 'lucide-react';
+import { getDJById } from '../services/api';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const DJProfile = () => {
   const { id } = useParams();
+  const [dj, setDj] = useState(null);
+  const [loading, setLoading] = useState(true);
   
-  // Mock DJ data - replace with API call
-  const dj = {
-    id: 1,
-    name: "DJ Sonic",
-    genre: "EDM",
-    rating: 4.8,
-    price: 25000,
-    location: "Mumbai",
-    image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400",
-    bio: "Professional DJ with 8+ years of experience in electronic dance music. Specializing in creating unforgettable nightlife experiences.",
-    experience: "8+ years",
-    equipment: "Pioneer DJ, Sound System, Lighting",
-    genres: ["EDM", "House", "Techno", "Progressive"],
-    availability: ["Friday", "Saturday", "Sunday"],
-    reviews: [
-      { id: 1, name: "Club Infinity", rating: 5, comment: "Amazing performance! The crowd loved it." },
-      { id: 2, name: "Bar Revolution", rating: 4, comment: "Great music selection and energy." }
-    ]
-  };
+  useEffect(() => {
+    const fetchDj = async () => {
+      if (!id) return;
+      setLoading(true);
+      try {
+        const response = await getDJById(id);
+        if (response.success) {
+          setDj(response.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch DJ details", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDj();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex flex-col md:flex-row gap-6">
+                  <Skeleton className="w-full md:w-48 h-48 rounded-lg" />
+                  <div className="flex-1 space-y-4">
+                    <Skeleton className="h-8 w-3/4" />
+                    <Skeleton className="h-5 w-1/2" />
+                    <Skeleton className="h-20 w-full" />
+                    <Skeleton className="h-6 w-1/4" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          <div>
+            <Card>
+              <CardHeader><Skeleton className="h-6 w-1/2" /></CardHeader>
+              <CardContent className="space-y-4">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!dj) {
+    return <div className="container mx-auto p-6 text-center text-lg">DJ not found.</div>;
+  }
 
   return (
     <div className="container mx-auto p-6">
@@ -96,7 +135,7 @@ const DJProfile = () => {
         <div>
           <Card>
             <CardHeader>
-              <CardTitle>Book DJ Sonic</CardTitle>
+              <CardTitle>Book {dj.name}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <Button className="w-full" size="lg">

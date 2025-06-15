@@ -58,7 +58,8 @@ export const getDJList = async () => {
       { 
         id: 1, 
         name: "DJ Sonic", 
-        genre: "EDM", 
+        genre: "EDM",
+        genres: ["EDM", "House", "Techno"],
         rating: 4.8, 
         price: 25000,
         location: "Mumbai",
@@ -70,6 +71,7 @@ export const getDJList = async () => {
         id: 2, 
         name: "DJ Blaze", 
         genre: "Hip-hop", 
+        genres: ["Hip-hop", "R&B"],
         rating: 4.6,
         price: 20000,
         location: "Delhi",
@@ -80,7 +82,8 @@ export const getDJList = async () => {
       { 
         id: 3, 
         name: "DJ Luna", 
-        genre: "House", 
+        genre: "House",
+        genres: ["House", "Deep House", "Progressive"],
         rating: 4.9,
         price: 30000,
         location: "Bangalore",
@@ -91,7 +94,8 @@ export const getDJList = async () => {
       { 
         id: 4, 
         name: "DJ Storm", 
-        genre: "Techno", 
+        genre: "Techno",
+        genres: ["Techno", "Minimal"],
         rating: 4.7,
         price: 28000,
         location: "Chennai",
@@ -102,7 +106,8 @@ export const getDJList = async () => {
       { 
         id: 5, 
         name: "DJ Vibe", 
-        genre: "Trance", 
+        genre: "Trance",
+        genres: ["Trance", "Psy-Trance"],
         rating: 4.8,
         price: 32000,
         location: "Hyderabad",
@@ -113,7 +118,8 @@ export const getDJList = async () => {
       { 
         id: 6, 
         name: "DJ Retro", 
-        genre: "Bollywood", 
+        genre: "Bollywood",
+        genres: ["Bollywood", "Retro", "Commercial"],
         rating: 4.5,
         price: 22000,
         location: "Chennai",
@@ -125,6 +131,7 @@ export const getDJList = async () => {
         id: 7, 
         name: "DJ Ace", 
         genre: "R&B", 
+        genres: ["R&B", "Hip-hop", "Soul"],
         rating: 4.7,
         price: 26000,
         location: "Mumbai",
@@ -135,7 +142,8 @@ export const getDJList = async () => {
       { 
         id: 8, 
         name: "DJ Flash", 
-        genre: "EDM", 
+        genre: "EDM",
+        genres: ["EDM", "Big Room", "Electro House"],
         rating: 4.9,
         price: 35000,
         location: "Delhi",
@@ -147,6 +155,7 @@ export const getDJList = async () => {
         id: 9, 
         name: "DJ Queen", 
         genre: "Hip-hop", 
+        genres: ["Hip-hop", "Trap"],
         rating: 4.8,
         price: 29000,
         location: "Chennai",
@@ -157,7 +166,8 @@ export const getDJList = async () => {
       { 
         id: 10, 
         name: "DJ Zenith", 
-        genre: "Techno", 
+        genre: "Techno",
+        genres: ["Techno", "Industrial"],
         rating: 4.6,
         price: 27000,
         location: "Bangalore",
@@ -166,6 +176,36 @@ export const getDJList = async () => {
         bio: "Deep and dark techno journeys."
       }
     ]
+  };
+};
+
+export const getDJById = async (id) => {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  const djsResponse = await getDJList();
+  if (!djsResponse.success) {
+    return { success: false, data: null };
+  }
+  const dj = djsResponse.data.find(d => d.id === parseInt(id));
+
+  if (!dj) {
+    return { success: false, data: null };
+  }
+
+  // Add more detailed mock data for the profile page
+  const detailedDj = {
+    ...dj,
+    experience: "8+ years",
+    equipment: "Pioneer DJ, Sound System, Lighting",
+    availability: ["Friday", "Saturday", "Sunday"],
+    reviews: [
+      { id: 1, name: "Club Infinity", rating: 5, comment: "Amazing performance! The crowd loved it." },
+      { id: 2, name: "Bar Revolution", rating: 4, comment: "Great music selection and energy." }
+    ]
+  };
+  
+  return {
+    success: true,
+    data: detailedDj
   };
 };
 
