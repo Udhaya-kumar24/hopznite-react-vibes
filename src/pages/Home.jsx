@@ -14,7 +14,7 @@ import ParticlesBackground from '../components/ParticlesBackground';
 import { getDJList, getEvents, getVenues } from '../services/api';
 import DJCard from '../components/DJCard';
 import { MapPin, Star, Calendar, Clock, Users, FileText, Globe, Music, Search, Filter } from 'lucide-react';
-import { isFuture, isSameWeek, isWeekend, isToday } from 'date-fns';
+import { isFuture, isToday, isWeekend } from 'date-fns';
 
 const Home = () => {
   const [featuredDJs, setFeaturedDJs] = useState([]);
@@ -200,7 +200,7 @@ const Home = () => {
 
 
   return (
-    <div className="min-h-screen bg-background text-muted-foreground relative">
+    <div className="min-h-screen bg-background/70 text-foreground relative backdrop-blur-sm">
       <ParticlesBackground />
       
       {/* Header Section with Location */}
@@ -245,7 +245,7 @@ const Home = () => {
 
       {/* Hero Section */}
       <motion.section 
-        className="relative bg-background h-[300px] md:h-[350px] z-10"
+        className="relative bg-background h-[250px] md:h-[300px] z-10"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
