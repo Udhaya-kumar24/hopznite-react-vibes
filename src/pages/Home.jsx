@@ -204,7 +204,7 @@ const Home = () => {
 
       {/* Hero Section */}
       <motion.section 
-        className="relative bg-background h-[250px] md:h-[300px] z-10"
+        className="relative bg-background h-[250px] lg:h-[300px] z-10"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
@@ -411,7 +411,7 @@ const Home = () => {
               { name: 'NightLife Events', rating: 4.9, description: 'Experts in club events and music festivals', events: '150 events organized', avatar: 'N' },
               { name: 'Corporate Connect', rating: 4.6, description: 'Business conferences and corporate entertainment', events: '95 events organized', avatar: 'C' },
               { name: 'Gala Planners', rating: 4.8, description: 'High-end galas and charity events.', events: '70 events organized', avatar: 'G' }
-            ].map((company, index) => (
+            ].slice(0, 4).map((company, index) => (
               <motion.div key={company.name} variants={itemVariants} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
                 <Card className="bg-card border-border p-6 h-full">
                   <div className="flex items-center mb-4">
@@ -503,7 +503,7 @@ const Home = () => {
             </motion.div>
 
             <motion.div variants={itemVariants}>
-              <Card className="bg-card border-border p-6">
+              <Card className="bg-card border-border p-8">
                 <form className="space-y-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div>
