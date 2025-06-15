@@ -141,16 +141,16 @@ const Home = () => {
   };
 
   const CardSkeleton = ({ className = "" }) => (
-    <Card className={`overflow-hidden bg-gray-900/50 border border-gray-800 ${className}`}>
+    <Card className={`overflow-hidden bg-card/80 border border-border ${className}`}>
       <div className="aspect-video">
-        <Skeleton className="w-full h-full bg-gray-800" />
+        <Skeleton className="w-full h-full bg-muted" />
       </div>
       <CardContent className="p-4">
-        <Skeleton className="h-6 w-3/4 mb-2 bg-gray-700" />
-        <Skeleton className="h-4 w-1/2 mb-1 bg-gray-700" />
-        <Skeleton className="h-4 w-2/3 mb-3 bg-gray-700" />
+        <Skeleton className="h-6 w-3/4 mb-2 bg-muted" />
+        <Skeleton className="h-4 w-1/2 mb-1 bg-muted" />
+        <Skeleton className="h-4 w-2/3 mb-3 bg-muted" />
         <div className="flex gap-2">
-          <Skeleton className="h-8 flex-1 bg-gray-700" />
+          <Skeleton className="h-8 flex-1 bg-muted" />
         </div>
       </CardContent>
     </Card>
@@ -159,39 +159,39 @@ const Home = () => {
   const carouselItems = [...upcomingEvents.slice(0, 5), ...topVenues.slice(0, 5)];
 
   const HomeFooter = () => (
-    <motion.footer className="bg-black text-gray-400 py-12 px-4" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={containerVariants}>
+    <motion.footer className="bg-background text-muted-foreground py-12 px-4 border-t border-border" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={containerVariants}>
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
           <motion.div className="md:col-span-2" variants={itemVariants}>
-            <h3 className="text-2xl font-bold text-white mb-4 flex items-center"><Music className="mr-2" /> Hopznite</h3>
+            <h3 className="text-2xl font-bold text-foreground mb-4 flex items-center"><Music className="mr-2" /> Hopznite</h3>
             <p className="pr-8">Connecting the global entertainment industry.</p>
           </motion.div>
           <motion.div variants={itemVariants}>
-            <h4 className="font-semibold text-white mb-4">Platform</h4>
+            <h4 className="font-semibold text-foreground mb-4">Platform</h4>
             <ul className="space-y-2">
-              <li><Link to="/features" className="hover:text-white">Features</Link></li>
-              <li><Link to="/pricing" className="hover:text-white">Pricing</Link></li>
-              <li><Link to="/faq" className="hover:text-white">FAQ</Link></li>
+              <li><Link to="/features" className="hover:text-foreground">Features</Link></li>
+              <li><Link to="/pricing" className="hover:text-foreground">Pricing</Link></li>
+              <li><Link to="/faq" className="hover:text-foreground">FAQ</Link></li>
             </ul>
           </motion.div>
           <motion.div variants={itemVariants}>
-            <h4 className="font-semibold text-white mb-4">Company</h4>
+            <h4 className="font-semibold text-foreground mb-4">Company</h4>
             <ul className="space-y-2">
-              <li><Link to="/about" className="hover:text-white">About</Link></li>
-              <li><Link to="/blog" className="hover:text-white">Blog</Link></li>
-              <li><Link to="/careers" className="hover:text-white">Careers</Link></li>
+              <li><Link to="/about" className="hover:text-foreground">About</Link></li>
+              <li><Link to="/blog" className="hover:text-foreground">Blog</Link></li>
+              <li><Link to="/careers" className="hover:text-foreground">Careers</Link></li>
             </ul>
           </motion.div>
           <motion.div variants={itemVariants}>
-            <h4 className="font-semibold text-white mb-4">Connect</h4>
+            <h4 className="font-semibold text-foreground mb-4">Connect</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="hover:text-white">Twitter</a></li>
-              <li><a href="#" className="hover:text-white">Instagram</a></li>
-              <li><a href="#" className="hover:text-white">Facebook</a></li>
+              <li><a href="#" className="hover:text-foreground">Twitter</a></li>
+              <li><a href="#" className="hover:text-foreground">Instagram</a></li>
+              <li><a href="#" className="hover:text-foreground">Facebook</a></li>
             </ul>
           </motion.div>
         </div>
-        <div className="mt-12 border-t border-gray-800 pt-8 text-center text-sm">
+        <div className="mt-12 border-t border-border pt-8 text-center text-sm">
           <p>&copy; {new Date().getFullYear()} Hopznite. All rights reserved.</p>
         </div>
       </div>
@@ -200,12 +200,12 @@ const Home = () => {
 
 
   return (
-    <div className="min-h-screen bg-black text-gray-300 relative">
+    <div className="min-h-screen bg-background text-muted-foreground relative">
       <ParticlesBackground />
       
       {/* Header Section with Location */}
       <motion.section 
-        className="bg-black border-b border-gray-800 py-3 sticky top-0 z-20"
+        className="bg-background/80 backdrop-blur-sm border-b border-border py-3 sticky top-0 z-20"
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6 }}
@@ -213,22 +213,22 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-white" />
-              <span className="text-white">Location:</span>
+              <MapPin className="w-4 h-4 text-foreground" />
+              <span className="text-foreground">Location:</span>
             </div>
             <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-              <SelectTrigger className="w-32 bg-gray-900 border-gray-700 text-white">
+              <SelectTrigger className="w-32 bg-input border-border text-foreground">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-700 text-white">
+              <SelectContent>
                 <SelectItem value="India">India</SelectItem>
               </SelectContent>
             </Select>
             <Select value={selectedCity} onValueChange={setSelectedCity}>
-              <SelectTrigger className="w-32 bg-gray-900 border-gray-700 text-white">
+              <SelectTrigger className="w-32 bg-input border-border text-foreground">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-700 text-white">
+              <SelectContent>
                 <SelectItem value="Chennai">Chennai</SelectItem>
                 <SelectItem value="Mumbai">Mumbai</SelectItem>
                 <SelectItem value="Delhi">Delhi</SelectItem>
@@ -245,7 +245,7 @@ const Home = () => {
 
       {/* Hero Section */}
       <motion.section 
-        className="relative bg-black h-[60vh] lg:h-[500px] z-10"
+        className="relative bg-background h-[300px] md:h-[350px] z-10"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
@@ -305,10 +305,10 @@ const Home = () => {
         <div className="max-w-7xl mx-auto">
           <motion.div className="flex justify-between items-center mb-8" variants={itemVariants}>
             <div>
-              <h2 className="text-3xl font-bold text-white mb-2">Top DJs in {selectedCity}</h2>
-              <p className="text-gray-400">Book the best talent for your next event</p>
+              <h2 className="text-3xl font-bold text-foreground mb-2">Top DJs in {selectedCity}</h2>
+              <p className="text-muted-foreground">Book the best talent for your next event</p>
             </div>
-            <Link to="/djs" className="text-white hover:text-gray-300 font-medium">View All DJs →</Link>
+            <Link to="/djs" className="text-primary hover:text-primary/90 font-medium">View All DJs →</Link>
           </motion.div>
           
           <motion.div 
@@ -324,7 +324,7 @@ const Home = () => {
             )}
             {filteredDJs.length === 0 && !loading && (
                 <div className="col-span-full text-center py-8">
-                    <p className="text-gray-400">No DJs found matching your criteria.</p>
+                    <p className="text-muted-foreground">No DJs found matching your criteria.</p>
                 </div>
             )}
           </motion.div>
@@ -332,14 +332,14 @@ const Home = () => {
       </motion.section>
 
       {/* Section 3: Top Resto Bars */}
-      <motion.section className="py-16 px-4 bg-black z-10 relative" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={containerVariants}>
+      <motion.section className="py-16 px-4 bg-muted/40 z-10 relative" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={containerVariants}>
         <div className="max-w-7xl mx-auto">
            <motion.div className="flex justify-between items-center mb-8" variants={itemVariants}>
             <div>
-              <h2 className="text-3xl font-bold text-white mb-2">Top Resto Bars in {selectedCity}</h2>
-              <p className="text-gray-400">Discover the best venues for your night out</p>
+              <h2 className="text-3xl font-bold text-foreground mb-2">Top Resto Bars in {selectedCity}</h2>
+              <p className="text-muted-foreground">Discover the best venues for your night out</p>
             </div>
-            <Link to="/venues" className="text-white hover:text-gray-300 font-medium">View All Venues →</Link>
+            <Link to="/venues" className="text-primary hover:text-primary/90 font-medium">View All Venues →</Link>
           </motion.div>
           
           <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6" variants={containerVariants}>
@@ -348,18 +348,18 @@ const Home = () => {
             ) : (
               filteredVenues.slice(0, 5).map((venue) => (
                 <motion.div key={venue.id} variants={itemVariants} whileHover={{ y: -5 }} transition={{ type: "spring", stiffness: 300 }}>
-                  <Card className="bg-gray-900/50 border border-gray-800 overflow-hidden h-full">
-                    <div className="aspect-video bg-gray-800 relative">
+                  <Card className="bg-card border-border overflow-hidden h-full">
+                    <div className="aspect-video bg-muted relative">
                        <img src={venue.image} alt={venue.name} className="w-full h-full object-cover"/>
                        <Badge className="absolute top-3 right-3 bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"><Star className="w-3 h-3 mr-1" />{venue.rating}</Badge>
                     </div>
                     <CardContent className="p-4">
-                      <h3 className="font-semibold text-white mb-1">{venue.name}</h3>
-                      <div className="flex items-center text-sm text-gray-400 mb-2"><MapPin className="w-3 h-3 mr-1" />{venue.location}</div>
-                      <div className="flex items-center text-sm text-gray-400 mb-3"><Calendar className="w-3 h-3 mr-1" />3 upcoming events</div>
-                      <Badge variant="secondary" className="mb-3 bg-gray-700 text-gray-300">{venue.type}</Badge>
+                      <h3 className="font-semibold text-card-foreground mb-1">{venue.name}</h3>
+                      <div className="flex items-center text-sm text-muted-foreground mb-2"><MapPin className="w-3 h-3 mr-1" />{venue.location}</div>
+                      <div className="flex items-center text-sm text-muted-foreground mb-3"><Calendar className="w-3 h-3 mr-1" />3 upcoming events</div>
+                      <Badge variant="secondary" className="mb-3">{venue.type}</Badge>
                       <div className="flex gap-2">
-                        <Link to={`/venues/${venue.id}`} className="flex-1"><Button variant="outline" size="sm" className="w-full bg-transparent border-gray-600 hover:bg-white hover:text-black">View Venue</Button></Link>
+                        <Link to={`/venues/${venue.id}`} className="flex-1"><Button variant="outline" size="sm" className="w-full">View Venue</Button></Link>
                         <Button size="sm" className="w-full flex-1">See Events</Button>
                       </div>
                     </CardContent>
@@ -369,7 +369,7 @@ const Home = () => {
             )}
             {filteredVenues.length === 0 && !loading && (
                 <div className="col-span-full text-center py-8">
-                    <p className="text-gray-400">No venues found matching your criteria.</p>
+                    <p className="text-muted-foreground">No venues found matching your criteria.</p>
                 </div>
             )}
           </motion.div>
@@ -381,16 +381,16 @@ const Home = () => {
         <div className="max-w-7xl mx-auto">
           <motion.div className="flex justify-between items-center mb-8" variants={itemVariants}>
             <div>
-              <h2 className="text-3xl font-bold text-white mb-2">Upcoming Events in {selectedCity}</h2>
-              <p className="text-gray-400">Don't miss out on the hottest events</p>
+              <h2 className="text-3xl font-bold text-foreground mb-2">Upcoming Events in {selectedCity}</h2>
+              <p className="text-muted-foreground">Don't miss out on the hottest events</p>
             </div>
-            <Link to="/events" className="text-white hover:text-gray-300 font-medium">View All Events →</Link>
+            <Link to="/events" className="text-primary hover:text-primary/90 font-medium">View All Events →</Link>
           </motion.div>
 
           <motion.div className="mb-6 space-y-4" variants={itemVariants}>
             <div className="flex gap-4 mb-4">
               {eventFilters.map((filter) => (
-                <motion.button key={filter} onClick={() => setEventFilter(filter)} className={`px-4 py-2 rounded-lg border transition-all duration-200 ${eventFilter === filter ? 'bg-primary text-primary-foreground border-primary' : 'bg-transparent border-gray-600 text-gray-300 hover:border-white/50'}`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>{filter}</motion.button>
+                <motion.button key={filter} onClick={() => setEventFilter(filter)} className={`px-4 py-2 rounded-lg border transition-all duration-200 ${eventFilter === filter ? 'bg-primary text-primary-foreground border-primary' : 'bg-transparent border-border text-foreground hover:bg-accent'}`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>{filter}</motion.button>
               ))}
             </div>
           </motion.div>
@@ -402,22 +402,22 @@ const Home = () => {
               filteredEvents.length > 0 ? (
                 filteredEvents.slice(0, 5).map((event) => (
                   <motion.div key={event.id} variants={itemVariants} whileHover={{ y: -5 }} transition={{ type: "spring", stiffness: 300 }}>
-                    <Card className="bg-gray-900/50 border border-gray-800 overflow-hidden h-full group flex flex-col">
-                      <div className="aspect-video bg-gray-800 relative">
+                    <Card className="bg-card border-border overflow-hidden h-full group flex flex-col">
+                      <div className="aspect-video bg-muted relative">
                         <Link to={`/events/${event.id}`}>
                           <img src={event.image} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
                         </Link>
                         {event.status === 'premium' && <Badge className="absolute top-3 left-3 bg-yellow-400 text-black z-10">Premium</Badge>}
                       </div>
                       <CardContent className="p-4 flex flex-col flex-grow">
-                        <h3 className="font-semibold text-white mb-2 truncate group-hover:text-primary">{event.title}</h3>
-                        <div className="flex items-center text-sm text-gray-400 mb-1"><MapPin className="w-4 h-4 mr-2 shrink-0" /> <span className="truncate">{event.venue}, {event.location}</span></div>
-                        <div className="flex items-center text-sm text-gray-400 mb-1"><Calendar className="w-4 h-4 mr-2 shrink-0" /> <span>{new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, {event.time}</span></div>
-                        <div className="flex items-center text-sm text-gray-400 mb-3"><Music className="w-4 h-4 mr-2 shrink-0" /> <span className="truncate">{event.dj}</span></div>
-                        <div className="flex gap-1 mb-3"><Badge variant="secondary" className="bg-gray-700 text-gray-300">{event.genre}</Badge></div>
+                        <h3 className="font-semibold text-card-foreground mb-2 truncate group-hover:text-primary">{event.title}</h3>
+                        <div className="flex items-center text-sm text-muted-foreground mb-1"><MapPin className="w-4 h-4 mr-2 shrink-0" /> <span className="truncate">{event.venue}, {event.location}</span></div>
+                        <div className="flex items-center text-sm text-muted-foreground mb-1"><Calendar className="w-4 h-4 mr-2 shrink-0" /> <span>{new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, {event.time}</span></div>
+                        <div className="flex items-center text-sm text-muted-foreground mb-3"><Music className="w-4 h-4 mr-2 shrink-0" /> <span className="truncate">{event.dj}</span></div>
+                        <div className="flex gap-1 mb-3"><Badge variant="secondary">{event.genre}</Badge></div>
                         <div className="flex items-center justify-between mt-auto pt-2">
-                          <span className="text-lg font-bold text-white">₹{event.price}</span>
-                          <Button asChild size="sm" className="bg-white text-black hover:bg-gray-200">
+                          <span className="text-lg font-bold text-foreground">₹{event.price}</span>
+                          <Button asChild size="sm">
                             <Link to={`/events/${event.id}`}>Book Now</Link>
                           </Button>
                         </div>
@@ -427,7 +427,7 @@ const Home = () => {
                 ))
               ) : (
                 <div className="col-span-full text-center py-8">
-                    <p className="text-gray-400">No events found matching your criteria.</p>
+                    <p className="text-muted-foreground">No events found matching your criteria.</p>
                 </div>
               )
             )}
@@ -436,14 +436,14 @@ const Home = () => {
       </motion.section>
 
       {/* Section 5: Top Event Management Companies */}
-      <motion.section className="py-16 px-4 bg-black z-10 relative" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={containerVariants}>
+      <motion.section className="py-16 px-4 bg-muted/40 z-10 relative" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={containerVariants}>
         <div className="max-w-7xl mx-auto">
            <motion.div className="flex justify-between items-center mb-8" variants={itemVariants}>
             <div>
-              <h2 className="text-3xl font-bold text-white mb-2">Top Event Management Companies</h2>
-              <p className="text-gray-400">Professional event planners in {selectedCity}</p>
+              <h2 className="text-3xl font-bold text-foreground mb-2">Top Event Management Companies</h2>
+              <p className="text-muted-foreground">Professional event planners in {selectedCity}</p>
             </div>
-            <Link to="/companies" className="text-white hover:text-gray-300 font-medium">View All Companies →</Link>
+            <Link to="/companies" className="text-primary hover:text-primary/90 font-medium">View All Companies →</Link>
           </motion.div>
           <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6" variants={containerVariants}>
             {[
@@ -454,17 +454,17 @@ const Home = () => {
               { name: 'Gala Planners', rating: 4.8, description: 'High-end galas and charity events.', events: '70 events organized', avatar: 'G' }
             ].map((company, index) => (
               <motion.div key={company.name} variants={itemVariants} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
-                <Card className="bg-gray-900/50 border border-gray-800 p-6 h-full">
+                <Card className="bg-card border-border p-6 h-full">
                   <div className="flex items-center mb-4">
-                    <div className="w-12 h-12 bg-gray-900 border border-gray-800 rounded-full flex items-center justify-center mr-3"><span className="text-white font-bold">{company.avatar}</span></div>
+                    <div className="w-12 h-12 bg-muted border-border rounded-full flex items-center justify-center mr-3"><span className="text-foreground font-bold">{company.avatar}</span></div>
                     <div>
-                      <h3 className="font-semibold text-white">{company.name}</h3>
-                      <div className="flex items-center"><Star className="w-4 h-4 text-yellow-400 fill-current" /><span className="text-sm text-gray-400 ml-1">{company.rating}</span></div>
+                      <h3 className="font-semibold text-card-foreground">{company.name}</h3>
+                      <div className="flex items-center"><Star className="w-4 h-4 text-yellow-400 fill-current" /><span className="text-sm text-muted-foreground ml-1">{company.rating}</span></div>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-400 mb-3">{company.description}</p>
-                  <div className="flex items-center text-sm text-gray-400 mb-4"><Calendar className="w-3 h-3 mr-1" />{company.events}</div>
-                  <Button variant="outline" size="sm" className="w-full bg-transparent border-gray-600 hover:bg-white hover:text-black">View Profile</Button>
+                  <p className="text-sm text-muted-foreground mb-3">{company.description}</p>
+                  <div className="flex items-center text-sm text-muted-foreground mb-4"><Calendar className="w-3 h-3 mr-1" />{company.events}</div>
+                  <Button variant="outline" size="sm" className="w-full">View Profile</Button>
                 </Card>
               </motion.div>
             ))}
@@ -473,51 +473,53 @@ const Home = () => {
       </motion.section>
 
       {/* Section 6: Why Choose Hopznite */}
-      <motion.section className="py-16 px-4 bg-black z-10 relative" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={containerVariants}>
+      <motion.section className="py-16 px-4 z-10 relative" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={containerVariants}>
         <div className="max-w-7xl mx-auto text-center">
-          <motion.h2 className="text-3xl font-bold text-white mb-4" variants={itemVariants}>Why Choose Hopznite</motion.h2>
-          <motion.p className="text-gray-400 mb-12" variants={itemVariants}>The ultimate platform connecting DJs, venues, and music lovers across the globe</motion.p>
+          <motion.h2 className="text-3xl font-bold text-foreground mb-4" variants={itemVariants}>Why Choose Hopznite</motion.h2>
+          <motion.p className="text-muted-foreground mb-12" variants={itemVariants}>The ultimate platform connecting DJs, venues, and music lovers across the globe</motion.p>
           <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-8" variants={containerVariants}>
             <motion.div className="text-center" variants={itemVariants}>
-              <div className="w-16 h-16 bg-gray-900 border border-gray-800 rounded-full flex items-center justify-center mx-auto mb-4"><Music className="w-8 h-8 text-white" /></div>
-              <h3 className="text-xl font-semibold text-white mb-2">Top Talent</h3>
-              <p className="text-gray-400">Access to the best DJs and venues, all vetted and rated by our community</p>
+              <div className="w-16 h-16 bg-muted border-border rounded-full flex items-center justify-center mx-auto mb-4"><Music className="w-8 h-8 text-foreground" /></div>
+              <h3 className="text-xl font-semibold text-foreground mb-2">Top Talent</h3>
+              <p className="text-muted-foreground">Access to the best DJs and venues, all vetted and rated by our community</p>
             </motion.div>
             <motion.div className="text-center" variants={itemVariants}>
-              <div className="w-16 h-16 bg-gray-900 border border-gray-800 rounded-full flex items-center justify-center mx-auto mb-4"><Calendar className="w-8 h-8 text-white" /></div>
-              <h3 className="text-xl font-semibold text-white mb-2">Seamless Booking</h3>
-              <p className="text-gray-400">Easy-to-use platform for finding and booking events or talent with just a few clicks</p>
+              <div className="w-16 h-16 bg-muted border-border rounded-full flex items-center justify-center mx-auto mb-4"><Calendar className="w-8 h-8 text-foreground" /></div>
+              <h3 className="text-xl font-semibold text-foreground mb-2">Seamless Booking</h3>
+              <p className="text-muted-foreground">Easy-to-use platform for finding and booking events or talent with just a few clicks</p>
             </motion.div>
             <motion.div className="text-center" variants={itemVariants}>
-              <div className="w-16 h-16 bg-gray-900 border border-gray-800 rounded-full flex items-center justify-center mx-auto mb-4"><Users className="w-8 h-8 text-white" /></div>
-              <h3 className="text-xl font-semibold text-white mb-2">Global Community</h3>
-              <p className="text-gray-400">Join a worldwide network of music enthusiasts, professionals, and venues</p>
+              <div className="w-16 h-16 bg-muted border-border rounded-full flex items-center justify-center mx-auto mb-4"><Users className="w-8 h-8 text-foreground" /></div>
+              <h3 className="text-xl font-semibold text-foreground mb-2">Global Community</h3>
+              <p className="text-muted-foreground">Join a worldwide network of music enthusiasts, professionals, and venues</p>
             </motion.div>
           </motion.div>
         </div>
       </motion.section>
 
       {/* Section 7: Testimonials */}
-       <motion.section className="py-16 px-4 bg-black z-10 relative" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={containerVariants}>
+       <motion.section className="py-16 px-4 bg-muted/40 z-10 relative" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={containerVariants}>
         <div className="max-w-7xl mx-auto">
-          <motion.h2 className="text-3xl font-bold text-white text-center mb-4" variants={itemVariants}>What Our Users Say</motion.h2>
-          <motion.p className="text-center text-gray-400 mb-12" variants={itemVariants}>Hear from the people who use Hopznite every day</motion.p>
+          <motion.h2 className="text-3xl font-bold text-foreground text-center mb-4" variants={itemVariants}>What Our Users Say</motion.h2>
+          <motion.p className="text-center text-muted-foreground mb-12" variants={itemVariants}>Hear from the people who use Hopznite every day</motion.p>
           <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-8" variants={containerVariants}>
             {[
               { name: "Rahul Kumar", role: "DJ", rating: 5, text: "Hopznite has transformed my career as a DJ. I'm getting more bookings than ever, and the platform makes it easy to manage my schedule and connect with venues." },
               { name: "Sanjay Patel", role: "Venue Owner", rating: 5, text: "Finding the right DJ for our events used to be a nightmare. With Hopznite, we can browse profiles, check availability, and book instantly. It's been a game-changer for our business." },
               { name: "Priya Gupta", role: "Customer", rating: 5, text: "The premium membership is worth every penny. I get access to exclusive events and can book my favorite DJs directly. Hopznite has completely changed how I discover and enjoy music events." }
             ].map((testimonial, index) => (
-              <motion.div key={testimonial.name} className="bg-gray-900/50 border border-gray-800 p-6 h-full" variants={itemVariants} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
-                <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center mr-3"><span className="text-white font-bold">{testimonial.name.charAt(0)}</span></div>
-                  <div>
-                    <h4 className="font-semibold text-white">{testimonial.name}</h4>
-                    <p className="text-sm text-gray-400">{testimonial.role}</p>
-                    <div className="flex">{[...Array(testimonial.rating)].map((_, i) => <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />)}</div>
+              <motion.div key={testimonial.name} className="h-full" variants={itemVariants} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
+                <Card className="p-6 h-full">
+                  <div className="flex items-center mb-4">
+                    <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mr-3"><span className="text-foreground font-bold">{testimonial.name.charAt(0)}</span></div>
+                    <div>
+                      <h4 className="font-semibold text-card-foreground">{testimonial.name}</h4>
+                      <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                      <div className="flex">{[...Array(testimonial.rating)].map((_, i) => <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />)}</div>
+                    </div>
                   </div>
-                </div>
-                <p className="text-gray-400 text-sm leading-relaxed">{testimonial.text}</p>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{testimonial.text}</p>
+                </Card>
               </motion.div>
             ))}
           </motion.div>
@@ -525,44 +527,44 @@ const Home = () => {
       </motion.section>
 
       {/* Section 8: Get in Touch */}
-      <motion.section className="py-16 px-4 z-10 relative bg-black" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={containerVariants}>
+      <motion.section className="py-16 px-4 z-10 relative" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={containerVariants}>
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <motion.div variants={itemVariants}>
-              <h2 className="text-3xl font-bold text-white mb-4">Get in Touch</h2>
-              <p className="text-gray-400 mb-8">Have questions about Hopznite? We're here to help. Reach out to our team for support, partnership inquiries, or feedback.</p>
+              <h2 className="text-3xl font-bold text-foreground mb-4">Get in Touch</h2>
+              <p className="text-muted-foreground mb-8">Have questions about Hopznite? We're here to help. Reach out to our team for support, partnership inquiries, or feedback.</p>
               <div className="space-y-4 mb-8">
-                <div className="flex items-center"><MapPin className="w-5 h-5 text-white mr-3" /><span className="text-gray-300">123 Music Street, Chennai, India</span></div>
-                <div className="flex items-center"><Clock className="w-5 h-5 text-white mr-3" /><span className="text-gray-300">Monday - Friday: 9am - 6pm</span></div>
+                <div className="flex items-center"><MapPin className="w-5 h-5 text-foreground mr-3" /><span className="text-muted-foreground">123 Music Street, Chennai, India</span></div>
+                <div className="flex items-center"><Clock className="w-5 h-5 text-foreground mr-3" /><span className="text-muted-foreground">Monday - Friday: 9am - 6pm</span></div>
               </div>
               <div className="flex gap-4">
-                <Button variant="outline" className="bg-transparent border-white text-white hover:bg-white hover:text-black">Contact Us</Button>
-                <Button variant="secondary" className="bg-gray-800 text-white hover:bg-gray-700">Support</Button>
+                <Button variant="outline">Contact Us</Button>
+                <Button variant="secondary">Support</Button>
               </div>
             </motion.div>
 
             <motion.div variants={itemVariants}>
-              <Card className="bg-gray-900/50 border border-gray-800 p-8">
+              <Card className="bg-card border-border p-8">
                 <form className="space-y-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div>
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">Name</label>
-                        <Input id="name" placeholder="Your name" required className="bg-gray-800 border-gray-700 text-white" />
+                        <label htmlFor="name" className="block text-sm font-medium text-card-foreground mb-2">Name</label>
+                        <Input id="name" placeholder="Your name" required />
                       </div>
                       <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">Email</label>
-                        <Input id="email" placeholder="Your email" type="email" required className="bg-gray-800 border-gray-700 text-white" />
+                        <label htmlFor="email" className="block text-sm font-medium text-card-foreground mb-2">Email</label>
+                        <Input id="email" placeholder="Your email" type="email" required />
                       </div>
                     </div>
                     <div>
-                      <label htmlFor="subject" className="block text-sm font-medium text-gray-300 mb-2">Subject</label>
-                      <Input id="subject" placeholder="Subject" required className="bg-gray-800 border-gray-700 text-white" />
+                      <label htmlFor="subject" className="block text-sm font-medium text-card-foreground mb-2">Subject</label>
+                      <Input id="subject" placeholder="Subject" required />
                     </div>
                     <div>
-                      <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-2">Message</label>
-                      <Textarea id="message" placeholder="Your message" rows={4} required className="bg-gray-800 border-gray-700 text-white" />
+                      <label htmlFor="message" className="block text-sm font-medium text-card-foreground mb-2">Message</label>
+                      <Textarea id="message" placeholder="Your message" rows={4} required />
                     </div>
-                  <Button type="submit" className="w-full bg-white text-black hover:bg-gray-200 py-3">Send Message</Button>
+                  <Button type="submit" className="w-full py-3">Send Message</Button>
                 </form>
               </Card>
             </motion.div>

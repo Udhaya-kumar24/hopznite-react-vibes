@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar, MapPin, Clock, Users, Music, Ticket, Star, ShieldCheck } from 'lucide-react';
 import GoogleCalendar from '../components/GoogleCalendar';
 import GoogleMaps from '../components/GoogleMaps';
+import { motion } from 'framer-motion';
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -34,10 +34,31 @@ const EventDetails = () => {
   const availableTickets = event.capacity - event.soldTickets;
   const soldPercentage = (event.soldTickets / event.capacity) * 100;
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+      },
+    },
+  };
+
   return (
     <div className="bg-background text-foreground">
       {/* Event Hero */}
-      <div className="relative w-full h-[50vh] min-h-[400px]">
+      <div className="relative w-full h-[300px] md:h-[400px]">
         <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-black/20"></div>
         <div className="absolute bottom-0 left-0 p-6 md:p-10 text-white">
@@ -51,10 +72,15 @@ const EventDetails = () => {
         </div>
       </div>
       
-      <div className="container mx-auto p-6 md:p-10">
+      <motion.div 
+        className="container mx-auto p-6 md:p-10"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column: Event Info */}
-          <div className="lg:col-span-2 space-y-8">
+          <motion.div className="lg:col-span-2 space-y-8" variants={itemVariants}>
             <Card>
               <CardHeader><CardTitle>About The Event</CardTitle></CardHeader>
               <CardContent>
@@ -100,10 +126,10 @@ const EventDetails = () => {
                 </CardContent>
               </Card>
             </div>
-          </div>
+          </motion.div>
 
           {/* Right Column: Tickets & Map */}
-          <div className="lg:sticky top-24 self-start space-y-8">
+          <motion.div className="lg:sticky top-24 self-start space-y-8" variants={itemVariants}>
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2"><Ticket className="w-6 h-6" /> Tickets</CardTitle>
@@ -139,9 +165,9 @@ const EventDetails = () => {
             
             <GoogleCalendar event={event} />
             <GoogleMaps venue={event.venue} location={event.location} />
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
