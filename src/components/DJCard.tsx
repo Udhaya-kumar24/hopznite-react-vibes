@@ -1,78 +1,63 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Star, MapPin } from 'lucide-react';
+import { Star } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface DJ {
   id: number;
   name: string;
   genre: string;
+  genres: string[];
   rating: number;
   price: number;
   location: string;
   image: string;
   bio: string;
+  available: boolean;
 }
 
 interface DJCardProps {
   dj: DJ;
-  showBookButton?: boolean;
-  onBook?: (djId: number) => void;
 }
 
-const DJCard: React.FC<DJCardProps> = ({ dj, showBookButton = false, onBook }) => {
+const DJCard: React.FC<DJCardProps> = ({ dj }) => {
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
-      <div className="aspect-square overflow-hidden">
-        <img
-          src={dj.image}
-          alt={dj.name}
-          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-        />
-      </div>
-      
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between mb-2">
-          <h3 className="text-lg font-semibold text-foreground">{dj.name}</h3>
-          <div className="flex items-center space-x-1">
-            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-            <span className="text-sm text-muted-foreground">{dj.rating}</span>
+    <motion.div whileHover={{ y: -5 }} transition={{ type: "spring", stiffness: 300 }} className="h-full">
+      <Card className="bg-gray-900/50 border border-gray-800 text-center p-4 h-full group overflow-hidden flex flex-col items-center justify-between">
+        <CardContent className="p-0 flex flex-col items-center">
+          <motion.img 
+            src={dj.image} 
+            alt={dj.name} 
+            className="w-24 h-24 rounded-full object-cover mb-2" 
+            whileHover={{ scale: 1.1 }} 
+          />
+          {dj.available !== undefined && (
+            <Badge className={`text-xs mb-2 ${dj.available ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-500 hover:bg-gray-600'}`}>
+              {dj.available ? 'Available' : 'Busy'}
+            </Badge>
+          )}
+          <h3 className="font-semibold text-white mb-1">{dj.name}</h3>
+          <div className="flex items-center justify-center mb-2">
+            <Star className="w-4 h-4 text-yellow-400 fill-current" />
+            <span className="text-sm text-gray-400 ml-1">{dj.rating}</span>
           </div>
-        </div>
-        
-        <div className="flex items-center space-x-2 mb-2">
-          <Badge variant="secondary">{dj.genre}</Badge>
-          <div className="flex items-center text-sm text-muted-foreground">
-            <MapPin className="w-3 h-3 mr-1" />
-            {dj.location}
+          <div className="flex gap-1 justify-center mb-3 flex-wrap">
+            {(dj.genres || [dj.genre]).slice(0, 2).map((g) => (
+              <Badge key={g} variant="secondary" className="text-xs bg-gray-700 text-gray-300">{g}</Badge>
+            ))}
           </div>
-        </div>
-        
-        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{dj.bio}</p>
-        
-        <div className="text-lg font-bold text-primary">
-          ₹{dj.price.toLocaleString()}
-          <span className="text-sm text-muted-foreground font-normal">/night</span>
-        </div>
-      </CardContent>
-      
-      <CardFooter className="p-4 pt-0 flex gap-2">
-        <Link to={`/djs/${dj.id}`} className="flex-1">
-          <Button variant="outline" className="w-full">View Profile</Button>
-        </Link>
-        {showBookButton && onBook && (
-          <Button 
-            className="flex-1"
-            onClick={() => onBook(dj.id)}
-          >
-            Book Now
+        </CardContent>
+        <Link to={`/djs/${dj.id}`} className="w-full mt-4">
+          <Button variant="outline" size="sm" className="w-full bg-transparent border-gray-600 hover:bg-white hover:text-black transition-all duration-200">
+            View Profile
           </Button>
-        )}
-      </CardFooter>
-    </Card>
+        </Link>
+      </Card>
+    </motion.div>
   );
 };
 

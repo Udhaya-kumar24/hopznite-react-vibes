@@ -12,8 +12,9 @@ import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext
 import Autoplay from "embla-carousel-autoplay"
 import ParticlesBackground from '../components/ParticlesBackground';
 import { getDJList, getEvents, getVenues } from '../services/api';
+import DJCard from '../components/DJCard';
 import { MapPin, Star, Calendar, Clock, Users, FileText, Globe, Music, Search, Filter } from 'lucide-react';
-import { isFuture, isSameWeek, isWeekend } from 'date-fns';
+import { isFuture, isSameWeek, isWeekend, isToday } from 'date-fns';
 
 const Home = () => {
   const [featuredDJs, setFeaturedDJs] = useState([]);
@@ -88,27 +89,33 @@ const Home = () => {
                            event.venue.toLowerCase().includes(eventSearchTerm.toLowerCase())) &&
                            (selectedCity === 'all' || !selectedCity || event.location === selectedCity);
     
-    if (!matchesSearch) return false;
+    if (!matchesSearch) {
+      return false;
+    }
 
     if (eventFilter === 'All') {
       return true;
     }
 
     const eventDate = new Date(event.date);
+    if (isNaN(eventDate.getTime())) { // Invalid date
+      return false; 
+    }
 
     if (eventFilter === 'Upcoming') {
-      // Check if the event date is in the future or today
-      return isFuture(eventDate) || new Date().toDateString() === eventDate.toDateString();
+      return isFuture(eventDate) || isToday(eventDate);
     }
+    
     if (eventFilter === 'This Weekend') {
-      return isWeekend(eventDate) && isSameWeek(eventDate, new Date(), { weekStartsOn: 1 });
+      // Show only upcoming weekend events
+      return isWeekend(eventDate) && isFuture(eventDate);
     }
+    
     if (eventFilter === 'Trending') {
-      // Simple logic for trending: could be based on status or a specific flag
       return event.status !== 'sold-out';
     }
     
-    return true;
+    return false;
   });
 
   // Animation variants
@@ -238,7 +245,7 @@ const Home = () => {
 
       {/* Hero Section */}
       <motion.section 
-        className="relative bg-black h-[70vh] z-10"
+        className="relative bg-black h-[60vh] lg:h-[500px] z-10"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
@@ -254,7 +261,7 @@ const Home = () => {
               <CarouselItem key={index} className="h-full">
                 <div className="relative w-full h-full text-white">
                    <img src={item.image} alt={item.title || item.name} className="w-full h-full object-cover"/>
-                   <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent"></div>
+                   <div className="absolute inset-0 bg-black/60"></div>
                    <div className="absolute inset-0 flex flex-col justify-center items-start w-full h-full">
                      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
                         <motion.div 
@@ -312,25 +319,7 @@ const Home = () => {
               [...Array(10)].map((_, i) => <motion.div key={i} variants={itemVariants}><CardSkeleton /></motion.div>)
             ) : (
               filteredDJs.slice(0, 10).map((dj) => (
-                <motion.div key={dj.id} variants={itemVariants} whileHover={{ y: -5 }} transition={{ type: "spring", stiffness: 300 }}>
-                  <Card className="bg-gray-900/50 border border-gray-800 text-center p-4 h-full group overflow-hidden">
-                    <div className="relative w-24 h-24 mx-auto mb-4">
-                       <motion.img src={dj.image} alt={dj.name} className="w-full h-full rounded-full object-cover" whileHover={{ scale: 1.1 }} />
-                       <Badge className={`absolute -bottom-1 right-0 text-xs ${dj.available ? 'bg-green-500' : 'bg-gray-500'}`}>{dj.available ? 'Available' : 'Busy'}</Badge>
-                    </div>
-                    <h3 className="font-semibold text-white mb-1">{dj.name}</h3>
-                    <div className="flex items-center justify-center mb-2">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-sm text-gray-400 ml-1">{dj.rating}</span>
-                    </div>
-                    <div className="flex gap-1 justify-center mb-3 flex-wrap">
-                      {(dj.genres || [dj.genre]).slice(0, 2).map((g) => <Badge key={g} variant="secondary" className="text-xs bg-gray-700 text-gray-300">{g}</Badge>)}
-                    </div>
-                    <Link to={`/djs/${dj.id}`} className="w-full">
-                      <Button variant="outline" size="sm" className="w-full bg-transparent border-gray-600 hover:bg-white hover:text-black transition-all duration-200">View Profile</Button>
-                    </Link>
-                  </Card>
-                </motion.div>
+                <DJCard key={dj.id} dj={dj} />
               ))
             )}
             {filteredDJs.length === 0 && !loading && (
