@@ -108,7 +108,7 @@ const Home = () => {
       return event.status !== 'sold-out';
     }
     
-    return true; // For 'All' or other filters
+    return false;
   });
 
   // Animation variants
@@ -238,7 +238,7 @@ const Home = () => {
 
       {/* Hero Section */}
       <motion.section 
-        className="relative bg-black h-[500px] z-10"
+        className="relative bg-black h-[70vh] z-10"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
@@ -254,26 +254,27 @@ const Home = () => {
               <CarouselItem key={index} className="h-full">
                 <div className="relative w-full h-full text-white">
                    <img src={item.image} alt={item.title || item.name} className="w-full h-full object-cover"/>
-                   <div className="absolute inset-0 bg-black/60"></div>
-                   <div className="absolute inset-0 flex items-center">
+                   <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent"></div>
+                   <div className="absolute inset-0 flex flex-col justify-center items-start w-full h-full">
                      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
                         <motion.div 
+                          className="max-w-xl"
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.8, delay: 0.2 }}
                         >
-                          <Badge className="mb-4 bg-white/10 text-white border-white/20 backdrop-blur-sm">
-                            {item.title ? `Summer Beach Party - ${new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : 'Top Venue'}
+                          <Badge className="mb-4 bg-white/20 text-white border-white/20 backdrop-blur-sm py-2 px-4 rounded-full font-medium">
+                            {item.title ? `Event - ${new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : 'Top Venue'}
                           </Badge>
-                          <h1 className="text-4xl lg:text-6xl font-bold mb-4">
+                          <h1 className="text-4xl lg:text-6xl font-bold mb-4 leading-tight">
                             {item.title || item.name}
                           </h1>
                           <div className="flex items-center gap-2 text-gray-300 mb-6">
-                            <MapPin className="w-4 h-4" />
+                            <MapPin className="w-5 h-5" />
                             <span>{item.location}</span>
                           </div>
                           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                            <Button size="lg" asChild className="bg-white text-black hover:bg-gray-200">
+                            <Button size="lg" asChild className="bg-white text-black hover:bg-gray-200 rounded-full px-8 py-3 text-base font-semibold">
                                <Link to={item.title ? `/events/${item.id}` : `/venues/${item.id}`}>Explore {item.title ? 'Event' : 'Venue'}</Link>
                             </Button>
                           </motion.div>
@@ -284,8 +285,8 @@ const Home = () => {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="hidden md:flex left-4 bg-white/10 border-white/20 text-white hover:bg-white/20" />
-          <CarouselNext className="hidden md:flex right-4 bg-white/10 border-white/20 text-white hover:bg-white/20" />
+          <CarouselPrevious className="hidden md:flex left-4 bg-black/30 border-none text-white hover:bg-black/50" />
+          <CarouselNext className="hidden md:flex right-4 bg-black/30 border-none text-white hover:bg-black/50" />
         </Carousel>
       </motion.section>
 
@@ -332,6 +333,11 @@ const Home = () => {
                 </motion.div>
               ))
             )}
+            {filteredDJs.length === 0 && !loading && (
+                <div className="col-span-full text-center py-8">
+                    <p className="text-gray-400">No DJs found matching your criteria.</p>
+                </div>
+            )}
           </motion.div>
         </div>
       </motion.section>
@@ -365,12 +371,17 @@ const Home = () => {
                       <Badge variant="secondary" className="mb-3 bg-gray-700 text-gray-300">{venue.type}</Badge>
                       <div className="flex gap-2">
                         <Link to={`/venues/${venue.id}`} className="flex-1"><Button variant="outline" size="sm" className="w-full bg-transparent border-gray-600 hover:bg-white hover:text-black">View Venue</Button></Link>
-                        <Button size="sm" className="w-full flex-1 bg-gray-700 hover:bg-gray-600 text-white">See Events</Button>
+                        <Button size="sm" className="w-full flex-1">See Events</Button>
                       </div>
                     </CardContent>
                   </Card>
                 </motion.div>
               ))
+            )}
+            {filteredVenues.length === 0 && !loading && (
+                <div className="col-span-full text-center py-8">
+                    <p className="text-gray-400">No venues found matching your criteria.</p>
+                </div>
             )}
           </motion.div>
         </div>
@@ -390,7 +401,7 @@ const Home = () => {
           <motion.div className="mb-6 space-y-4" variants={itemVariants}>
             <div className="flex gap-4 mb-4">
               {eventFilters.map((filter) => (
-                <motion.button key={filter} onClick={() => setEventFilter(filter)} className={`px-4 py-2 rounded-lg border transition-all duration-200 ${eventFilter === filter ? 'bg-white text-black border-white' : 'bg-transparent border-gray-600 text-gray-300 hover:border-white/50'}`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>{filter}</motion.button>
+                <motion.button key={filter} onClick={() => setEventFilter(filter)} className={`px-4 py-2 rounded-lg border transition-all duration-200 ${eventFilter === filter ? 'bg-primary text-primary-foreground border-primary' : 'bg-transparent border-gray-600 text-gray-300 hover:border-white/50'}`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>{filter}</motion.button>
               ))}
             </div>
           </motion.div>
@@ -423,6 +434,11 @@ const Home = () => {
                 </motion.div>
               ))
             )}
+            {filteredEvents.length === 0 && !loading && (
+                <div className="col-span-full text-center py-8">
+                    <p className="text-gray-400">No events found matching your criteria.</p>
+                </div>
+            )}
           </motion.div>
         </div>
       </motion.section>
@@ -448,7 +464,7 @@ const Home = () => {
               <motion.div key={company.name} variants={itemVariants} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
                 <Card className="bg-gray-900/50 border border-gray-800 p-6 h-full">
                   <div className="flex items-center mb-4">
-                    <div className="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center mr-3"><span className="text-white font-bold">{company.avatar}</span></div>
+                    <div className="w-12 h-12 bg-gray-900 border border-gray-800 rounded-full flex items-center justify-center mr-3"><span className="text-white font-bold">{company.avatar}</span></div>
                     <div>
                       <h3 className="font-semibold text-white">{company.name}</h3>
                       <div className="flex items-center"><Star className="w-4 h-4 text-yellow-400 fill-current" /><span className="text-sm text-gray-400 ml-1">{company.rating}</span></div>
