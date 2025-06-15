@@ -158,47 +158,6 @@ const Home = () => {
 
   const carouselItems = [...upcomingEvents.slice(0, 5), ...topVenues.slice(0, 5)];
 
-  const HomeFooter = () => (
-    <motion.footer className="bg-background text-muted-foreground py-12 px-4 border-t border-border" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={containerVariants}>
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
-          <motion.div className="md:col-span-2" variants={itemVariants}>
-            <h3 className="text-2xl font-bold text-foreground mb-4 flex items-center"><Music className="mr-2" /> Hopznite</h3>
-            <p className="pr-8">Connecting the global entertainment industry.</p>
-          </motion.div>
-          <motion.div variants={itemVariants}>
-            <h4 className="font-semibold text-foreground mb-4">Platform</h4>
-            <ul className="space-y-2">
-              <li><Link to="/features" className="hover:text-foreground">Features</Link></li>
-              <li><Link to="/pricing" className="hover:text-foreground">Pricing</Link></li>
-              <li><Link to="/faq" className="hover:text-foreground">FAQ</Link></li>
-            </ul>
-          </motion.div>
-          <motion.div variants={itemVariants}>
-            <h4 className="font-semibold text-foreground mb-4">Company</h4>
-            <ul className="space-y-2">
-              <li><Link to="/about" className="hover:text-foreground">About</Link></li>
-              <li><Link to="/blog" className="hover:text-foreground">Blog</Link></li>
-              <li><Link to="/careers" className="hover:text-foreground">Careers</Link></li>
-            </ul>
-          </motion.div>
-          <motion.div variants={itemVariants}>
-            <h4 className="font-semibold text-foreground mb-4">Connect</h4>
-            <ul className="space-y-2">
-              <li><a href="#" className="hover:text-foreground">Twitter</a></li>
-              <li><a href="#" className="hover:text-foreground">Instagram</a></li>
-              <li><a href="#" className="hover:text-foreground">Facebook</a></li>
-            </ul>
-          </motion.div>
-        </div>
-        <div className="mt-12 border-t border-border pt-8 text-center text-sm">
-          <p>&copy; {new Date().getFullYear()} Hopznite. All rights reserved.</p>
-        </div>
-      </div>
-    </motion.footer>
-  );
-
-
   return (
     <div className="min-h-screen bg-background/70 text-foreground relative backdrop-blur-sm">
       <ParticlesBackground />
@@ -544,7 +503,7 @@ const Home = () => {
             </motion.div>
 
             <motion.div variants={itemVariants}>
-              <Card className="bg-card border-border p-8">
+              <Card className="bg-card border-border p-6">
                 <form className="space-y-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div>
@@ -572,7 +531,7 @@ const Home = () => {
         </div>
       </motion.section>
       
-      <HomeFooter />
+      {/* The duplicate HomeFooter is now removed */}
     </div>
   );
 };
