@@ -157,7 +157,6 @@ const Home = () => {
     </Card>
   );
 
-  const carouselItems = [...upcomingEvents.slice(0, 5), ...topVenues.slice(0, 5)];
 
   // const HomeFooter = () => (
   //   <motion.footer className="bg-background text-muted-foreground py-12 px-4 border-t border-border" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={containerVariants}>
@@ -198,7 +197,7 @@ const Home = () => {
   //     </div>
   //   </motion.footer>
   // );
-
+  const carouselItems = [...upcomingEvents.slice(0, 5), ...topVenues.slice(0, 5)];
 
   return (
     <div className="min-h-screen bg-background/70 text-foreground relative backdrop-blur-sm">

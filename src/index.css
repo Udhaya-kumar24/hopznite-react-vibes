@@ -5,48 +5,68 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Light theme - white based */
+    --background: 0 0% 100%; /* white */
+    --foreground: 0 0% 10%;  /* near-black text for readability */
+
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 0 0% 10%;
+
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 262 83% 58%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 262 83% 58%;
+    --popover-foreground: 0 0% 10%;
+
+    --primary: 0 0% 0%;       /* true black */
+    --primary-foreground: 0 0% 100%; /* white text on black button */
+
+    --secondary: 240 4% 95%;  /* light gray */
+    --secondary-foreground: 0 0% 10%;
+
+    --muted: 240 4% 90%;      /* even lighter gray */
+    --muted-foreground: 0 0% 40%;
+
+    --accent: 240 4% 92%;     /* subtle background element */
+    --accent-foreground: 0 0% 15%;
+
+    --destructive: 0 80% 60%; /* red for danger */
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 5% 90%;
+    --input: 240 5% 90%;
+
+    --ring: 0 0% 50%; /* purple ring */
     --radius: 0.75rem;
   }
 
   .dark {
-    --background: 224 71.4% 4.1%;
-    --foreground: 210 20% 98%;
-    --card: 224 71.4% 4.1%;
-    --card-foreground: 210 20% 98%;
-    --popover: 224 71.4% 4.1%;
-    --popover-foreground: 210 20% 98%;
-    --primary: 262 83% 58%;
-    --primary-foreground: 210 20% 98%;
-    --secondary: 215 27.9% 16.9%;
-    --secondary-foreground: 210 20% 98%;
-    --muted: 215 27.9% 16.9%;
-    --muted-foreground: 217.9 10.6% 64.9%;
-    --accent: 215 27.9% 16.9%;
-    --accent-foreground: 210 20% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 20% 98%;
-    --border: 215 27.9% 16.9%;
-    --input: 215 27.9% 16.9%;
-    --ring: 262 83% 58%;
+    /* Dark theme - black based */
+    --background: 0 0% 0%;     /* true black */
+    --foreground: 0 0% 100%;   /* white text */
+
+    --card: 0 0% 8%;           /* very dark gray */
+    --card-foreground: 0 0% 100%;
+
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 0 0% 100%;      /* white primary button */
+    --primary-foreground: 0 0% 0%; /* black text */
+
+    --secondary: 0 0% 15%;     /* dark gray */
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 20%;
+    --muted-foreground: 0 0% 60%;
+
+    --accent: 0 0% 20%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 70% 40%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+
+    --ring: 0 0% 50%; /* same purple accent */
   }
 }
 
