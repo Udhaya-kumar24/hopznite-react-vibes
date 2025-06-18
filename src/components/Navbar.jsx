@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from './AuthProvider';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from './ThemeProvider';
 import { Menu, X, Sun, Moon, Music, User, LogOut, Settings } from 'lucide-react';
 import {
   DropdownMenu,
@@ -16,7 +16,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, logout, isAuthenticated } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -24,6 +24,10 @@ const Navbar = () => {
     logout();
     navigate('/');
     setIsOpen(false);
+  };
+
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
   const getDashboardRoute = () => {
