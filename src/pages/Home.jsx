@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -8,12 +8,11 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel"
-import Autoplay from "embla-carousel-autoplay"
+import HeroCarousel from '../components/HeroCarousel';
 import ParticlesBackground from '../components/ParticlesBackground';
 import { getDJList, getEvents, getVenues } from '../services/api';
 import DJCard from '../components/DJCard';
-import { MapPin, Star, Calendar, Clock, Users, FileText, Globe, Music, Search, Filter } from 'lucide-react';
+import { MapPin, Star, Calendar, Clock, Users, Music } from 'lucide-react';
 import { isFuture, isToday, isWeekend } from 'date-fns';
 
 const Home = () => {
@@ -29,8 +28,6 @@ const Home = () => {
   const [selectedAvailability, setSelectedAvailability] = useState('all');
   const [eventFilter, setEventFilter] = useState('Upcoming');
   const [loading, setLoading] = useState(true);
-
-  const carouselPlugin = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }));
 
   const genres = ['all', 'House', 'EDM', 'Techno', 'Hip Hop', 'R&B', 'Bollywood'];
   const eventFilters = ['All', 'Upcoming', 'This Weekend', 'Trending'];
@@ -98,7 +95,7 @@ const Home = () => {
     }
 
     const eventDate = new Date(event.date);
-    if (isNaN(eventDate.getTime())) { // Invalid date
+    if (isNaN(eventDate.getTime())) {
       return false; 
     }
 
@@ -107,7 +104,6 @@ const Home = () => {
     }
     
     if (eventFilter === 'This Weekend') {
-      // Show only upcoming weekend events
       return isWeekend(eventDate) && isFuture(eventDate);
     }
     
@@ -156,7 +152,12 @@ const Home = () => {
     </Card>
   );
 
-  const carouselItems = [...upcomingEvents.slice(0, 5), ...topVenues.slice(0, 5)];
+  // Prepare carousel items from events and venues
+  const carouselItems = [...upcomingEvents.slice(0, 3), ...topVenues.slice(0, 2)].map(item => ({
+    ...item,
+    type: item.title ? 'event' : 'venue',
+    description: item.description || (item.title ? 'Experience an unforgettable night of music and entertainment' : 'Premium venue with world-class amenities')
+  }));
 
   const HomeFooter = () => (
     <motion.footer className="bg-background text-muted-foreground py-12 px-4 border-t border-border" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={containerVariants}>
@@ -198,14 +199,13 @@ const Home = () => {
     </motion.footer>
   );
 
-
   return (
     <div className="min-h-screen bg-background/70 text-foreground relative backdrop-blur-sm">
       <ParticlesBackground />
       
       {/* Header Section with Location */}
       <motion.section 
-        className="bg-background/80 backdrop-blur-sm border-b border-border py-3 sticky top-0 z-20"
+        className="bg-background/80 backdrop-blur-sm border-b border-border py-3 sticky top-16 z-20"
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6 }}
@@ -233,7 +233,7 @@ const Home = () => {
                 <SelectItem value="Mumbai">Mumbai</SelectItem>
                 <SelectItem value="Delhi">Delhi</SelectItem>
                 <SelectItem value="Bangalore">Bangalore</SelectItem>
-                 <SelectItem value="Hyderabad">Hyderabad</SelectItem>
+                <SelectItem value="Hyderabad">Hyderabad</SelectItem>
               </SelectContent>
             </Select>
             <span className="text-muted-foreground ml-4">
@@ -243,58 +243,14 @@ const Home = () => {
         </div>
       </motion.section>
 
-      {/* Hero Section */}
+      {/* Hero Section with New Carousel */}
       <motion.section 
-        className="relative bg-background h-[250px] md:h-[300px] z-10"
+        className="relative z-10"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
       >
-        <Carousel
-          plugins={[carouselPlugin.current]}
-          className="w-full h-full"
-          onMouseEnter={carouselPlugin.current.stop}
-          onMouseLeave={carouselPlugin.current.reset}
-        >
-          <CarouselContent className="h-full">
-            {carouselItems.map((item, index) => (
-              <CarouselItem key={index} className="h-full">
-                <div className="relative w-full h-full text-white">
-                   <img src={item.image} alt={item.title || item.name} className="w-full h-full object-cover"/>
-                   <div className="absolute inset-0 bg-black/60"></div>
-                   <div className="absolute inset-0 flex flex-col justify-center items-start w-full h-full">
-                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-                        <motion.div 
-                          className="max-w-xl"
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.8, delay: 0.2 }}
-                        >
-                          <Badge className="mb-4 bg-white/20 text-white border-white/20 backdrop-blur-sm py-2 px-4 rounded-full font-medium">
-                            {item.title ? `Event - ${new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : 'Top Venue'}
-                          </Badge>
-                          <h1 className="text-4xl lg:text-6xl font-bold mb-4 leading-tight">
-                            {item.title || item.name}
-                          </h1>
-                          <div className="flex items-center gap-2 text-gray-300 mb-6">
-                            <MapPin className="w-5 h-5" />
-                            <span>{item.location}</span>
-                          </div>
-                          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                            <Button size="lg" asChild className="bg-white text-black hover:bg-gray-200 rounded-full px-8 py-3 text-base font-semibold">
-                               <Link to={item.title ? `/events/${item.id}` : `/venues/${item.id}`}>Explore {item.title ? 'Event' : 'Venue'}</Link>
-                            </Button>
-                          </motion.div>
-                        </motion.div>
-                     </div>
-                   </div>
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious className="hidden md:flex left-4 bg-black/30 border-none text-white hover:bg-black/50" />
-          <CarouselNext className="hidden md:flex right-4 bg-black/30 border-none text-white hover:bg-black/50" />
-        </Carousel>
+        <HeroCarousel items={carouselItems} />
       </motion.section>
 
       {/* Section 2: Top DJs with Filters */}
