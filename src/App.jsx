@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "./components/ThemeProvider.jsx";
@@ -30,8 +29,7 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="system" storageKey="hopznite-ui-theme">
         <TooltipProvider>
-          <Toaster />
-          <Sonner />
+          <Sonner position="top-right" richColors closeButton />
           <BrowserRouter>
             <AuthProvider>
               <div className="min-h-screen bg-background flex flex-col">
