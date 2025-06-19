@@ -66,9 +66,9 @@ const TopRestoBarsSection = ({
                     <Badge variant="secondary" className="mb-3">{venue.type}</Badge>
                     <div className="flex gap-2">
                       <Link to={`/venues/${venue.id}`} className="flex-1">
-                        <Button variant="outline" size="sm" className="w-full">View Venue</Button>
+                        <Button  size="sm" className="w-full">View Venue</Button>
                       </Link>
-                      <Button size="sm" className="w-full flex-1">See Events</Button>
+                      {/* <Button size="sm" className="w-full flex-1">See Events</Button> */}
                     </div>
                   </CardContent>
                 </Card>

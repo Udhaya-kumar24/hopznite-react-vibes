@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../components/AuthProvider';
@@ -57,7 +56,8 @@ const Login = () => {
       dj: { email: 'dj@demo.com', password: 'demo123' },
       pub: { email: 'pub@demo.com', password: 'demo123' },
       customer: { email: 'customer@demo.com', password: 'demo123' },
-      admin: { email: 'admin@demo.com', password: 'demo123' }
+      admin: { email: 'admin@demo.com', password: 'demo123' },
+      eventmanagement: { email: 'eventmanagement@demo.com', password: 'demo123' }
     };
 
     const credentials = demoCredentials[role];
@@ -77,7 +77,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-5">
       <div className="w-full max-w-md">
         <Card>
           <CardHeader className="text-center">
@@ -177,6 +177,13 @@ const Login = () => {
                   onClick={() => handleDemoLogin('admin')}
                 >
                   Demo Admin
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDemoLogin('eventmanagement')}
+                >
+                  Demo Event Mgmt
                 </Button>
               </div>
             </div>

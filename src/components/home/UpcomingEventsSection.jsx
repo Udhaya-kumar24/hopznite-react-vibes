@@ -109,10 +109,12 @@ const UpcomingEventsSection = ({
                         <Badge variant="secondary">{event.genre}</Badge>
                       </div>
                       <div className="flex items-center justify-between mt-auto pt-2">
-                        <span className="text-lg font-bold text-foreground">₹{event.price}</span>
-                        <Button asChild size="sm">
-                          <Link to={`/events/${event.id}`}>Book Now</Link>
-                        </Button>
+                        {/* <span className="text-lg font-bold text-foreground">₹{event.price}</span> */}
+                          <Link to={`/events/${event.id}`} className="w-full">
+                            <Button size="sm" className="w-full">
+                              View More
+                            </Button>
+                          </Link>
                       </div>
                     </CardContent>
                   </Card>

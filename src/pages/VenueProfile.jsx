@@ -1,37 +1,30 @@
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Users, Clock, Phone, Mail } from 'lucide-react';
+import { getVenueById } from '@/services/api';
 
 const VenueProfile = () => {
   const { id } = useParams();
-  
-  // Mock venue data
-  const venue = {
-    id: 1,
-    name: "Club Infinity",
-    location: "Bandra, Mumbai",
-    capacity: 250,
-    type: "Nightclub",
-    image: "https://images.unsplash.com/photo-1571266028243-d220c2dc4bbe?w=600",
-    description: "Premier nightclub in the heart of Mumbai offering world-class entertainment and dining.",
-    amenities: ["Bar", "Dance Floor", "VIP Section", "Sound System", "Parking"],
-    hours: {
-      weekdays: "7:00 PM - 2:00 AM",
-      weekends: "8:00 PM - 3:00 AM"
-    },
-    contact: {
-      phone: "+91 9876543210",
-      email: "info@clubinfinity.com"
-    },
-    upcomingEvents: [
-      { id: 1, name: "Saturday Night Fever", date: "June 15, 2024", dj: "DJ Sonic" },
-      { id: 2, name: "Electronic Vibes", date: "June 22, 2024", dj: "DJ Blaze" }
-    ]
-  };
+  const [venue, setVenue] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    getVenueById(id).then(res => {
+      setVenue(res.data || null);
+    }).finally(() => setLoading(false));
+  }, [id]);
+
+  if (loading) {
+    return <div className="text-center py-20 text-muted-foreground">Loading venue details...</div>;
+  }
+
+  if (!venue) {
+    return <div className="text-center py-20 text-destructive">Venue not found.</div>;
+  }
 
   return (
     <div className="container mx-auto p-6">

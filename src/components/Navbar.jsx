@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
@@ -29,6 +28,8 @@ const Navbar = () => {
         return '/dashboard/dj';
       case 'PubOwner':
         return '/dashboard/pub';
+      case 'EventManagement':
+        return '/dashboard/eventmanagement';
       case 'Customer':
         return '/dashboard/customer';
       case 'Admin':

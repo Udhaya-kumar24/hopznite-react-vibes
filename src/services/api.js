@@ -15,6 +15,7 @@ export const loginUser = async (credentials) => {
   if (credentials.email.includes("dj")) role = "DJ";
   else if (credentials.email.includes("pub")) role = "PubOwner";
   else if (credentials.email.includes("admin")) role = "Admin";
+  else if (credentials.email.includes("eventmanagement")) role = "EventManagement";
 
   return {
     success: true,
@@ -34,6 +35,13 @@ export const registerUser = async (userData) => {
   // Simulate API call delay
   await new Promise(resolve => setTimeout(resolve, 1000));
   
+  // Determine role based on email or provided role
+  let role = userData.role || "Customer";
+  if (userData.email && userData.email.includes("dj")) role = "DJ";
+  else if (userData.email && userData.email.includes("pub")) role = "PubOwner";
+  else if (userData.email && userData.email.includes("admin")) role = "Admin";
+  else if (userData.email && userData.email.includes("eventmanagement")) role = "EventManagement";
+
   return {
     success: true,
     data: {
@@ -42,7 +50,7 @@ export const registerUser = async (userData) => {
         id: Date.now(), 
         name: userData.name, 
         email: userData.email,
-        role: userData.role 
+        role: role 
       }
     }
   };
@@ -494,6 +502,138 @@ export const updateProfile = async (userId, profileData) => {
     ...profileData,
     id: userId,
     updatedAt: new Date().toISOString()
+  };
+};
+
+// Event Management Companies API
+export const getEventManagementCompanies = async () => {
+  await new Promise(resolve => setTimeout(resolve, 800));
+  return {
+    success: true,
+    data: [
+      { 
+        id: 1,
+        name: 'EventPro', 
+        rating: 4.8, 
+        description: 'Full-service event management for corporate and private events', 
+        events: '120 events organized', 
+        avatar: 'E' 
+      },
+      { 
+        id: 2,
+        name: 'Celebration Masters', 
+        rating: 4.7, 
+        description: 'Specializing in weddings and large-scale celebrations', 
+        events: '85 events organized', 
+        avatar: 'C' 
+      },
+      { 
+        id: 3,
+        name: 'NightLife Events', 
+        rating: 4.9, 
+        description: 'Experts in club events and music festivals', 
+        events: '150 events organized', 
+        avatar: 'N' 
+      },
+      { 
+        id: 4,
+        name: 'Corporate Connect', 
+        rating: 4.6, 
+        description: 'Business conferences and corporate entertainment', 
+        events: '95 events organized', 
+        avatar: 'C' 
+      },
+      { 
+        id: 5,
+        name: 'Gala Planners', 
+        rating: 4.8, 
+        description: 'High-end galas and charity events.', 
+        events: '70 events organized', 
+        avatar: 'G' 
+      }
+    ]
+  };
+};
+
+// Testimonials API
+export const getTestimonials = async () => {
+  await new Promise(resolve => setTimeout(resolve, 800));
+  return {
+    success: true,
+    data: [
+      {
+        name: "Rahul Kumar",
+        role: "DJ",
+        rating: 5,
+        text: "Hopznite has transformed my career as a DJ. I'm getting more bookings than ever, and the platform makes it easy to manage my schedule and connect with venues."
+      },
+      {
+        name: "Sanjay Patel",
+        role: "Venue Owner",
+        rating: 5,
+        text: "Finding the right DJ for our events used to be a nightmare. With Hopznite, we can browse profiles, check availability, and book instantly. It's been a game-changer for our business."
+      },
+      {
+        name: "Priya U",
+        role: "Customer",
+        rating: 5,
+        text: "The premium membership is worth every penny. I get access to exclusive events and can book my favorite DJs directly. Hopznite has completely changed how I discover and enjoy music events."
+      }
+    ]
+  };
+};
+
+export const getVenueById = async (id) => {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  return { 
+    success: true, 
+    data: {
+      id: 1,
+      name: "Club Infinity",
+      location: "Bandra, Mumbai",
+      capacity: 250,
+      type: "Nightclub",
+      image: "https://images.unsplash.com/photo-1571266028243-d220c2dc4bbe?w=600",
+      description: "Premier nightclub in the heart of Mumbai offering world-class entertainment and dining.",
+      amenities: ["Bar", "Dance Floor", "VIP Section", "Sound System", "Parking"],
+      hours: {
+        weekdays: "7:00 PM - 2:00 AM",
+        weekends: "8:00 PM - 3:00 AM"
+      },
+      contact: {
+        phone: "+91 9876543210",
+        email: "info@clubinfinity.com"
+      },
+      upcomingEvents: [
+        { id: 1, name: "Saturday Night Fever", date: "June 15, 2024", dj: "DJ Sonic" },
+        { id: 2, name: "Electronic Vibes", date: "June 22, 2024", dj: "DJ Blaze" }
+      ]
+    } 
+  };
+};
+
+export const getEventManagementCompanyById = async (id) => {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  return {
+    success: true,
+    data: {
+      id: 1,
+      name: "EventPro",
+      location: "Mumbai, India",
+      type: "Full-Service Event Management",
+      image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600",
+      description: "EventPro is a leading event management company specializing in corporate and private events, weddings, and large-scale celebrations. We deliver seamless experiences from planning to execution.",
+      services: ["Corporate Events", "Weddings", "Concerts", "Private Parties", "Product Launches"],
+      contact: {
+        phone: "+91 9876543211",
+        email: "info@eventpro.com"
+      },
+      upcomingEvents: [
+        { id: 1, name: "Corporate Gala", date: "July 10, 2024", venue: "Grand Ballroom" },
+        { id: 2, name: "Wedding Extravaganza", date: "August 2, 2024", venue: "Beachside Resort" }
+      ]
+    }
   };
 };
 

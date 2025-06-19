@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -83,6 +82,7 @@ const Register = () => {
                   <SelectItem value="Customer">Customer</SelectItem>
                   <SelectItem value="DJ">DJ</SelectItem>
                   <SelectItem value="PubOwner">Pub Owner</SelectItem>
+                  <SelectItem value="EventManagement">Event Management</SelectItem>
                 </SelectContent>
               </Select>
             </div>
