@@ -18,7 +18,7 @@ const DJCard = ({ dj }) => {
             whileHover={{ scale: 1.1 }} 
           />
           {dj.available !== undefined && (
-            <Badge className={`text-xs mb-2 ${dj.available ? 'bg-green-500 text-primary-foreground hover:bg-green-600' : 'bg-destructive text-destructive-foreground hover:bg-destructive/90'}`}>
+            <Badge className={`text-xs mb-2 px-2 ${dj.available ? 'bg-green-500 text-primary-foreground hover:bg-green-600' : 'bg-destructive text-destructive-foreground hover:bg-destructive/90'}`}>
               {dj.available ? 'Available' : 'Busy'}
             </Badge>
           )}
@@ -29,7 +29,7 @@ const DJCard = ({ dj }) => {
           </div>
           <div className="flex gap-1 justify-center mb-3 flex-wrap">
             {(dj.genres || [dj.genre]).slice(0, 2).map((g) => (
-              <Badge key={g} variant="secondary" className="text-xs">{g}</Badge>
+              <Badge key={g} variant="secondary" className="text-xs px-2">{g}</Badge>
             ))}
           </div>
         </CardContent>

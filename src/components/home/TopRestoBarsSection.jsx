@@ -17,10 +17,13 @@ const TopRestoBarsSection = ({
   return (
     <motion.section 
       className="py-16 px-4 bg-muted/40 z-10 relative" 
+      // initial="hidden" 
+      // whileInView="visible" 
+      // viewport={{ once: true }} 
       initial="hidden" 
-      whileInView="visible" 
-      viewport={{ once: true }} 
+      animate="visible" 
       variants={containerVariants}
+      // variants={containerVariants}
     >
       <div className="max-w-7xl mx-auto">
         <motion.div className="flex justify-between items-center mb-8" variants={itemVariants}>

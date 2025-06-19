@@ -23,13 +23,15 @@ import EventManagementSection from '../components/home/EventManagementSection';
 import WhyChooseSection from '../components/home/WhyChooseSection';
 import TestimonialsSection from '../components/home/TestimonialsSection';
 import ContactSection from '../components/home/ContactSection';
+import { fetchFilterCountries } from '../services/api';
 
 const Home = () => {
+  const [filterList, setFilterList] = useState({});
   const [featuredDJs, setFeaturedDJs] = useState([]);
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [topVenues, setTopVenues] = useState([]);
-  const [selectedCountry, setSelectedCountry] = useState('India');
-  const [selectedCity, setSelectedCity] = useState('Chennai');
+  const [selectedCountry, setSelectedCountry] = useState('');
+  const [selectedCity, setSelectedCity] = useState('');
   const [djSearchTerm, setDjSearchTerm] = useState('');
   const [venueSearchTerm, setVenueSearchTerm] = useState('');
   const [eventSearchTerm, setEventSearchTerm] = useState('');
@@ -38,10 +40,28 @@ const Home = () => {
   const [eventFilter, setEventFilter] = useState('Upcoming');
   const [loading, setLoading] = useState(true);
 
-  const carouselPlugin = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }));
-
-  const genres = ['all', 'House', 'EDM', 'Techno', 'Hip Hop', 'R&B', 'Bollywood'];
   const eventFilters = ['All', 'Upcoming', 'This Weekend', 'Trending'];
+
+  useEffect(() => {
+    fetchFilterCountries()
+      .then(res => {
+        setFilterList(res.data);
+        const countries = Object.keys(res.data);
+        if (countries.length > 0) {
+          setSelectedCountry(countries[0]);
+          if (Array.isArray(res.data[countries[0]]) && res.data[countries[0]].length > 0) {
+            setSelectedCity(res.data[countries[0]][0].value);
+          }
+        }
+      })
+      .catch(err => console.log(err));
+  }, []);
+
+  useEffect(() => {
+    if (selectedCountry && filterList[selectedCountry]) {
+      setSelectedCity(filterList[selectedCountry][0]?.value || '');
+    }
+  }, [selectedCountry, filterList]);
 
   useEffect(() => {
     const fetchFeaturedContent = async () => {
@@ -115,8 +135,10 @@ const Home = () => {
     }
     
     if (eventFilter === 'This Weekend') {
-      // Show only upcoming weekend events
-      return isWeekend(eventDate) && isFuture(eventDate);
+      // Show only events on Saturday or Sunday, and include today if today is a weekend
+      const day = eventDate.getDay(); // 0=Sunday, 6=Saturday
+      const isWeekendEvent = day === 6 || day === 0;
+      return isWeekendEvent && (isFuture(eventDate) || isToday(eventDate));
     }
     
     if (eventFilter === 'Trending') {
@@ -188,36 +210,39 @@ const Home = () => {
                 <SelectValue placeholder="Select Country" />
               </SelectTrigger>
               <SelectContent className="bg-background/95 backdrop-blur-sm border-border/40 rounded-lg shadow-lg p-1 min-w-[8rem]">
-                <SelectItem 
-                  value="India" 
-                  className="relative flex items-center px-2 py-1.5 text-sm rounded-md cursor-pointer select-none outline-none hover:bg-accent/30 hover:text-primary data-[highlighted]:bg-accent/30 data-[highlighted]:text-primary data-[state=checked]:bg-accent/30 data-[state=checked]:text-primary"
-                >
-                  India
-                </SelectItem>
+              {
+                Object.keys(filterList).map(country => (
+                  <SelectItem 
+                    key={country}
+                    value={country} 
+                    className="relative flex items-center px-2 py-1.5 text-sm rounded-md cursor-pointer select-none outline-none hover:bg-accent/30 hover:text-primary data-[highlighted]:bg-accent/30 data-[highlighted]:text-primary data-[state=checked]:bg-accent/30 data-[state=checked]:text-primary"
+                  >
+                    {country}
+                  </SelectItem>
+                ))
+              }
               </SelectContent>
             </Select>
-            <Select value={selectedCity} onValueChange={setSelectedCity}>
+
+
+            <Select value={selectedCity} onValueChange={setSelectedCity} disabled={!selectedCountry || !Array.isArray(filterList[selectedCountry])}>
               <SelectTrigger className="w-36 h-9 bg-background/80 backdrop-blur-sm border-border/40 text-foreground rounded-lg hover:bg-accent/30 transition-all duration-200 focus:ring-2 focus:ring-primary/20">
                 <SelectValue placeholder="Select City" />
               </SelectTrigger>
               <SelectContent className="bg-background/95 backdrop-blur-sm border-border/40 rounded-lg shadow-lg p-1 min-w-[8rem]">
-                {[
-                  { value: "Chennai", label: "Chennai" },
-                  { value: "Mumbai", label: "Mumbai" },
-                  { value: "Delhi", label: "Delhi" },
-                  { value: "Bangalore", label: "Bangalore" },
-                  { value: "Hyderabad", label: "Hyderabad" }
-                ].map((city) => (
-                  <SelectItem 
-                    key={city.value}
-                    value={city.value}
-                    className="relative flex items-center px-2 py-1.5 text-sm rounded-md cursor-pointer select-none outline-none hover:bg-accent/30 hover:text-primary data-[highlighted]:bg-accent/30 data-[highlighted]:text-primary data-[state=checked]:bg-accent/30 data-[state=checked]:text-primary"
-                  >
-                    {city.label}
-                  </SelectItem>
-                ))}
+                {Array.isArray(filterList[selectedCountry]) &&
+                  filterList[selectedCountry].map((city) => (
+                    <SelectItem 
+                      key={city.value}
+                      value={city.value}
+                      className="relative flex items-center px-2 py-1.5 text-sm rounded-md cursor-pointer select-none outline-none hover:bg-accent/30 hover:text-primary data-[highlighted]:bg-accent/30 data-[highlighted]:text-primary data-[state=checked]:bg-accent/30 data-[state=checked]:text-primary"
+                    >
+                      {city.label}
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
+
             <div className="flex items-center gap-2 ml-4">
               {loading ? (
                 <div className="flex items-center gap-2">
@@ -252,6 +277,7 @@ const Home = () => {
         containerVariants={containerVariants}
         itemVariants={itemVariants}
       />
+      {console.log(filteredVenues)}
       
       {/* Top Resto Bars Section */}
       <TopRestoBarsSection 
@@ -298,25 +324,7 @@ const Home = () => {
         containerVariants={containerVariants}
         itemVariants={itemVariants}
       />
-
-      {/* For theme/genre selection */}
-            <div className="flex gap-4 mb-4">
-              {eventFilters.map((filter) => (
-          <motion.button 
-            key={filter} 
-            onClick={() => setEventFilter(filter)} 
-            className={`px-4 py-2 rounded-lg border transition-all duration-200 ${
-              eventFilter === filter 
-                ? 'bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20' 
-                : 'bg-background/80 backdrop-blur-sm border-border/40 text-foreground hover:bg-accent/30 hover:border-accent/50'
-            }`} 
-            whileHover={{ scale: 1.02 }} 
-            whileTap={{ scale: 0.98 }}
-          >
-            {filter}
-          </motion.button>
-              ))}
-            </div>
+      
     </div>
   );
 };

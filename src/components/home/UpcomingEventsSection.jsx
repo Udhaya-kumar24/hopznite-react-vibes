@@ -17,12 +17,17 @@ const UpcomingEventsSection = ({
   containerVariants, 
   itemVariants 
 }) => {
+  console.log(eventFilter, '???????????', eventFilters,'>>>>');
+  
   return (
     <motion.section 
       className="py-16 px-4 z-10 relative" 
+      // initial="hidden" 
+      // whileInView="visible" 
+      // viewport={{ once: true }} 
+      // variants={containerVariants}
       initial="hidden" 
-      whileInView="visible" 
-      viewport={{ once: true }} 
+      animate="visible" 
       variants={containerVariants}
     >
       <div className="max-w-7xl mx-auto">

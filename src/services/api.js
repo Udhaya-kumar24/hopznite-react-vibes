@@ -48,6 +48,39 @@ export const registerUser = async (userData) => {
   };
 };
 
+export const fetchFilterCountries = async () => {
+  //   return new Promise((resolve, reject) => {
+  //   api
+  //     .post(`${config.SERVER_URL}/fetch_all_reciepe`)
+  //     .then((response) => {
+  //       resolve(response.data)
+  //     })
+  //     .catch((error) => {
+  //       reject(error?.response) // Reject with error data
+  //     })
+  // })
+
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  return {
+    success: true,
+    data: {
+      "India": [
+            {'label':'Chennai', 'value':'Chennai'},
+            {'label':'Bangalore', 'value':'Bangalore'},
+            {'label':'Hydrabad', 'value':'Hydrabad'},
+            {'label':'Delhi', 'value':'Delhi'}
+      ],
+      "USA": [
+            {'label':'USA1', 'value':'USA1'}, 
+            {'label':'USA2', 'value':'USA2'},
+            {'label':'USA3', 'value':'USA3'},
+            {'label':'USA4', 'value':'USA4'}
+      ],
+    }
+  };
+}
+
 // DJ APIs
 export const getDJList = async () => {
   await new Promise(resolve => setTimeout(resolve, 800));
@@ -181,19 +214,18 @@ export const getDJList = async () => {
 
 export const getDJById = async (id) => {
   await new Promise(resolve => setTimeout(resolve, 500));
-  const djsResponse = await getDJList();
-  if (!djsResponse.success) {
-    return { success: false, data: null };
-  }
-  const dj = djsResponse.data.find(d => d.id === parseInt(id));
-
-  if (!dj) {
-    return { success: false, data: null };
-  }
-
-  // Add more detailed mock data for the profile page
+    // Add more detailed mock data for the profile page
   const detailedDj = {
-    ...dj,
+    id: 10, 
+    name: "DJ Zenith", 
+    genre: "Techno",
+    genres: ["Techno", "Industrial"],
+    rating: 4.6,
+    price: 27000,
+    location: "Bangalore",
+    available: false,
+    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400",
+    bio: "Deep and dark techno journeys.",
     experience: "8+ years",
     equipment: "Pioneer DJ, Sound System, Lighting",
     availability: ["Friday", "Saturday", "Sunday"],
@@ -321,7 +353,7 @@ export const getEvents = async () => {
         title: "Retro Night", 
         venue: "Rhythm Bar", 
         location: "Chennai",
-        date: "July 12, 2025",
+        date: "June 12, 2025",
         time: "9:30 PM",
         price: 1800,
         genre: "Retro",
@@ -356,6 +388,34 @@ export const getEvents = async () => {
         image: "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=600"
       }
     ]
+  };
+};
+
+export const getEventsById = async (id) => {
+  await new Promise(resolve => setTimeout(resolve, 800));
+  console.log(id,'??????????');
+  
+  return {
+    success: true,
+    data: {
+      id: 1,
+      description: "The biggest electronic dance music event of the month featuring top DJs and incredible vibes. Get ready for a night of non-stop dancing, stunning visuals, and a sound system that will blow you away. This is one party you don't want to miss!",
+      title: "Saturday Night Fever",
+      date: "June 15, 2024",
+      time: "9:00 PM",
+      venue: "Club Infinity",
+      location: "Bandra, Mumbai",
+      dj: "DJ Sonic",
+      dj_img: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400',
+      genre: "EDM",
+      image: "https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=600",
+      ticketPrice: 1500,
+      capacity: 250,
+      soldTickets: 180,
+      features: ["Live DJ Performance", "Premium Sound System", "Dance Floor", "Bar & Cocktails", "VIP Section"],
+      ageLimit: "21+",
+      dressCode: "Smart Casual",
+    }
   };
 };
 
