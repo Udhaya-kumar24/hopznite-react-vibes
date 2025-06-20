@@ -637,4 +637,260 @@ export const getEventManagementCompanyById = async (id) => {
   };
 };
 
+// DJ Profile API functions
+export const getDJProfile = async (djId) => {
+  try {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    return {
+      success: true,
+      data: {
+        id: djId,
+        name: 'DJ Alex Thunder',
+        bio: 'Professional DJ with 8+ years of experience in electronic music, house, and techno.',
+        genres: ['House', 'Techno', 'Electronic', 'Progressive'],
+        topGenre: 'House',
+        experience: 8,
+        hourlyRate: 5000,
+        eventRate: 25000,
+        profileImage: '/placeholder.svg',
+        phone: '+91 9876543210',
+        email: 'alex.thunder@email.com',
+        location: 'Mumbai, India',
+        rating: 4.8,
+        totalBookings: 12,
+        profileViews: 234
+      }
+    };
+  } catch (error) {
+    return { success: false, error: 'Failed to fetch DJ profile' };
+  }
+};
+
+export const updateDJProfile = async (djId, profileData) => {
+  try {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    console.log('Updating DJ profile:', { djId, profileData });
+    
+    return {
+      success: true,
+      data: {
+        ...profileData,
+        id: djId,
+        updatedAt: new Date().toISOString()
+      }
+    };
+  } catch (error) {
+    return { success: false, error: 'Failed to update DJ profile' };
+  }
+};
+
+export const getDJAvailability = async (djId) => {
+  try {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    return {
+      success: true,
+      data: [
+        { date: '2024-06-15', status: 'available', time: '20:00-02:00' },
+        { date: '2024-06-16', status: 'booked', time: '21:00-03:00' },
+        { date: '2024-06-20', status: 'available', time: '19:00-01:00' },
+        { date: '2024-06-22', status: 'available', time: '22:00-04:00' },
+        { date: '2024-06-25', status: 'available', time: '20:00-02:00' }
+      ]
+    };
+  } catch (error) {
+    return { success: false, error: 'Failed to fetch availability' };
+  }
+};
+
+export const updateDJAvailability = async (djId, availabilityData) => {
+  try {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    console.log('Updating DJ availability:', { djId, availabilityData });
+    
+    return {
+      success: true,
+      data: availabilityData
+    };
+  } catch (error) {
+    return { success: false, error: 'Failed to update availability' };
+  }
+};
+
+export const getDJBookingRequests = async (djId) => {
+  try {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 400));
+    
+    return {
+      success: true,
+      data: [
+        {
+          id: 1,
+          venueName: 'Club Infinity',
+          date: '2024-06-22',
+          time: '22:00-04:00',
+          price: 30000,
+          status: 'pending',
+          location: 'Bandra, Mumbai',
+          eventType: 'Saturday Night Party',
+          venueId: 1,
+          createdAt: '2024-06-18T10:00:00Z'
+        },
+        {
+          id: 2,
+          venueName: 'Skybar Lounge',
+          date: '2024-06-25',
+          time: '20:00-02:00',
+          price: 25000,
+          status: 'pending',
+          location: 'Juhu, Mumbai',
+          eventType: 'Weekend Special',
+          venueId: 2,
+          createdAt: '2024-06-19T14:30:00Z'
+        }
+      ]
+    };
+  } catch (error) {
+    return { success: false, error: 'Failed to fetch booking requests' };
+  }
+};
+
+export const respondToBookingRequest = async (bookingId, response, reason = '') => {
+  try {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 600));
+    
+    console.log('Responding to booking:', { bookingId, response, reason });
+    
+    return {
+      success: true,
+      data: {
+        bookingId,
+        status: response,
+        respondedAt: new Date().toISOString(),
+        reason
+      }
+    };
+  } catch (error) {
+    return { success: false, error: 'Failed to respond to booking' };
+  }
+};
+
+export const getDJReviews = async (djId) => {
+  try {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 350));
+    
+    return {
+      success: true,
+      data: [
+        {
+          id: 1,
+          venue: 'Club Revolution',
+          venueId: 3,
+          rating: 5,
+          comment: 'Amazing performance! The crowd loved every minute. Alex really knows how to read the room.',
+          date: '2024-06-10',
+          eventDate: '2024-06-08'
+        },
+        {
+          id: 2,
+          venue: 'Rooftop Bar',
+          venueId: 4,
+          rating: 4,
+          comment: 'Great music selection and professional setup. Would definitely book again.',
+          date: '2024-06-05',
+          eventDate: '2024-06-03'
+        },
+        {
+          id: 3,
+          venue: 'Underground Club',
+          venueId: 5,
+          rating: 5,
+          comment: 'Incredible techno set! The energy was through the roof.',
+          date: '2024-05-28',
+          eventDate: '2024-05-25'
+        }
+      ]
+    };
+  } catch (error) {
+    return { success: false, error: 'Failed to fetch reviews' };
+  }
+};
+
+export const updateDJPricing = async (djId, pricingData) => {
+  try {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 400));
+    
+    console.log('Updating DJ pricing:', { djId, pricingData });
+    
+    return {
+      success: true,
+      data: {
+        djId,
+        ...pricingData,
+        updatedAt: new Date().toISOString()
+      }
+    };
+  } catch (error) {
+    return { success: false, error: 'Failed to update pricing' };
+  }
+};
+
+export const uploadDJMedia = async (djId, mediaFile, mediaType) => {
+  try {
+    // Simulate file upload
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    console.log('Uploading media:', { djId, mediaType, fileName: mediaFile.name });
+    
+    // Simulate successful upload
+    const mediaUrl = `/uploads/dj/${djId}/${Date.now()}_${mediaFile.name}`;
+    
+    return {
+      success: true,
+      data: {
+        mediaUrl,
+        mediaType,
+        fileName: mediaFile.name,
+        uploadedAt: new Date().toISOString()
+      }
+    };
+  } catch (error) {
+    return { success: false, error: 'Failed to upload media' };
+  }
+};
+
+export const getDJStats = async (djId) => {
+  try {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 250));
+    
+    return {
+      success: true,
+      data: {
+        totalBookings: 12,
+        rating: 4.8,
+        totalReviews: 25,
+        monthlyEarnings: 45000,
+        profileViews: 234,
+        weeklyViews: 47,
+        acceptanceRate: 85,
+        responseTime: '2 hours'
+      }
+    };
+  } catch (error) {
+    return { success: false, error: 'Failed to fetch DJ stats' };
+  }
+};
+
 export default api;
