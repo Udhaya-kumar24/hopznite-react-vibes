@@ -586,9 +586,8 @@ export const getTestimonials = async () => {
 export const getVenueById = async (id) => {
   await new Promise(resolve => setTimeout(resolve, 500));
   
-  return { 
-    success: true, 
-    data: {
+  const venues = {
+    1: {
       id: 1,
       name: "Club Infinity",
       location: "Bandra, Mumbai",
@@ -603,37 +602,78 @@ export const getVenueById = async (id) => {
       },
       contact: {
         phone: "+91 9876543210",
-        email: "info@clubinfinity.com"
+        email: "info@clubinfinity.com",
+        manager: "Ravi Sharma"
       },
       upcomingEvents: [
         { id: 1, name: "Saturday Night Fever", date: "June 15, 2024", dj: "DJ Sonic" },
         { id: 2, name: "Electronic Vibes", date: "June 22, 2024", dj: "DJ Blaze" }
       ]
-    } 
+    },
+    2: {
+      id: 2,
+      name: "Skybar Lounge",
+      location: "Juhu, Mumbai",
+      capacity: 180,
+      type: "Rooftop Lounge",
+      image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=600",
+      description: "Trendy rooftop lounge with stunning city views and innovative cocktails.",
+      amenities: ["Rooftop", "Bar", "Outdoor Seating", "City Views", "Valet Parking"],
+      contact: {
+        phone: "+91 9876543211",
+        email: "info@skybarlounge.com",
+        manager: "Priya Patel"
+      }
+    },
+    5: {
+      id: 5,
+      name: "Underground Club",
+      location: "Andheri, Mumbai",
+      capacity: 150,
+      type: "Underground Club",
+      image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=600",
+      description: "An underground club experience with a focus on techno and house music.",
+      contact: {
+        phone: "+91 9876543215",
+        email: "info@undergroundclub.com",
+        manager: "Amit Kumar"
+      }
+    }
+  };
+  
+  return { 
+    success: true, 
+    data: venues[id] || null
   };
 };
 
 export const getEventManagementCompanyById = async (id) => {
   await new Promise(resolve => setTimeout(resolve, 500));
-  return {
-    success: true,
-    data: {
+  
+  const companies = {
+    1: {
       id: 1,
-      name: "EventPro",
+      name: "EventPro Management",
       location: "Mumbai, India",
       type: "Full-Service Event Management",
       image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600",
-      description: "EventPro is a leading event management company specializing in corporate and private events, weddings, and large-scale celebrations. We deliver seamless experiences from planning to execution.",
+      description: "EventPro is a leading event management company specializing in corporate and private events, weddings, and large-scale celebrations.",
       services: ["Corporate Events", "Weddings", "Concerts", "Private Parties", "Product Launches"],
       contact: {
-        phone: "+91 9876543211",
-        email: "info@eventpro.com"
+        phone: "+91 9876543220",
+        email: "info@eventpro.com",
+        manager: "Sarah Johnson"
       },
       upcomingEvents: [
         { id: 1, name: "Corporate Gala", date: "July 10, 2024", venue: "Grand Ballroom" },
         { id: 2, name: "Wedding Extravaganza", date: "August 2, 2024", venue: "Beachside Resort" }
       ]
     }
+  };
+  
+  return {
+    success: true,
+    data: companies[id] || null
   };
 };
 
@@ -660,7 +700,12 @@ export const getDJProfile = async (djId) => {
         location: 'Mumbai, India',
         rating: 4.8,
         totalBookings: 12,
-        profileViews: 234
+        profileViews: 234,
+        socialLinks: {
+          soundcloud: 'https://soundcloud.com/alexthunder',
+          youtube: 'https://youtube.com/@alexthunder',
+          instagram: 'https://instagram.com/alexthunder'
+        }
       }
     };
   } catch (error) {
@@ -700,7 +745,9 @@ export const getDJAvailability = async (djId) => {
         { date: '2024-06-16', status: 'booked', time: '21:00-03:00' },
         { date: '2024-06-20', status: 'available', time: '19:00-01:00' },
         { date: '2024-06-22', status: 'available', time: '22:00-04:00' },
-        { date: '2024-06-25', status: 'available', time: '20:00-02:00' }
+        { date: '2024-06-25', status: 'available', time: '20:00-02:00' },
+        { date: '2024-06-28', status: 'busy', time: '18:00-23:00' },
+        { date: '2024-07-01', status: 'available', time: '21:00-03:00' }
       ]
     };
   } catch (error) {
@@ -742,7 +789,9 @@ export const getDJBookingRequests = async (djId) => {
           location: 'Bandra, Mumbai',
           eventType: 'Saturday Night Party',
           venueId: 1,
-          createdAt: '2024-06-18T10:00:00Z'
+          createdAt: '2024-06-18T10:00:00Z',
+          contactPerson: 'Ravi Sharma',
+          description: 'High-energy night club event expecting 200+ guests'
         },
         {
           id: 2,
@@ -754,7 +803,37 @@ export const getDJBookingRequests = async (djId) => {
           location: 'Juhu, Mumbai',
           eventType: 'Weekend Special',
           venueId: 2,
-          createdAt: '2024-06-19T14:30:00Z'
+          createdAt: '2024-06-19T14:30:00Z',
+          contactPerson: 'Priya Patel',
+          description: 'Rooftop party with sunset vibes and city views'
+        },
+        {
+          id: 3,
+          venueName: 'Underground Club',
+          date: '2024-06-30',
+          time: '23:00-05:00',
+          price: 35000,
+          status: 'accepted',
+          location: 'Andheri, Mumbai',
+          eventType: 'Techno Night',
+          venueId: 5,
+          createdAt: '2024-06-15T09:00:00Z',
+          contactPerson: 'Amit Kumar',
+          description: 'Underground techno event for serious music lovers'
+        },
+        {
+          id: 4,
+          venueName: 'EventPro Management',
+          date: '2024-07-05',
+          time: '19:00-01:00',
+          price: 45000,
+          status: 'pending',
+          location: 'Powai, Mumbai',
+          eventType: 'Corporate Gala',
+          eventManagementId: 1,
+          createdAt: '2024-06-20T16:00:00Z',
+          contactPerson: 'Sarah Johnson',
+          description: 'Premium corporate event with international guests'
         }
       ]
     };
@@ -797,27 +876,50 @@ export const getDJReviews = async (djId) => {
           venue: 'Club Revolution',
           venueId: 3,
           rating: 5,
-          comment: 'Amazing performance! The crowd loved every minute. Alex really knows how to read the room.',
+          comment: 'Amazing performance! The crowd loved every minute. Alex really knows how to read the room and keep the energy up all night.',
           date: '2024-06-10',
-          eventDate: '2024-06-08'
+          eventDate: '2024-06-08',
+          reviewerName: 'Club Manager - Rohit Singh'
         },
         {
           id: 2,
           venue: 'Rooftop Bar',
           venueId: 4,
           rating: 4,
-          comment: 'Great music selection and professional setup. Would definitely book again.',
+          comment: 'Great music selection and professional setup. Would definitely book again for future events.',
           date: '2024-06-05',
-          eventDate: '2024-06-03'
+          eventDate: '2024-06-03',
+          reviewerName: 'Event Coordinator - Meera Joshi'
         },
         {
           id: 3,
           venue: 'Underground Club',
           venueId: 5,
           rating: 5,
-          comment: 'Incredible techno set! The energy was through the roof.',
+          comment: 'Incredible techno set! The energy was through the roof. Best DJ we\'ve had in months.',
           date: '2024-05-28',
-          eventDate: '2024-05-25'
+          eventDate: '2024-05-25',
+          reviewerName: 'Venue Owner - Vikram Malhotra'
+        },
+        {
+          id: 4,
+          venue: 'Skyline Lounge',
+          venueId: 1,
+          rating: 4,
+          comment: 'Professional and punctual. Great communication throughout the event planning process.',
+          date: '2024-05-20',
+          eventDate: '2024-05-18',
+          reviewerName: 'Event Manager - Kavya Reddy'
+        },
+        {
+          id: 5,
+          venue: 'Beach Club',
+          venueId: 2,
+          rating: 5,
+          comment: 'Outstanding performance! Alex created the perfect atmosphere for our beachside event.',
+          date: '2024-05-15',
+          eventDate: '2024-05-12',
+          reviewerName: 'Club Manager - Arjun Nair'
         }
       ]
     };
@@ -882,10 +984,20 @@ export const getDJStats = async (djId) => {
         rating: 4.8,
         totalReviews: 25,
         monthlyEarnings: 45000,
+        earnings: 45000,
         profileViews: 234,
         weeklyViews: 47,
         acceptanceRate: 85,
-        responseTime: '2 hours'
+        responseTime: '2 hours',
+        completedEvents: 28,
+        repeatClients: 8,
+        averageEventDuration: '4 hours',
+        topGenreBookings: {
+          'House': 12,
+          'Techno': 8,
+          'Electronic': 6,
+          'Progressive': 2
+        }
       }
     };
   } catch (error) {
