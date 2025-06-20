@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -8,12 +8,11 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel"
-import Autoplay from "embla-carousel-autoplay"
+import HeroCarousel from '../components/HeroCarousel';
 import ParticlesBackground from '../components/ParticlesBackground';
 import { getDJList, getEvents, getVenues } from '../services/api';
 import DJCard from '../components/DJCard';
-import { MapPin, Star, Calendar, Clock, Users, FileText, Globe, Music, Search, Filter } from 'lucide-react';
+import { MapPin, Star, Calendar, Clock, Users, Music } from 'lucide-react';
 import { isFuture, isToday, isWeekend } from 'date-fns';
 import HeroCarousel from '../components/home/HeroCarousel'
 import TopDJsSection from '../components/home/TopDJsSection';
@@ -126,7 +125,7 @@ const Home = () => {
     }
 
     const eventDate = new Date(event.date);
-    if (isNaN(eventDate.getTime())) { // Invalid date
+    if (isNaN(eventDate.getTime())) {
       return false; 
     }
 
@@ -194,7 +193,7 @@ const Home = () => {
       
       {/* Header Section with Location */}
       <motion.section 
-        className="bg-background/80 backdrop-blur-sm border-b border-border py-3 sticky top-0 z-20"
+        className="bg-background/80 backdrop-blur-sm border-b border-border py-3 sticky top-16 z-20"
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6 }}

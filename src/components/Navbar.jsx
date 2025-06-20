@@ -1,28 +1,36 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from './AuthProvider';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { 
+import { useAuth } from './AuthProvider';
+import { useTheme } from './ThemeProvider';
+import { Menu, X, Sun, Moon, Music, User, LogOut, Settings } from 'lucide-react';
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger 
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Menu, X, User, LogOut } from 'lucide-react';
-import { ThemeToggle } from './ThemeToggle';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar = () => {
-  const { isAuthenticated, user, logout } = useAuth();
+  const [isOpen, setIsOpen] = useState(false);
+  const { user, logout, isAuthenticated } = useAuth();
+  const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
   const handleLogout = () => {
     logout();
     navigate('/');
+    setIsOpen(false);
   };
 
-  const getDashboardPath = () => {
-    if (!user) return '/';
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
+
+  const getDashboardRoute = () => {
+    if (!user?.role) return '/';
     switch (user.role) {
       case 'DJ':
         return '/dashboard/dj';
@@ -39,152 +47,197 @@ const Navbar = () => {
     }
   };
 
+  const navItems = [
+    { name: 'Events', path: '/events' },
+    { name: 'DJs', path: '/djs' },
+    { name: 'Venues', path: '/venues' },
+  ];
+
   return (
-    <nav className="bg-background border-b border-border sticky top-0 z-50 backdrop-blur-md bg-background/80">
+    <motion.nav 
+      className="bg-background/95 backdrop-blur-md border-b border-border sticky top-0 z-50"
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">H</span>
-            </div>
-            <span className="text-2xl font-bold text-foreground">Hopznite</span>
-          </Link>
+          <motion.div 
+            className="flex items-center"
+            whileHover={{ scale: 1.05 }}
+          >
+            <Link to="/" className="flex items-center space-x-2">
+              <Music className="h-8 w-8 text-primary" />
+              <span className="text-xl font-bold text-foreground">Hopznite</span>
+            </Link>
+          </motion.div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link 
-              to="/events" 
-              className="text-muted-foreground hover:text-foreground transition-colors font-medium"
-            >
-              Events
-            </Link>
-            <Link 
-              to="/djs" 
-              className="text-muted-foreground hover:text-foreground transition-colors font-medium"
-            >
-              DJs
-            </Link>
-            <Link 
-              to="/venues" 
-              className="text-muted-foreground hover:text-foreground transition-colors font-medium"
-            >
-              Venues
-            </Link>
+          <div className="hidden md:block">
+            <div className="ml-10 flex items-baseline space-x-4">
+              {navItems.map((item) => (
+                <motion.div key={item.name} whileHover={{ scale: 1.05 }}>
+                  <Link
+                    to={item.path}
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      location.pathname === item.path
+                        ? 'text-primary bg-primary/10'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                    }`}
+                  >
+                    {item.name}
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
           </div>
 
-          {/* Desktop Auth & Theme */}
+          {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
-            <ThemeToggle />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              className="relative"
+            >
+              <motion.div
+                initial={false}
+                animate={{ rotate: theme === 'dark' ? 180 : 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+              </motion.div>
+            </Button>
+
             {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center space-x-2">
-                    <User className="w-4 h-4" />
+                    <User className="h-4 w-4" />
                     <span>{user?.name}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={() => navigate(getDashboardPath())}>
-                    Dashboard
+                  <DropdownMenuItem asChild>
+                    <Link to={getDashboardRoute()} className="flex items-center">
+                      <Settings className="mr-2 h-4 w-4" />
+                      Dashboard
+                    </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout} className="text-destructive">
-                    <LogOut className="w-4 h-4 mr-2" />
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
                     Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <div className="flex items-center space-x-4">
-                <Link to="/login">
-                  <Button variant="ghost">Login</Button>
-                </Link>
-                <Link to="/register">
-                  <Button className="bg-primary hover:bg-primary/90">Sign Up</Button>
-                </Link>
+              <div className="flex items-center space-x-2">
+                <Button variant="ghost" asChild>
+                  <Link to="/login">Login</Link>
+                </Button>
+                <Button asChild>
+                  <Link to="/register">Sign Up</Link>
+                </Button>
               </div>
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center space-x-2">
-            <ThemeToggle />
+          {/* Mobile menu button */}
+          <div className="md:hidden">
             <Button
               variant="ghost"
-              size="sm"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              size="icon"
+              onClick={() => setIsOpen(!isOpen)}
             >
-              {isMobileMenuOpen ? (
-                <X className="w-6 h-6" />
-              ) : (
-                <Menu className="w-6 h-6" />
-              )}
+              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
           </div>
         </div>
+      </div>
 
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-border">
-            <div className="flex flex-col space-y-4">
-              <Link 
-                to="/events" 
-                className="text-muted-foreground hover:text-foreground transition-colors font-medium"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Events
-              </Link>
-              <Link 
-                to="/djs" 
-                className="text-muted-foreground hover:text-foreground transition-colors font-medium"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                DJs
-              </Link>
-              <Link 
-                to="/venues" 
-                className="text-muted-foreground hover:text-foreground transition-colors font-medium"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Venues
-              </Link>
+      {/* Mobile Navigation */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            className="md:hidden"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-background border-t border-border">
+              {navItems.map((item) => (
+                <Link
+                  key={item.name}
+                  to={item.path}
+                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                    location.pathname === item.path
+                      ? 'text-primary bg-primary/10'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                  }`}
+                  onClick={() => setIsOpen(false)}
+                >
+                  {item.name}
+                </Link>
+              ))}
               
+              <div className="border-t border-border pt-4">
+                <div className="flex items-center justify-between px-3">
+                  <span className="text-sm text-muted-foreground">Theme</span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={toggleTheme}
+                  >
+                    {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
+
               {isAuthenticated ? (
-                <div className="pt-4 border-t border-border">
-                  <Link 
-                    to={getDashboardPath()}
-                    className="block text-muted-foreground hover:text-foreground transition-colors mb-4 font-medium"
-                    onClick={() => setIsMobileMenuOpen(false)}
+                <div className="border-t border-border pt-4">
+                  <div className="px-3 py-2">
+                    <p className="text-sm text-muted-foreground">Signed in as</p>
+                    <p className="text-sm font-medium text-foreground">{user?.name}</p>
+                  </div>
+                  <Link
+                    to={getDashboardRoute()}
+                    className="block px-3 py-2 text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md"
+                    onClick={() => setIsOpen(false)}
                   >
                     Dashboard
                   </Link>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start text-destructive"
-                    onClick={() => {
-                      handleLogout();
-                      setIsMobileMenuOpen(false);
-                    }}
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left px-3 py-2 text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md"
                   >
-                    <LogOut className="w-4 h-4 mr-2" />
                     Logout
-                  </Button>
+                  </button>
                 </div>
               ) : (
-                <div className="flex flex-col space-y-2 pt-4 border-t border-border">
-                  <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button variant="ghost" className="w-full">Login</Button>
+                <div className="border-t border-border pt-4 space-y-1">
+                  <Link
+                    to="/login"
+                    className="block px-3 py-2 text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Login
                   </Link>
-                  <Link to="/register" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button className="w-full bg-primary hover:bg-primary/90">Sign Up</Button>
+                  <Link
+                    to="/register"
+                    className="block px-3 py-2 text-base font-medium text-primary hover:text-primary/90 hover:bg-primary/10 rounded-md"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Sign Up
                   </Link>
                 </div>
               )}
             </div>
-          </div>
+          </motion.div>
         )}
-      </div>
-    </nav>
+      </AnimatePresence>
+    </motion.nav>
   );
 };
 
