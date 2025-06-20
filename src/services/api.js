@@ -1005,4 +1005,46 @@ export const getDJStats = async (djId) => {
   }
 };
 
+// DJ Wallet APIs
+export const getDJWallet = async (djId) => {
+  try {
+    await new Promise(resolve => setTimeout(resolve, 400));
+    return {
+      success: true,
+      data: {
+        balance: 12000,
+        transactions: [
+          { id: 1, type: 'credit', amount: 5000, date: '2024-06-10', description: 'Booking Payment - Club Infinity' },
+          { id: 2, type: 'debit', amount: 2000, date: '2024-06-12', description: 'Withdrawal to Bank' },
+          { id: 3, type: 'credit', amount: 7000, date: '2024-06-15', description: 'Booking Payment - Skybar Lounge' },
+        ]
+      }
+    };
+  } catch (error) {
+    return { success: false, error: 'Failed to fetch wallet info' };
+  }
+};
+
+export const updateDJWallet = async (djId, action, amount) => {
+  try {
+    await new Promise(resolve => setTimeout(resolve, 400));
+    // Dummy logic: just return success
+    return {
+      success: true,
+      data: {
+        newBalance: action === 'add' ? 12000 + amount : 12000 - amount,
+        transaction: {
+          id: Date.now(),
+          type: action === 'add' ? 'credit' : 'debit',
+          amount,
+          date: new Date().toISOString().slice(0, 10),
+          description: action === 'add' ? 'Wallet Top-up' : 'Withdrawal to Bank'
+        }
+      }
+    };
+  } catch (error) {
+    return { success: false, error: 'Failed to update wallet' };
+  }
+};
+
 export default api;

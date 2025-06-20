@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,12 +6,13 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Calendar } from '@/components/ui/calendar';
+import { Calendar } from '@/components/ui/calendar.jsx';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar as CalendarIcon, Music, Star, DollarSign, Clock, MapPin, User, Camera, Settings, Bell, Check, X, Upload, Eye, Home, MessageSquare, BarChart3, Menu } from 'lucide-react';
 import { toast } from 'sonner';
-import { getDJProfile, updateDJProfile, getDJAvailability, updateDJAvailability, getDJBookingRequests, respondToBookingRequest, getDJReviews, updateDJPricing, getDJStats, getVenueById, getEventManagementCompanyById } from '../../services/api';
+import { getDJProfile, updateDJProfile, getDJAvailability, updateDJAvailability, getDJBookingRequests, respondToBookingRequest, getDJReviews, updateDJPricing, getDJStats, getVenueById, getEventManagementCompanyById, getDJWallet, updateDJWallet, uploadDJMedia } from '../../services/api';
+import { useNavigate } from 'react-router-dom';
 
 const DJDashboard = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -53,18 +53,36 @@ const DJDashboard = () => {
 
   const [selectedBookingDetails, setSelectedBookingDetails] = useState(null);
 
+  const [wallet, setWallet] = useState({ balance: 0, transactions: [] });
+  const [walletLoading, setWalletLoading] = useState(false);
+  const [addMoneyAmount, setAddMoneyAmount] = useState('');
+
+  const [newGenre, setNewGenre] = useState('');
+
   const sidebarItems = [
     { id: 'overview', label: 'Overview', icon: Home },
     { id: 'profile', label: 'Profile Setup', icon: User },
     { id: 'availability', label: 'Availability', icon: CalendarIcon },
     { id: 'pricing', label: 'Pricing', icon: DollarSign },
     { id: 'bookings', label: 'Bookings', icon: MessageSquare },
+    { id: 'wallet', label: 'Wallet', icon: DollarSign },
     { id: 'reviews', label: 'Reviews', icon: Star },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
   ];
 
+  // Define quickActions array for use in Overview Quick Actions
+  const quickActions = [
+    { key: 'availability', label: 'Update Availability', icon: CalendarIcon, tab: 'availability' },
+    { key: 'profile', label: 'Edit Profile', icon: User, tab: 'profile' },
+    { key: 'pricing', label: 'Update Pricing', icon: DollarSign, tab: 'pricing' },
+    { key: 'wallet', label: 'Wallet', icon: DollarSign, tab: 'wallet' },
+  ];
+
+  const navigate = useNavigate();
+
   useEffect(() => {
     fetchDashboardData();
+    fetchWallet();
   }, []);
 
   const fetchDashboardData = async () => {
@@ -89,6 +107,30 @@ const DJDashboard = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchWallet = async () => {
+    setWalletLoading(true);
+    const res = await getDJWallet(1);
+    if (res.success) setWallet(res.data);
+    setWalletLoading(false);
+  };
+
+  const handleAddMoney = async () => {
+    if (!addMoneyAmount || isNaN(addMoneyAmount)) return toast.error('Enter valid amount');
+    setWalletLoading(true);
+    const res = await updateDJWallet(1, 'add', parseInt(addMoneyAmount));
+    if (res.success) {
+      setWallet(prev => ({
+        balance: res.data.newBalance,
+        transactions: [res.data.transaction, ...prev.transactions],
+      }));
+      setAddMoneyAmount('');
+      toast.success('Money added to wallet!');
+    } else {
+      toast.error('Failed to add money');
+    }
+    setWalletLoading(false);
   };
 
   const handleProfileUpdate = async () => {
@@ -203,6 +245,70 @@ const DJDashboard = () => {
     }
   };
 
+  const handleAddGenre = () => {
+    if (newGenre && !profileData.genres.includes(newGenre)) {
+      setProfileData(prev => ({ ...prev, genres: [...prev.genres, newGenre] }));
+      setNewGenre('');
+    }
+  };
+
+  const handleRemoveGenre = (genre) => {
+    setProfileData(prev => ({ ...prev, genres: prev.genres.filter(g => g !== genre) }));
+  };
+
+  const handleProfileImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const res = await uploadDJMedia(1, file, 'profile');
+    if (res.success) {
+      setProfileData(prev => ({ ...prev, profileImage: res.data.mediaUrl }));
+      toast.success('Profile image updated!');
+    } else {
+      toast.error('Failed to upload image');
+    }
+  };
+
+  const getDateStatus = (dateStr) => {
+    const slot = availability.find(a => a.date === dateStr);
+    if (!slot) return null;
+    if (slot.status === 'booked') return 'booked';
+    if (slot.status === 'available') return 'available';
+    if (slot.status === 'busy') return 'busy';
+    return null;
+  };
+
+  const CustomDayContent = ({ date }) => {
+    const dateStr = date.toISOString().slice(0, 10);
+    const status = getDateStatus(dateStr);
+    let dotColor = '';
+    if (status === 'booked') dotColor = 'bg-green-500';
+    else if (status === 'available') dotColor = 'bg-yellow-400';
+    else if (status === 'busy') dotColor = 'bg-gray-400';
+    return (
+      <span style={{ position: 'relative', display: 'inline-block', width: '100%' }}>
+        {date.getDate()}
+        {status && (
+          <span
+            className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full ${dotColor}`}
+          ></span>
+        )}
+      </span>
+    );
+  };
+
+  const handleCalendarSelect = (date) => {
+    setSelectedDate(date);
+    const dateStr = date.toISOString().slice(0, 10);
+    const slot = availability.find(a => a.date === dateStr);
+    if (slot) {
+      setSelectedBookingDetails(slot);
+      toast.info(`Event: ${slot.status === 'booked' ? 'Booking' : slot.status}`);
+    } else {
+      setSelectedBookingDetails(null);
+      toast.info('No events for this date');
+    }
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'overview':
@@ -219,7 +325,11 @@ const DJDashboard = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {bookingRequests.slice(0, 3).map((booking) => (
-                      <div key={booking.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <div
+                        key={booking.id}
+                        className="flex items-center justify-between p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted"
+                        onClick={() => navigate(`/events/${booking.id}`)}
+                      >
                         <div>
                           <p className="font-medium text-foreground">{booking.venueName}</p>
                           <p className="text-sm text-muted-foreground">{new Date(booking.date).toLocaleDateString()}</p>
@@ -241,29 +351,16 @@ const DJDashboard = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <Button 
-                    className="w-full justify-start bg-primary hover:bg-primary/90"
-                    onClick={() => setActiveTab('availability')}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    Update Availability
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start"
-                    onClick={() => setActiveTab('profile')}
-                  >
-                    <User className="mr-2 h-4 w-4" />
-                    Edit Profile
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start"
-                    onClick={() => setActiveTab('pricing')}
-                  >
-                    <DollarSign className="mr-2 h-4 w-4" />
-                    Update Pricing
-                  </Button>
+                  {quickActions.map((action) => (
+                    <Button 
+                      key={action.key}
+                      className="w-full justify-start bg-primary hover:bg-primary/90"
+                      onClick={() => setActiveTab(action.tab)}
+                    >
+                      <action.icon className="mr-2 h-4 w-4" />
+                      {action.label}
+                    </Button>
+                  ))}
                 </CardContent>
               </Card>
             </div>
@@ -287,10 +384,15 @@ const DJDashboard = () => {
                     {profileData.name.split(' ').map(n => n[0]).join('')}
                   </AvatarFallback>
                 </Avatar>
-                <Button variant="outline">
-                  <Camera className="w-4 h-4 mr-2" />
-                  Change Photo
-                </Button>
+                <div>
+                  <Button asChild variant="outline">
+                    <label htmlFor="profile-upload" className="flex items-center cursor-pointer">
+                      <Camera className="w-4 h-4 mr-2" />
+                      Change Photo
+                    </label>
+                  </Button>
+                  <input id="profile-upload" type="file" accept="image/*" className="hidden" onChange={handleProfileImageChange} />
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -335,10 +437,23 @@ const DJDashboard = () => {
                     <Label>Genres</Label>
                     <div className="flex flex-wrap gap-2 mt-2">
                       {profileData.genres.map((genre, index) => (
-                        <Badge key={index} variant="secondary">
+                        <Badge key={index} variant="secondary" className="flex items-center gap-1">
                           {genre}
+                          <Button size="icon" variant="ghost" className="p-0 ml-1" onClick={() => handleRemoveGenre(genre)}>
+                            <X className="w-3 h-3" />
+                          </Button>
                         </Badge>
                       ))}
+                    </div>
+                    <div className="flex gap-2 mt-2">
+                      <Input
+                        placeholder="Add genre"
+                        value={newGenre}
+                        onChange={e => setNewGenre(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddGenre(); } }}
+                        className="w-32"
+                      />
+                      <Button onClick={handleAddGenre} size="sm">Add</Button>
                     </div>
                   </div>
                 </div>
@@ -361,8 +476,9 @@ const DJDashboard = () => {
                 <Calendar
                   mode="single"
                   selected={selectedDate}
-                  onSelect={setSelectedDate}
+                  onSelect={handleCalendarSelect}
                   className="rounded-md border"
+                  components={{ DayContent: CustomDayContent }}
                 />
               </CardContent>
             </Card>
@@ -526,7 +642,7 @@ const DJDashboard = () => {
                             <Button 
                               size="sm" 
                               variant="outline"
-                              onClick={() => handleViewBookingDetails(request)}
+                              onClick={() => navigate(`/events/${request.id}`)}
                             >
                               <Eye className="w-4 h-4 mr-1" />
                               View Details
@@ -596,6 +712,53 @@ const DJDashboard = () => {
                   </div>
                 ))}
               </div>
+            </CardContent>
+          </Card>
+        );
+
+      case 'wallet':
+        return (
+          <Card className="bg-card border-border">
+            <CardHeader>
+              <CardTitle className="flex items-center text-foreground">
+                <DollarSign className="w-5 h-5 mr-2 text-primary" />
+                Wallet
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {walletLoading ? (
+                <div>Loading...</div>
+              ) : (
+                <>
+                  <div className="mb-4">
+                    <div className="text-lg font-bold">Balance: ₹{wallet.balance}</div>
+                  </div>
+                  <div className="mb-4 flex gap-2">
+                    <Input
+                      type="number"
+                      placeholder="Add money"
+                      value={addMoneyAmount}
+                      onChange={e => setAddMoneyAmount(e.target.value)}
+                      className="w-32"
+                    />
+                    <Button onClick={handleAddMoney} disabled={walletLoading} className="bg-primary">Add</Button>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-2">Transactions</h4>
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {wallet.transactions.map(tx => (
+                        <div key={tx.id} className="flex justify-between p-2 bg-muted/50 rounded">
+                          <span>{tx.description}</span>
+                          <span className={tx.type === 'credit' ? 'text-green-600' : 'text-red-600'}>
+                            {tx.type === 'credit' ? '+' : '-'}₹{tx.amount}
+                          </span>
+                          <span className="text-xs text-muted-foreground">{tx.date}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
         );
