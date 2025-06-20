@@ -277,7 +277,7 @@ const Home = () => {
         containerVariants={containerVariants}
         itemVariants={itemVariants}
       />
-      {console.log(filteredVenues)}
+
       
       {/* Top Resto Bars Section */}
       <TopRestoBarsSection 

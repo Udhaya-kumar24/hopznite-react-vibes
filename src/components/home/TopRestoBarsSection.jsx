@@ -51,7 +51,7 @@ const TopRestoBarsSection = ({
                 <Card className="bg-card border-border overflow-hidden h-full">
                   <div className="aspect-video bg-muted relative">
                     <img src={venue.image} alt={venue.name} className="w-full h-full object-cover"/>
-                    <Badge className="absolute top-3 right-3 bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+                    <Badge className="absolute top-3 px-1 right-3 bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
                       <Star className="w-3 h-3 mr-1" />{venue.rating}
                     </Badge>
                   </div>
