@@ -8,6 +8,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
+import About from "./pages/About";
+import FAQ from "./pages/FAQ";
 import Login from "./pages/Login";
 import Register from "./pages/Register.jsx";
 import DJDashboard from "./pages/DJ/DJDashboard.jsx";
@@ -77,6 +79,8 @@ const App = () => {
                   <RequireAuth>
                     <Routes>
                       <Route path="/" element={<Home />} />
+                      <Route path="/about" element={<About />} />
+                      <Route path="/faq" element={<FAQ />} />
                       <Route path="/login" element={<Login />} />
                       <Route path="/register" element={<Register />} />
                       <Route path="/events" element={<Events />} />
