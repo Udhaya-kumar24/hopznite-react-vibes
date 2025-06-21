@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Users, Clock, Phone, Mail } from 'lucide-react';
 import { getVenueById } from '@/services/api';
+import { Link } from 'react-router-dom';
 
 const VenueProfile = () => {
   const { id } = useParams();
@@ -89,7 +90,12 @@ const VenueProfile = () => {
                       <h4 className="font-medium">{event.name}</h4>
                       <p className="text-sm text-muted-foreground">{event.date} • {event.dj}</p>
                     </div>
-                    <Button variant="outline" size="sm">View Details</Button>
+                    {
+                      event?.url &&
+                      <Button variant="outline" size="sm">
+                        <Link to={event.url}>View Details</Link>
+                      </Button>
+                    }
                   </div>
                 ))}
               </div>

@@ -1,41 +1,154 @@
-
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Calendar, MapPin, Search, Filter, Music } from 'lucide-react';
+import { Calendar, MapPin, Search, Filter, Music, ChevronDown, ChevronUp, X, Clock, Star } from 'lucide-react';
 import ParticlesBackground from '../components/ParticlesBackground';
-import { getEvents } from '../services/api';
+import { getEvents, getEventFilterOptions } from '../services/api';
 import { isFuture, isSameWeek, isWeekend } from 'date-fns';
+import { usePagination } from '../hooks/usePagination';
+import Pagination from '../components/ui/pagination';
 
 const Events = () => {
+  const location = useLocation();
+  const filtersLoadedRef = useRef(false);
   const [events, setEvents] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
-  const [activeFilter, setActiveFilter] = useState('Upcoming');
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [locationFilter, setLocationFilter] = useState('');
+  const [priceRangeFilter, setPriceRangeFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [filtersRestored, setFiltersRestored] = useState(false);
+  
+  // Dynamic filter data
+  const [filterOptions, setFilterOptions] = useState({
+    categories: [],
+    locations: [],
+    priceRanges: [],
+    status: []
+  });
 
-  const filters = ['All', 'Upcoming', 'This Weekend', 'Trending'];
+  // Save filters to localStorage whenever they change
+  const saveFilters = (filters) => {
+    try {
+      localStorage.setItem('event-filters', JSON.stringify(filters));
+      console.log('Event filters successfully saved to localStorage:', filters);
+    } catch (error) {
+      console.error('Error saving event filters to localStorage:', error);
+    }
+  };
+
+  // Load filters from localStorage
+  const loadFilters = () => {
+    if (filtersLoadedRef.current) return; // Only load once
+    
+    // Clear filters from other pages when entering Events page
+    localStorage.removeItem('dj-filters');
+    localStorage.removeItem('venue-filters');
+    
+    const saved = localStorage.getItem('event-filters');
+    if (saved) {
+      try {
+        const filters = JSON.parse(saved);
+        setSearchTerm(filters.searchTerm || '');
+        setSelectedCategories(filters.selectedCategories || []);
+        setLocationFilter(filters.locationFilter || '');
+        setPriceRangeFilter(filters.priceRangeFilter || '');
+        setStatusFilter(filters.statusFilter || 'all');
+        setShowFilters(filters.showFilters || false);
+        setFiltersRestored(true);
+        console.log('Event filters restored:', filters);
+      } catch (error) {
+        console.error('Error loading saved event filters:', error);
+      }
+    }
+    
+    // Always set this to true after attempting to load (whether filters were found or not)
+    filtersLoadedRef.current = true;
+  };
+
+  // Save filters whenever any filter changes (but not on initial load)
+  useEffect(() => {
+    // Only save if we've loaded filters and the component is ready
+    if (filtersLoadedRef.current && !loading) {
+      const filters = {
+        searchTerm,
+        selectedCategories,
+        locationFilter,
+        priceRangeFilter,
+        statusFilter,
+        showFilters
+      };
+      saveFilters(filters);
+      console.log('Event filters saved:', filters);
+    }
+  }, [searchTerm, selectedCategories, locationFilter, priceRangeFilter, statusFilter, showFilters, loading]);
 
   useEffect(() => {
-    const fetchEvents = async () => {
+    // Load saved filters immediately
+    loadFilters();
+    
+    const fetchData = async () => {
       try {
-        const response = await getEvents();
-        if (response.success) {
-          setEvents(response.data);
+        setLoading(true);
+        
+        // Fetch events and filter options
+        const [eventsResponse, filterResponse] = await Promise.all([
+          getEvents(),
+          getEventFilterOptions()
+        ]);
+        
+        if (eventsResponse.success) {
+          setEvents(eventsResponse.data);
+        }
+        
+        if (filterResponse.success) {
+          setFilterOptions(filterResponse.data);
         }
       } catch (error) {
-        console.error('Error fetching events:', error);
+        console.error('Error fetching data:', error);
       } finally {
-        setTimeout(() => setLoading(false), 1500);
+        setTimeout(() => setLoading(false), 1000);
       }
     };
 
-    fetchEvents();
+    fetchData();
   }, []);
+
+  const handleCategoryToggle = (category) => {
+    setSelectedCategories(prev => 
+      prev.includes(category) 
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
+
+  const clearAllFilters = () => {
+    setSearchTerm('');
+    setSelectedCategories([]);
+    setLocationFilter('');
+    setPriceRangeFilter('');
+    setStatusFilter('all');
+    setShowFilters(false);
+    setFiltersRestored(false);
+    filtersLoadedRef.current = false;
+    resetPagination();
+    localStorage.removeItem('event-filters');
+  };
+
+  const activeFiltersCount = [
+    searchTerm ? 1 : 0,
+    selectedCategories.length,
+    locationFilter ? 1 : 0,
+    priceRangeFilter ? 1 : 0,
+    statusFilter !== 'all' ? 1 : 0
+  ].reduce((a, b) => a + b, 0);
 
   const filteredEvents = events.filter(event => {
     const matchesSearch =
@@ -45,21 +158,43 @@ const Events = () => {
     
     if (!matchesSearch) return false;
 
-    if (activeFilter === 'All') return true;
+    const matchesCategory = selectedCategories.length === 0 || 
+                           selectedCategories.some(category => {
+                             if (category === 'All') return true;
+                             if (category === 'Upcoming') return isFuture(new Date(event.date));
+                             if (category === 'This Weekend') return isWeekend(new Date(event.date)) && isSameWeek(new Date(event.date), new Date(), { weekStartsOn: 1 });
+                             if (category === 'Trending') return event.status !== 'sold-out';
+                             return event.category?.toLowerCase().includes(category.toLowerCase());
+                           });
 
-    const eventDate = new Date(event.date);
+    const matchesLocation = !locationFilter || event.location.toLowerCase().includes(locationFilter.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'all' || event.status === statusFilter;
+    
+    // Simple price range matching (you can enhance this based on your event data structure)
+    const matchesPrice = !priceRangeFilter || true; // Placeholder - implement based on your price data
 
-    if (activeFilter === 'Upcoming') {
-      return isFuture(eventDate) || new Date().toDateString() === eventDate.toDateString();
-    }
-    if (activeFilter === 'This Weekend') {
-      return isWeekend(eventDate) && isSameWeek(eventDate, new Date(), { weekStartsOn: 1 });
-    }
-    if (activeFilter === 'Trending') {
-      return event.status !== 'sold-out';
-    }
-    return true;
+    return matchesSearch && matchesCategory && matchesLocation && matchesStatus && matchesPrice;
   });
+
+  // Pagination hook
+  const {
+    currentPage,
+    totalPages,
+    paginatedItems: paginatedEvents,
+    goToPage,
+    resetPagination,
+    startIndex,
+    endIndex,
+    totalItems: totalEvents
+  } = usePagination(filteredEvents, 25);
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    if (filtersRestored) {
+      resetPagination();
+    }
+  }, [searchTerm, selectedCategories, locationFilter, priceRangeFilter, statusFilter, filtersRestored, resetPagination]);
 
   const EventCardSkeleton = () => (
     <Card className="overflow-hidden card-hover">
@@ -137,7 +272,7 @@ const Events = () => {
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
               >
-                {filters.map((_, i) => (
+                {Array.from({ length: 4 }).map((_, i) => (
                   <Skeleton key={i} className="h-8 w-24" />
                 ))}
               </motion.div>
@@ -185,28 +320,212 @@ const Events = () => {
               </div>
             </div>
             
-            <div className="flex items-center gap-4 mb-6">
-              <div className="relative w-full max-w-sm">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search events, venues..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9"
-                />
+            {/* Enhanced Search and Filter Bar */}
+            <motion.div 
+              className="bg-background/80 backdrop-blur-sm border border-border rounded-xl p-4 mb-6"
+              initial={{ y: 30, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <div className="flex flex-col lg:flex-row gap-4 items-center">
+                {/* Search Bar */}
+                <div className="relative flex-1 w-full">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Input
+                    placeholder="Search events, venues..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 bg-background/50"
+                  />
+                </div>
+                
+                {/* Filter Toggle Button */}
+                <div className="flex gap-2">
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowFilters(!showFilters)}
+                      className="flex items-center gap-2"
+                    >
+                      <Filter className="h-4 w-4" />
+                      Filters
+                      {activeFiltersCount > 0 && (
+                        <Badge variant="secondary" className="ml-1">
+                          {activeFiltersCount}
+                        </Badge>
+                      )}
+                      {showFilters ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    </Button>
+                  </motion.div>
+                  
+                  {activeFiltersCount > 0 && (
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                      <Button 
+                        variant="ghost" 
+                        onClick={clearAllFilters}
+                        className="flex items-center gap-2"
+                      >
+                        <X className="h-4 w-4" />
+                        Clear
+                      </Button>
+                    </motion.div>
+                  )}
+                </div>
               </div>
-              <div className="flex gap-2">
-                {filters.map((filter) => (
-                  <Button
-                    key={filter}
-                    variant={activeFilter === filter ? 'default' : 'outline'}
-                    onClick={() => setActiveFilter(filter)}
+
+              {/* Filters Restored Indicator */}
+              {filtersRestored && activeFiltersCount > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-3 text-xs text-muted-foreground flex items-center gap-2"
+                >
+                  <span>✓</span>
+                  <span>Filters restored from previous session</span>
+                </motion.div>
+              )}
+
+              {/* Collapsible Filter Panel */}
+              <AnimatePresence>
+                {showFilters && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="overflow-hidden"
                   >
-                    {filter}
-                  </Button>
-                ))}
-              </div>
-            </div>
+                    <div className="border-t border-border mt-4 pt-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        
+                        {/* Category Filter */}
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 text-primary" />
+                            <h3 className="font-semibold text-sm">Categories</h3>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {filterOptions.categories.map((category) => (
+                              <motion.button
+                                key={category}
+                                onClick={() => handleCategoryToggle(category)}
+                                className={`px-3 py-1.5 text-xs rounded-lg border transition-all duration-200 ${
+                                  selectedCategories.includes(category) 
+                                    ? 'bg-primary text-primary-foreground border-primary' 
+                                    : 'bg-transparent border-border text-muted-foreground hover:border-primary/50'
+                                }`}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                              >
+                                {category}
+                              </motion.button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Location Filter */}
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <MapPin className="h-4 w-4 text-primary" />
+                            <h3 className="font-semibold text-sm">Location</h3>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {filterOptions.locations.map((location) => (
+                              <motion.button
+                                key={location}
+                                onClick={() => {
+                                  const newLocation = locationFilter === location ? '' : location;
+                                  setLocationFilter(newLocation);
+                                  // Manually save filters after location change
+                                  setTimeout(() => {
+                                    const currentFilters = {
+                                      searchTerm,
+                                      selectedCategories,
+                                      locationFilter: newLocation,
+                                      priceRangeFilter,
+                                      statusFilter,
+                                      showFilters
+                                    };
+                                    saveFilters(currentFilters);
+                                    console.log('Event location filter manually saved:', currentFilters);
+                                  }, 100);
+                                }}
+                                className={`px-3 py-1.5 text-xs rounded-lg border transition-all duration-200 ${
+                                  locationFilter === location 
+                                    ? 'bg-primary text-primary-foreground border-primary' 
+                                    : 'bg-transparent border-border text-muted-foreground hover:border-primary/50'
+                                }`}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                              >
+                                {location}
+                              </motion.button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Status Filter */}
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4 text-primary" />
+                            <h3 className="font-semibold text-sm">Status</h3>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {filterOptions.status.map((status) => (
+                              <motion.button
+                                key={status}
+                                onClick={() => setStatusFilter(status)}
+                                className={`px-3 py-1.5 text-xs rounded-lg border transition-all duration-200 ${
+                                  statusFilter === status 
+                                    ? 'bg-primary text-primary-foreground border-primary' 
+                                    : 'bg-transparent border-border text-muted-foreground hover:border-primary/50'
+                                }`}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                              >
+                                {status === 'all' ? 'All' : status}
+                              </motion.button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Active Filters Summary */}
+                        <div className="space-y-3">
+                          <h3 className="font-semibold text-sm">Active Filters</h3>
+                          <div className="space-y-2">
+                            {searchTerm && (
+                              <Badge variant="secondary" className="text-xs">
+                                Search: {searchTerm}
+                              </Badge>
+                            )}
+                            {selectedCategories.map(category => (
+                              <Badge key={category} variant="secondary" className="text-xs">
+                                {category}
+                              </Badge>
+                            ))}
+                            {locationFilter && (
+                              <Badge variant="secondary" className="text-xs">
+                                {locationFilter}
+                              </Badge>
+                            )}
+                            {statusFilter !== 'all' && (
+                              <Badge variant="secondary" className="text-xs">
+                                {statusFilter}
+                              </Badge>
+                            )}
+                            {priceRangeFilter && (
+                              <Badge variant="secondary" className="text-xs">
+                                {priceRangeFilter}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
 
           </motion.div>
 
@@ -223,7 +542,7 @@ const Events = () => {
                 </motion.div>
               ))
             ) : (
-              filteredEvents.map((event, index) => (
+              paginatedEvents.map((event, index) => (
                 <motion.div
                   key={event.id}
                   variants={itemVariants}
@@ -259,9 +578,8 @@ const Events = () => {
                         <Badge variant="secondary">{event.genre}</Badge>
                       </div>
                       <div className="flex items-center justify-between mt-auto pt-2">
-                        <span className="text-lg font-bold text-foreground">₹{event.price}</span>
-                        <Button asChild size="sm">
-                          <Link to={`/events/${event.id}`}>Book Now</Link>
+                        <Button size="sm" className="w-full">
+                          <Link to={`/events/${event.id}`}>View Details</Link>
                         </Button>
                       </div>
                     </CardContent>
@@ -270,6 +588,27 @@ const Events = () => {
               ))
             )}
           </motion.div>
+
+          {/* Pagination */}
+          {!loading && filteredEvents.length > 0 && (
+            <motion.div 
+              className="mt-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+            >
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={goToPage}
+                hasNextPage={currentPage < totalPages}
+                hasPreviousPage={currentPage > 1}
+                startIndex={startIndex}
+                endIndex={endIndex}
+                totalItems={totalEvents}
+              />
+            </motion.div>
+          )}
 
           {filteredEvents.length === 0 && !loading && (
             <motion.div 

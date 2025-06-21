@@ -133,38 +133,6 @@ const EventDetails = () => {
 
           {/* Right Column */}
           <motion.div className="lg:sticky top-24 self-start space-y-8" variants={itemVariants}>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Ticket className="w-6 h-6" /> Tickets</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-primary">₹{event.ticketPrice ?? 'N/A'}</div>
-                  <p className="text-sm text-muted-foreground">per person</p>
-                </div>
-
-                <div className="w-full bg-muted rounded-full h-2.5">
-                  <div
-                    className="bg-primary h-2.5 rounded-full"
-                    style={{ width: `${isNaN(soldPercentage) ? 0 : soldPercentage}%` }}
-                  ></div>
-                </div>
-
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Available: <span className="font-bold text-foreground">{isNaN(availableTickets) ? '0' : availableTickets}</span></span>
-                  <span className="text-muted-foreground">Sold: <span className="font-bold text-foreground">{event.soldTickets ?? '0'}</span></span>
-                </div>
-
-                <Button className="w-full" size="lg" disabled={availableTickets <= 0}>
-                  {availableTickets > 0 ? 'Book Now' : 'Sold Out'}
-                </Button>
-
-                <p className="text-xs text-muted-foreground text-center flex items-center justify-center gap-1">
-                  <ShieldCheck className="w-3 h-3" /> Secure booking with instant confirmation
-                </p>
-              </CardContent>
-            </Card>
-
             <GoogleCalendar event={event} />
             <GoogleMaps venue={event.venue} location={event.location} />
           </motion.div>

@@ -22,8 +22,10 @@ import WhyChooseSection from '../components/home/WhyChooseSection';
 import TestimonialsSection from '../components/home/TestimonialsSection';
 import ContactSection from '../components/home/ContactSection';
 import { fetchFilterCountries } from '../services/api';
+import { useAuth } from '../components/AuthProvider';
 
 const Home = () => {
+  const { user, isAuthenticated } = useAuth();
   const [filterList, setFilterList] = useState({});
   const [featuredDJs, setFeaturedDJs] = useState([]);
   const [upcomingEvents, setUpcomingEvents] = useState([]);
@@ -168,27 +170,22 @@ const Home = () => {
     }
   };
 
-  const CardSkeleton = ({ className = "" }) => (
-    <Card className={`overflow-hidden bg-card/80 border border-border ${className}`}>
-      <div className="aspect-video">
-        <Skeleton className="w-full h-full bg-muted" />
-      </div>
-      <CardContent className="p-4">
-        <Skeleton className="h-6 w-3/4 mb-2 bg-muted" />
-        <Skeleton className="h-4 w-1/2 mb-1 bg-muted" />
-        <Skeleton className="h-4 w-2/3 mb-3 bg-muted" />
-        <div className="flex gap-2">
-          <Skeleton className="h-8 flex-1 bg-muted" />
-        </div>
-      </CardContent>
-    </Card>
-  );
-
   const carouselItems = [...upcomingEvents.slice(0, 5), ...topVenues.slice(0, 5)];
 
   return (
     <div className="min-h-screen bg-background/70 text-foreground relative backdrop-blur-sm">
       <ParticlesBackground />
+      
+      <div className="max-w-7xl mx-auto px-4 py-2 text-center bg-background/50">
+        {isAuthenticated && user ? (
+          <p>
+            Welcome back, <span className="font-bold text-primary">{user.name}</span>! 
+            You are logged in as a <span className="font-bold text-primary">{user.role}</span>.
+          </p>
+        ) : (
+          <p>Welcome, Guest! Login to access more features.</p>
+        )}
+      </div>
       
       {/* Header Section with Location */}
       <motion.section 

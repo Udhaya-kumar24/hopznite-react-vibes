@@ -7,9 +7,11 @@ import { Badge } from '@/components/ui/badge';
 import { Star, MapPin, Music, Calendar, DollarSign, Briefcase, Headset } from 'lucide-react';
 import { getDJById } from '../services/api';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAuth } from '../components/AuthProvider';
 
 const DJProfile = () => {
   const { id } = useParams();
+  const { user } = useAuth();
   const [dj, setDj] = useState(null);
   const [loading, setLoading] = useState(true);
   
@@ -157,26 +159,31 @@ const DJProfile = () => {
           </div>
 
           {/* Right Column (Booking) */}
-          <div className="lg:sticky top-24 self-start">
-            <Card>
-              <CardHeader>
-                <CardTitle>Book {dj.name}</CardTitle>
-                 <p className="text-sm text-muted-foreground">Starting from</p>
-                 <div className="text-3xl font-bold text-primary">
-                    ₹{dj.price.toLocaleString()}
-                    <span className="text-lg text-muted-foreground font-normal">/night</span>
-                  </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Button className="w-full" size="lg">
-                  Check Availability
-                </Button>
-                <Button variant="outline" className="w-full">
-                  Contact DJ
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+          {
+            (user.role == 'PubOwner' || user.role == 'Admin' || user.role == 'EventManagement') &&
+            <div className="lg:sticky top-24 self-start">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Book {dj.name}</CardTitle>
+                  <p className="text-sm text-muted-foreground">Starting from</p>
+                  <div className="text-3xl font-bold text-primary">
+                      ₹{dj.price.toLocaleString()}
+                      <span className="text-lg text-muted-foreground font-normal">/night</span>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Button className="w-full" size="lg">
+                    Check Availability
+                  </Button>
+                  <Button variant="outline" className="w-full">
+                    Contact DJ
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          }
+
+
         </div>
       </div>
     </div>

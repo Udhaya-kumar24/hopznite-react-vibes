@@ -118,7 +118,7 @@ const Navbar = () => {
                     <span>{user?.name}</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent align="end" className="w-48 bg-background/95">
                   <DropdownMenuItem asChild>
                     <Link to={getDashboardRoute()} className="flex items-center">
                       <Settings className="mr-2 h-4 w-4" />

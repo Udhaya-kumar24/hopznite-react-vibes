@@ -89,6 +89,50 @@ export const fetchFilterCountries = async () => {
   };
 }
 
+// Dynamic Filter APIs for DJs
+export const getDJFilterOptions = async () => {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  return {
+    success: true,
+    data: {
+      genres: ['House', 'EDM', 'Techno', 'Hip Hop', 'R&B', 'Bollywood', 'Commercial', 'Progressive', 'Trance', 'Psy-Trance', 'Drum & Bass', 'Jungle', 'Deep House', 'Melodic', 'World Music', 'Fusion', 'Electro', 'Synthwave'],
+      locations: ['Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Hyderabad', 'Pune', 'Kolkata', 'Ahmedabad', 'Jaipur', 'Lucknow'],
+      availability: ['all', 'available', 'busy']
+    }
+  };
+};
+
+// Dynamic Filter APIs for Events
+export const getEventFilterOptions = async () => {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  return {
+    success: true,
+    data: {
+      categories: ['All', 'Upcoming', 'This Weekend', 'Trending', 'Live Music', 'DJ Night', 'Karaoke', 'Comedy', 'Dance', 'Party'],
+      locations: ['Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Hyderabad', 'Pune', 'Kolkata', 'Ahmedabad', 'Jaipur', 'Lucknow'],
+      priceRanges: ['Free', 'Under ₹500', '₹500 - ₹1000', '₹1000 - ₹2000', '₹2000+'],
+      status: ['all', 'upcoming', 'ongoing', 'completed']
+    }
+  };
+};
+
+// Dynamic Filter APIs for Venues
+export const getVenueFilterOptions = async () => {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  return {
+    success: true,
+    data: {
+      types: ['Restaurant', 'Bar', 'Club', 'Pub', 'Lounge', 'Cafe', 'Nightclub', 'Brewery', 'Wine Bar', 'Sports Bar'],
+      locations: ['Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Hyderabad', 'Pune', 'Kolkata', 'Ahmedabad', 'Jaipur', 'Lucknow'],
+      priceRanges: ['Budget', 'Mid-range', 'Premium', 'Luxury'],
+      ratings: ['4.5+', '4.0+', '3.5+', '3.0+']
+    }
+  };
+};
+
 // DJ APIs
 export const getDJList = async () => {
   await new Promise(resolve => setTimeout(resolve, 800));
@@ -401,7 +445,6 @@ export const getEvents = async () => {
 
 export const getEventsById = async (id) => {
   await new Promise(resolve => setTimeout(resolve, 800));
-  console.log(id,'??????????');
   
   return {
     success: true,
@@ -587,7 +630,6 @@ export const getVenueById = async (id) => {
   await new Promise(resolve => setTimeout(resolve, 500));
   
   const venues = {
-    1: {
       id: 1,
       name: "Club Infinity",
       location: "Bandra, Mumbai",
@@ -606,44 +648,14 @@ export const getVenueById = async (id) => {
         manager: "Ravi Sharma"
       },
       upcomingEvents: [
-        { id: 1, name: "Saturday Night Fever", date: "June 15, 2024", dj: "DJ Sonic" },
-        { id: 2, name: "Electronic Vibes", date: "June 22, 2024", dj: "DJ Blaze" }
+        { id: 1, name: "Saturday Night Fever", date: "June 15, 2024", dj: "DJ Sonic", url: '/events/1' },
+        { id: 2, name: "Electronic Vibes", date: "June 22, 2024", dj: "DJ Blaze"}
       ]
-    },
-    2: {
-      id: 2,
-      name: "Skybar Lounge",
-      location: "Juhu, Mumbai",
-      capacity: 180,
-      type: "Rooftop Lounge",
-      image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=600",
-      description: "Trendy rooftop lounge with stunning city views and innovative cocktails.",
-      amenities: ["Rooftop", "Bar", "Outdoor Seating", "City Views", "Valet Parking"],
-      contact: {
-        phone: "+91 9876543211",
-        email: "info@skybarlounge.com",
-        manager: "Priya Patel"
-      }
-    },
-    5: {
-      id: 5,
-      name: "Underground Club",
-      location: "Andheri, Mumbai",
-      capacity: 150,
-      type: "Underground Club",
-      image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=600",
-      description: "An underground club experience with a focus on techno and house music.",
-      contact: {
-        phone: "+91 9876543215",
-        email: "info@undergroundclub.com",
-        manager: "Amit Kumar"
-      }
-    }
   };
   
   return { 
     success: true, 
-    data: venues[id] || null
+    data: venues || null
   };
 };
 

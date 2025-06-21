@@ -4,9 +4,11 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronDown, HelpCircle, MessageCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const FAQ = () => {
   const [openFAQ, setOpenFAQ] = useState(null);
+  const navigate = useNavigate()
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -184,44 +186,12 @@ const FAQ = () => {
             className="flex gap-4 justify-center"
             variants={itemVariants}
           >
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90"  onClick={() => navigate('/')}>
               Contact Support
             </Button>
-            <Button variant="outline">
+            <Button variant="outline" onClick={() => navigate('/about')}>
               Learn More About Us
             </Button>
-          </motion.div>
-        </div>
-      </motion.section>
-
-      {/* Quick Links Section */}
-      <motion.section 
-        className="py-16 px-4"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        variants={containerVariants}
-      >
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.h2 
-            className="text-2xl font-semibold mb-8"
-            variants={itemVariants}
-          >
-            Quick Links
-          </motion.h2>
-          <motion.div 
-            className="flex flex-wrap gap-4 justify-center"
-            variants={itemVariants}
-          >
-            {quickLinks.map((link, index) => (
-              <Button 
-                key={index}
-                variant="outline"
-                className="border-border hover:bg-accent"
-              >
-                {link.label}
-              </Button>
-            ))}
           </motion.div>
         </div>
       </motion.section>
