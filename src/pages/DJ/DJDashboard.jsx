@@ -13,6 +13,8 @@ import { Calendar as CalendarIcon, Music, Star, DollarSign, Clock, MapPin, User,
 import { toast } from 'sonner';
 import { getDJProfile, updateDJProfile, getDJAvailability, updateDJAvailability, getDJBookingRequests, respondToBookingRequest, getDJReviews, updateDJPricing, getDJStats, getVenueById, getEventManagementCompanyById, getDJWallet, updateDJWallet, uploadDJMedia } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import * as RechartsPrimitive from 'recharts';
 
 const DJDashboard = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -63,18 +65,15 @@ const DJDashboard = () => {
     { id: 'overview', label: 'Overview', icon: Home },
     { id: 'profile', label: 'Profile Setup', icon: User },
     { id: 'availability', label: 'Availability', icon: CalendarIcon },
-    { id: 'pricing', label: 'Pricing', icon: DollarSign },
     { id: 'bookings', label: 'Bookings', icon: MessageSquare },
     { id: 'wallet', label: 'Wallet', icon: DollarSign },
     { id: 'reviews', label: 'Reviews', icon: Star },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
   ];
 
-  // Define quickActions array for use in Overview Quick Actions
   const quickActions = [
     { key: 'availability', label: 'Update Availability', icon: CalendarIcon, tab: 'availability' },
     { key: 'profile', label: 'Edit Profile', icon: User, tab: 'profile' },
-    { key: 'pricing', label: 'Update Pricing', icon: DollarSign, tab: 'pricing' },
     { key: 'wallet', label: 'Wallet', icon: DollarSign, tab: 'wallet' },
   ];
 
@@ -280,18 +279,16 @@ const DJDashboard = () => {
   const CustomDayContent = ({ date }) => {
     const dateStr = date.toISOString().slice(0, 10);
     const status = getDateStatus(dateStr);
-    let dotColor = '';
-    if (status === 'booked') dotColor = 'bg-green-500';
-    else if (status === 'available') dotColor = 'bg-yellow-400';
-    else if (status === 'busy') dotColor = 'bg-gray-400';
+    let bgColor = '';
+    if (status === 'booked') bgColor = 'bg-green-400 text-white';
+    else if (status === 'available') bgColor = 'bg-yellow-300 text-black';
+    else if (status === 'busy') bgColor = 'bg-gray-400 text-white';
     return (
-      <span style={{ position: 'relative', display: 'inline-block', width: '100%' }}>
+      <span
+        className={`w-full h-full flex items-center justify-center rounded-full ${bgColor}`}
+        style={{ minHeight: 32, minWidth: 32 }}
+      >
         {date.getDate()}
-        {status && (
-          <span
-            className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full ${dotColor}`}
-          ></span>
-        )}
       </span>
     );
   };
@@ -300,12 +297,16 @@ const DJDashboard = () => {
     setSelectedDate(date);
     const dateStr = date.toISOString().slice(0, 10);
     const slot = availability.find(a => a.date === dateStr);
-    if (slot) {
+    if (slot && slot.status !== 'available') {
       setSelectedBookingDetails(slot);
       toast.info(`Event: ${slot.status === 'booked' ? 'Booking' : slot.status}`);
     } else {
       setSelectedBookingDetails(null);
-      toast.info('No events for this date');
+      if (slot && slot.status === 'available') {
+        toast.info('Available');
+      } else {
+        toast.info('No events for this date');
+      }
     }
   };
 
@@ -394,7 +395,6 @@ const DJDashboard = () => {
                   <input id="profile-upload" type="file" accept="image/*" className="hidden" onChange={handleProfileImageChange} />
                 </div>
               </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
@@ -420,6 +420,15 @@ const DJDashboard = () => {
                       type="number"
                       value={profileData.experience}
                       onChange={(e) => setProfileData(prev => ({...prev, experience: parseInt(e.target.value)}))}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="hourlyRate">Hourly Rate (₹)</Label>
+                    <Input 
+                      id="hourlyRate" 
+                      type="number"
+                      value={profileData.hourlyRate}
+                      onChange={(e) => setProfileData(prev => ({...prev, hourlyRate: parseInt(e.target.value)}))}
                     />
                   </div>
                 </div>
@@ -561,43 +570,6 @@ const DJDashboard = () => {
               </Card>
             </div>
           </div>
-        );
-
-      case 'pricing':
-        return (
-          <Card className="bg-card border-border">
-            <CardHeader>
-              <CardTitle className="flex items-center text-foreground">
-                <DollarSign className="w-5 h-5 mr-2 text-primary" />
-                Pricing Schedule
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="hourlyRate">Hourly Rate (₹)</Label>
-                  <Input 
-                    id="hourlyRate" 
-                    type="number"
-                    value={profileData.hourlyRate}
-                    onChange={(e) => setProfileData(prev => ({...prev, hourlyRate: parseInt(e.target.value)}))}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="eventRate">Event Package (₹)</Label>
-                  <Input 
-                    id="eventRate" 
-                    type="number"
-                    value={profileData.eventRate}
-                    onChange={(e) => setProfileData(prev => ({...prev, eventRate: parseInt(e.target.value)}))}
-                  />
-                </div>
-              </div>
-              <Button onClick={updatePricing} className="bg-primary hover:bg-primary/90">
-                Update Pricing
-              </Button>
-            </CardContent>
-          </Card>
         );
 
       case 'bookings':
@@ -797,38 +769,119 @@ const DJDashboard = () => {
         );
 
       case 'analytics':
+        // Example chart data
+        const chartData = [
+          { name: 'Jan', Bookings: 3, Earnings: 12000 },
+          { name: 'Feb', Bookings: 5, Earnings: 18000 },
+          { name: 'Mar', Bookings: 2, Earnings: 9000 },
+          { name: 'Apr', Bookings: 6, Earnings: 22000 },
+          { name: 'May', Bookings: 4, Earnings: 15000 },
+          { name: 'Jun', Bookings: 7, Earnings: 25000 },
+        ];
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card className="bg-card border-border">
-              <CardHeader>
-                <CardTitle className="text-foreground">Monthly Earnings</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-foreground">₹{stats.monthlyEarnings?.toLocaleString() || stats.earnings.toLocaleString()}</div>
-                <p className="text-muted-foreground">This month</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-card border-border">
-              <CardHeader>
-                <CardTitle className="text-foreground">Profile Views</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-foreground">{stats.profileViews}</div>
-                <p className="text-muted-foreground">Total views</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-card border-border">
-              <CardHeader>
-                <CardTitle className="text-foreground">Acceptance Rate</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-foreground">{stats.acceptanceRate || 85}%</div>
-                <p className="text-muted-foreground">Booking acceptance</p>
-              </CardContent>
-            </Card>
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <Card className="bg-card border-border">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-foreground">Total Bookings</CardTitle>
+                  <CalendarIcon className="h-4 w-4 text-primary" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-foreground">{stats.totalBookings}</div>
+                  <p className="text-xs text-muted-foreground">+2 from last month</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-card border-border">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-foreground">Rating</CardTitle>
+                  <Star className="h-4 w-4 text-primary" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-foreground">{stats.rating}</div>
+                  <p className="text-xs text-muted-foreground">Based on {stats.totalReviews || 25} reviews</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-card border-border">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-foreground">Earnings</CardTitle>
+                  <DollarSign className="h-4 w-4 text-primary" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-foreground">₹{stats.earnings.toLocaleString()}</div>
+                  <p className="text-xs text-muted-foreground">This month</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-card border-border">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-foreground">Profile Views</CardTitle>
+                  <Music className="h-4 w-4 text-primary" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-foreground">{stats.profileViews}</div>
+                  <p className="text-xs text-muted-foreground">This week</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="bg-card border-border">
+                <CardHeader>
+                  <CardTitle className="text-foreground">Monthly Earnings</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-foreground">₹{stats.monthlyEarnings?.toLocaleString() || stats.earnings.toLocaleString()}</div>
+                  <p className="text-muted-foreground">This month</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-card border-border">
+                <CardHeader>
+                  <CardTitle className="text-foreground">Profile Views</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-foreground">{stats.profileViews}</div>
+                  <p className="text-muted-foreground">Total views</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-card border-border">
+                <CardHeader>
+                  <CardTitle className="text-foreground">Acceptance Rate</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-foreground">{stats.acceptanceRate || 85}%</div>
+                  <p className="text-muted-foreground">Booking acceptance</p>
+                </CardContent>
+              </Card>
+
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="bg-card border-border">
+                <CardHeader>
+                  <CardTitle className="text-foreground">Bookings & Earnings Trend</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ChartContainer
+                    config={{ Bookings: { color: '#6366f1' }, Earnings: { color: '#f59e42' } }}
+                    style={{ width: '100%', height: 300 }}
+                  >
+                    <RechartsPrimitive.LineChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                      <RechartsPrimitive.CartesianGrid strokeDasharray="3 3" />
+                      <RechartsPrimitive.XAxis dataKey="name" />
+                      <RechartsPrimitive.YAxis />
+                      <RechartsPrimitive.Tooltip content={<ChartTooltipContent />} />
+                      <RechartsPrimitive.Legend />
+                      <RechartsPrimitive.Line type="monotone" dataKey="Bookings" stroke="#6366f1" strokeWidth={2} />
+                      <RechartsPrimitive.Line type="monotone" dataKey="Earnings" stroke="#f59e42" strokeWidth={2} yAxisId={1} />
+                    </RechartsPrimitive.LineChart>
+                  </ChartContainer>
+                </CardContent>
+              </Card>
+            </div>
+          </>
         );
 
       default:
@@ -876,51 +929,7 @@ const DJDashboard = () => {
         {/* Main Content */}
         <div className="flex-1 p-6">
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card className="bg-card border-border">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-foreground">Total Bookings</CardTitle>
-                <CalendarIcon className="h-4 w-4 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">{stats.totalBookings}</div>
-                <p className="text-xs text-muted-foreground">+2 from last month</p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-card border-border">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-foreground">Rating</CardTitle>
-                <Star className="h-4 w-4 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">{stats.rating}</div>
-                <p className="text-xs text-muted-foreground">Based on {stats.totalReviews || 25} reviews</p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-card border-border">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-foreground">Earnings</CardTitle>
-                <DollarSign className="h-4 w-4 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">₹{stats.earnings.toLocaleString()}</div>
-                <p className="text-xs text-muted-foreground">This month</p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-card border-border">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-foreground">Profile Views</CardTitle>
-                <Music className="h-4 w-4 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">{stats.profileViews}</div>
-                <p className="text-xs text-muted-foreground">This week</p>
-              </CardContent>
-            </Card>
-          </div>
+          
 
           {/* Dynamic Content */}
           {renderContent()}
