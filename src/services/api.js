@@ -690,373 +690,439 @@ export const getEventManagementCompanyById = async (id) => {
 };
 
 // DJ Profile API functions
+// --- DJ DASHBOARD DUMMY DATA ---
+
+// Wallet state is now stateless and dummy data is defined inside each function
+
+export const getDJWallet = async (djId) => {
+  await new Promise(resolve => setTimeout(resolve, 400));
+  const dummyWallet = {
+    balance: 12000,
+    transactions: [
+      { id: 1, type: 'credit', amount: 5000, date: '2024-06-10', description: 'Booking Payment - Club Infinity' },
+      { id: 2, type: 'debit', amount: 2000, date: '2024-06-12', description: 'Withdrawal to Bank' },
+      { id: 3, type: 'credit', amount: 7000, date: '2024-06-15', description: 'Booking Payment - Skybar Lounge' },
+    ]
+  };
+  return { success: true, data: { ...dummyWallet } };
+};
+
+export const updateDJWallet = async (djId, action, amount) => {
+  await new Promise(resolve => setTimeout(resolve, 400));
+  // Simulate a wallet update and return new dummy data
+  let newBalance = 12000;
+  if (action === 'add') newBalance += amount;
+  else if (action === 'subtract' || action === 'debit') newBalance -= amount;
+  const transaction = {
+    id: Date.now(),
+    type: action === 'add' ? 'credit' : 'debit',
+    amount,
+    date: new Date().toISOString().slice(0, 10),
+    description: action === 'add' ? 'Wallet Top-up' : 'Withdrawal to Bank'
+  };
+  // Return the new balance and the new transaction
+  return { success: true, data: { newBalance, transaction } };
+};
+
 export const getDJProfile = async (djId) => {
-  try {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    return {
-      success: true,
-      data: {
-        id: djId,
-        name: 'DJ Alex Thunder',
-        bio: 'Professional DJ with 8+ years of experience in electronic music, house, and techno.',
-        genres: ['House', 'Techno', 'Electronic', 'Progressive'],
-        topGenre: 'House',
-        experience: 8,
-        hourlyRate: 5000,
-        eventRate: 25000,
-        profileImage: '/placeholder.svg',
-        phone: '+91 9876543210',
-        email: 'alex.thunder@email.com',
-        location: 'Mumbai, India',
-        rating: 4.8,
-        totalBookings: 12,
-        profileViews: 234,
-        socialLinks: {
-          soundcloud: 'https://soundcloud.com/alexthunder',
-          youtube: 'https://youtube.com/@alexthunder',
-          instagram: 'https://instagram.com/alexthunder'
-        }
-      }
-    };
-  } catch (error) {
-    return { success: false, error: 'Failed to fetch DJ profile' };
-  }
+  await new Promise(resolve => setTimeout(resolve, 500));
+  const dummyPerformanceImages = [
+    '/uploads/dj/1/performance1.jpg',
+    '/uploads/dj/1/performance2.jpg',
+    '/uploads/dj/1/performance3.jpg'
+  ];
+  const dummyDJProfile = {
+    id: djId,
+    name: 'DJ Alex Thunder',
+    bio: 'Professional DJ with 8+ years of experience in electronic music, house, and techno.',
+    genres: ['House', 'Techno', 'Electronic', 'Progressive'],
+    topGenre: 'House',
+    experience: 8,
+    hourlyRate: 5000,
+    eventRate: 25000,
+    profileImage: '/placeholder.svg',
+    performanceImages: dummyPerformanceImages,
+    phone: '+91 9876543210',
+    email: 'alex.thunder@email.com',
+    location: 'Mumbai, India',
+    rating: 4.8,
+    totalBookings: 12,
+    profileViews: 234,
+    socialLinks: {
+      soundcloud: 'https://soundcloud.com/alexthunder',
+      youtube: 'https://youtube.com/@alexthunder',
+      instagram: 'https://instagram.com/alexthunder'
+    }
+  };
+  return { success: true, data: dummyDJProfile };
 };
 
 export const updateDJProfile = async (djId, profileData) => {
-  try {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    console.log('Updating DJ profile:', { djId, profileData });
-    
-    return {
-      success: true,
-      data: {
-        ...profileData,
-        id: djId,
-        updatedAt: new Date().toISOString()
-      }
-    };
-  } catch (error) {
-    return { success: false, error: 'Failed to update DJ profile' };
-  }
+  await new Promise(resolve => setTimeout(resolve, 800));
+  const dummyPerformanceImages = [
+    '/uploads/dj/1/performance1.jpg',
+    '/uploads/dj/1/performance2.jpg',
+    '/uploads/dj/1/performance3.jpg'
+  ];
+  const dummyDJProfile = {
+    id: djId,
+    name: 'DJ Alex Thunder',
+    bio: 'Professional DJ with 8+ years of experience in electronic music, house, and techno.',
+    genres: ['House', 'Techno', 'Electronic', 'Progressive'],
+    topGenre: 'House',
+    experience: 8,
+    hourlyRate: 5000,
+    eventRate: 25000,
+    profileImage: '/placeholder.svg',
+    performanceImages: dummyPerformanceImages,
+    phone: '+91 9876543210',
+    email: 'alex.thunder@email.com',
+    location: 'Mumbai, India',
+    rating: 4.8,
+    totalBookings: 12,
+    profileViews: 234,
+    socialLinks: {
+      soundcloud: 'https://soundcloud.com/alexthunder',
+      youtube: 'https://youtube.com/@alexthunder',
+      instagram: 'https://instagram.com/alexthunder'
+    }
+  };
+  return { success: true, data: { ...dummyDJProfile, ...profileData, id: djId, updatedAt: new Date().toISOString() } };
 };
 
 export const getDJAvailability = async (djId) => {
-  try {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    return {
-      success: true,
-      data: [
-        { date: '2024-06-15', status: 'available', time: '20:00-02:00' },
-        { date: '2024-06-16', status: 'booked', time: '21:00-03:00' },
-        { date: '2024-06-20', status: 'available', time: '19:00-01:00' },
-        { date: '2024-06-22', status: 'available', time: '22:00-04:00' },
-        { date: '2024-06-25', status: 'available', time: '20:00-02:00' },
-        { date: '2024-06-28', status: 'busy', time: '18:00-23:00' },
-        { date: '2024-07-01', status: 'available', time: '21:00-03:00' }
-      ]
-    };
-  } catch (error) {
-    return { success: false, error: 'Failed to fetch availability' };
-  }
+  await new Promise(resolve => setTimeout(resolve, 300));
+  const dummyAvailability = [
+    { date: '2024-06-15', status: 'available', time: '20:00-02:00' },
+    { date: '2024-06-16', status: 'booked', time: '21:00-03:00' },
+    { date: '2024-06-20', status: 'available', time: '19:00-01:00' },
+    { date: '2024-06-22', status: 'available', time: '22:00-04:00' },
+    { date: '2024-06-25', status: 'available', time: '20:00-02:00' },
+    { date: '2024-06-28', status: 'busy', time: '18:00-23:00' },
+    { date: '2024-07-01', status: 'available', time: '21:00-03:00' }
+  ];
+  return { success: true, data: [...dummyAvailability] };
 };
 
 export const updateDJAvailability = async (djId, availabilityData) => {
-  try {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    console.log('Updating DJ availability:', { djId, availabilityData });
-    
-    return {
-      success: true,
-      data: availabilityData
-    };
-  } catch (error) {
-    return { success: false, error: 'Failed to update availability' };
-  }
+  await new Promise(resolve => setTimeout(resolve, 500));
+  // Just echo back the data for now
+  return { success: true, data: [...availabilityData] };
 };
 
-export const getDJBookingRequests = async (djId) => {
-  try {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 400));
-    
-    return {
-      success: true,
-      data: [
-        {
-          id: 1,
-          venueName: 'Club Infinity',
-          date: '2024-06-22',
-          time: '22:00-04:00',
-          price: 30000,
-          status: 'pending',
-          location: 'Bandra, Mumbai',
-          eventType: 'Saturday Night Party',
-          venueId: 1,
-          createdAt: '2024-06-18T10:00:00Z',
-          contactPerson: 'Ravi Sharma',
-          description: 'High-energy night club event expecting 200+ guests'
-        },
-        {
-          id: 2,
-          venueName: 'Skybar Lounge',
-          date: '2024-06-25',
-          time: '20:00-02:00',
-          price: 25000,
-          status: 'pending',
-          location: 'Juhu, Mumbai',
-          eventType: 'Weekend Special',
-          venueId: 2,
-          createdAt: '2024-06-19T14:30:00Z',
-          contactPerson: 'Priya Patel',
-          description: 'Rooftop party with sunset vibes and city views'
-        },
-        {
-          id: 3,
-          venueName: 'Underground Club',
-          date: '2024-06-30',
-          time: '23:00-05:00',
-          price: 35000,
-          status: 'accepted',
-          location: 'Andheri, Mumbai',
-          eventType: 'Techno Night',
-          venueId: 5,
-          createdAt: '2024-06-15T09:00:00Z',
-          contactPerson: 'Amit Kumar',
-          description: 'Underground techno event for serious music lovers'
-        },
-        {
-          id: 4,
-          venueName: 'EventPro Management',
-          date: '2024-07-05',
-          time: '19:00-01:00',
-          price: 45000,
-          status: 'pending',
-          location: 'Powai, Mumbai',
-          eventType: 'Corporate Gala',
-          eventManagementId: 1,
-          createdAt: '2024-06-20T16:00:00Z',
-          contactPerson: 'Sarah Johnson',
-          description: 'Premium corporate event with international guests'
-        }
-      ]
-    };
-  } catch (error) {
-    return { success: false, error: 'Failed to fetch booking requests' };
-  }
+export const getDJBookingRequests = async (djId, page = 1, pageSize = 10) => {
+  await new Promise(resolve => setTimeout(resolve, 400));
+  const dummyBookingRequests = [
+    {
+      id: 1,
+      venueName: 'Club Infinity',
+      date: '2024-06-22',
+      time: '22:00-04:00',
+      price: 30000,
+      status: 'pending',
+      location: 'Bandra, Mumbai',
+      eventType: 'Saturday Night Party',
+      venueId: 1,
+      createdAt: '2024-06-18T10:00:00Z',
+      contactPerson: 'Ravi Sharma',
+      description: 'High-energy night club event expecting 200+ guests'
+    },
+    // ... (repeat or generate more dummy data for demonstration)
+    ...Array.from({ length: 40 }, (_, i) => ({
+      id: i + 2,
+      venueName: `Venue ${i + 2}`,
+      date: '2024-07-01',
+      time: '20:00-02:00',
+      price: 20000 + i * 1000,
+      status: i % 3 === 0 ? 'pending' : i % 3 === 1 ? 'accepted' : 'declined',
+      location: `City ${i + 2}`,
+      eventType: `Event Type ${i + 2}`,
+      venueId: i + 2,
+      createdAt: '2024-06-20T10:00:00Z',
+      contactPerson: `Contact ${i + 2}`,
+      description: `Description for event ${i + 2}`
+    }))
+  ];
+  const total = dummyBookingRequests.length;
+  const start = (page - 1) * pageSize;
+  const end = start + pageSize;
+  const paginated = pageSize === 'all' ? dummyBookingRequests : dummyBookingRequests.slice(start, end);
+  return { success: true, data: paginated, total };
 };
 
-export const respondToBookingRequest = async (bookingId, response, reason = '') => {
-  try {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 600));
-    
-    console.log('Responding to booking:', { bookingId, response, reason });
-    
-    return {
-      success: true,
-      data: {
-        bookingId,
-        status: response,
-        respondedAt: new Date().toISOString(),
-        reason
-      }
+export const respondToBookingRequest = async (bookingId, response) => {
+  await new Promise(resolve => setTimeout(resolve, 400));
+  // Simulate updating booking status
+  const dummyBookingRequests = [
+    {
+      id: 1,
+      venueName: 'Club Infinity',
+      date: '2024-06-22',
+      time: '22:00-04:00',
+      price: 30000,
+      status: 'pending',
+      location: 'Bandra, Mumbai',
+      eventType: 'Saturday Night Party',
+      venueId: 1,
+      createdAt: '2024-06-18T10:00:00Z',
+      contactPerson: 'Ravi Sharma',
+      description: 'High-energy night club event expecting 200+ guests'
+    },
+    {
+      id: 2,
+      venueName: 'Skybar Lounge',
+      date: '2024-06-25',
+      time: '20:00-02:00',
+      price: 25000,
+      status: 'pending',
+      location: 'Juhu, Mumbai',
+      eventType: 'Weekend Special',
+      venueId: 2,
+      createdAt: '2024-06-19T14:30:00Z',
+      contactPerson: 'Priya Patel',
+      description: 'Rooftop party with sunset vibes and city views'
+    },
+    {
+      id: 3,
+      venueName: 'Underground Club',
+      date: '2024-06-30',
+      time: '23:00-05:00',
+      price: 35000,
+      status: 'accepted',
+      location: 'Andheri, Mumbai',
+      eventType: 'Techno Night',
+      venueId: 5,
+      createdAt: '2024-06-15T09:00:00Z',
+      contactPerson: 'Amit Kumar',
+      description: 'Underground techno event for serious music lovers'
+    },
+    {
+      id: 4,
+      venueName: 'EventPro Management',
+      date: '2024-07-05',
+      time: '19:00-01:00',
+      price: 45000,
+      status: 'pending',
+      location: 'Powai, Mumbai',
+      eventType: 'Corporate Gala',
+      eventManagementId: 1,
+      createdAt: '2024-06-20T16:00:00Z',
+      contactPerson: 'Sarah Johnson',
+      description: 'Premium corporate event with international guests'
+    }
+  ];
+  const idx = dummyBookingRequests.findIndex(b => b.id === bookingId);
+  if (idx !== -1) {
+    dummyBookingRequests[idx] = {
+      ...dummyBookingRequests[idx],
+      status: response
     };
-  } catch (error) {
-    return { success: false, error: 'Failed to respond to booking' };
+    return { success: true, data: { ...dummyBookingRequests[idx] } };
+  } else {
+    return { success: false, error: 'Booking not found' };
   }
 };
 
 export const getDJReviews = async (djId) => {
-  try {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 350));
-    
-    return {
-      success: true,
-      data: [
-        {
-          id: 1,
-          venue: 'Club Revolution',
-          venueId: 3,
-          rating: 5,
-          comment: 'Amazing performance! The crowd loved every minute. Alex really knows how to read the room and keep the energy up all night.',
-          date: '2024-06-10',
-          eventDate: '2024-06-08',
-          reviewerName: 'Club Manager - Rohit Singh'
-        },
-        {
-          id: 2,
-          venue: 'Rooftop Bar',
-          venueId: 4,
-          rating: 4,
-          comment: 'Great music selection and professional setup. Would definitely book again for future events.',
-          date: '2024-06-05',
-          eventDate: '2024-06-03',
-          reviewerName: 'Event Coordinator - Meera Joshi'
-        },
-        {
-          id: 3,
-          venue: 'Underground Club',
-          venueId: 5,
-          rating: 5,
-          comment: 'Incredible techno set! The energy was through the roof. Best DJ we\'ve had in months.',
-          date: '2024-05-28',
-          eventDate: '2024-05-25',
-          reviewerName: 'Venue Owner - Vikram Malhotra'
-        },
-        {
-          id: 4,
-          venue: 'Skyline Lounge',
-          venueId: 1,
-          rating: 4,
-          comment: 'Professional and punctual. Great communication throughout the event planning process.',
-          date: '2024-05-20',
-          eventDate: '2024-05-18',
-          reviewerName: 'Event Manager - Kavya Reddy'
-        },
-        {
-          id: 5,
-          venue: 'Beach Club',
-          venueId: 2,
-          rating: 5,
-          comment: 'Outstanding performance! Alex created the perfect atmosphere for our beachside event.',
-          date: '2024-05-15',
-          eventDate: '2024-05-12',
-          reviewerName: 'Club Manager - Arjun Nair'
-        }
-      ]
-    };
-  } catch (error) {
-    return { success: false, error: 'Failed to fetch reviews' };
-  }
+  await new Promise(resolve => setTimeout(resolve, 350));
+  const dummyReviews = [
+    {
+      id: 1,
+      venue: 'Club Revolution',
+      venueId: 3,
+      rating: 5,
+      comment: 'Amazing performance! The crowd loved every minute. Alex really knows how to read the room and keep the energy up all night.',
+      date: '2024-06-10',
+      eventDate: '2024-06-08',
+      reviewerName: 'Club Manager - Rohit Singh'
+    },
+    {
+      id: 2,
+      venue: 'Rooftop Bar',
+      venueId: 4,
+      rating: 4,
+      comment: 'Great music selection and professional setup. Would definitely book again for future events.',
+      date: '2024-06-05',
+      eventDate: '2024-06-03',
+      reviewerName: 'Event Coordinator - Meera Joshi'
+    },
+    {
+      id: 3,
+      venue: 'Underground Club',
+      venueId: 5,
+      rating: 5,
+      comment: 'Incredible techno set! The energy was through the roof. Best DJ we\'ve had in months.',
+      date: '2024-05-28',
+      eventDate: '2024-05-25',
+      reviewerName: 'Venue Owner - Vikram Malhotra'
+    },
+    {
+      id: 4,
+      venue: 'Skyline Lounge',
+      venueId: 1,
+      rating: 4,
+      comment: 'Professional and punctual. Great communication throughout the event planning process.',
+      date: '2024-05-20',
+      eventDate: '2024-05-18',
+      reviewerName: 'Event Manager - Kavya Reddy'
+    },
+    {
+      id: 5,
+      venue: 'Beach Club',
+      venueId: 2,
+      rating: 5,
+      comment: 'Outstanding performance! Alex created the perfect atmosphere for our beachside event.',
+      date: '2024-05-15',
+      eventDate: '2024-05-12',
+      reviewerName: 'Club Manager - Arjun Nair'
+    }
+  ];
+  return { success: true, data: [...dummyReviews] };
 };
 
-export const updateDJPricing = async (djId, pricingData) => {
-  try {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 400));
-    
-    console.log('Updating DJ pricing:', { djId, pricingData });
-    
-    return {
-      success: true,
-      data: {
-        djId,
-        ...pricingData,
-        updatedAt: new Date().toISOString()
+export const getDJStats = async (djId, month = 'thisMonth') => {
+  await new Promise(resolve => setTimeout(resolve, 250));
+  let stats;
+  if (month === 'thisMonth') {
+    stats = {
+      onTimePerformance: 95,
+      totalEvents: 24,
+      clientRetention: 78,
+      earnings: 18500,
+      totalBookings: 12,
+      rating: 4.8,
+      totalReviews: 25,
+      monthlyEarnings: 18500,
+      profileViews: 234,
+      weeklyViews: 47,
+      acceptanceRate: 85,
+      responseTime: '2 hours',
+      completedEvents: 28,
+      repeatClients: 8,
+      averageEventDuration: '4 hours',
+      topGenreBookings: {
+        'House': 12,
+        'Techno': 8,
+        'Electronic': 6,
+        'Progressive': 2
       }
     };
-  } catch (error) {
-    return { success: false, error: 'Failed to update pricing' };
+  } else if (month === 'lastMonth') {
+    stats = {
+      onTimePerformance: 92,
+      totalEvents: 18,
+      clientRetention: 74,
+      earnings: 14200,
+      totalBookings: 10,
+      rating: 4.7,
+      totalReviews: 22,
+      monthlyEarnings: 14200,
+      profileViews: 210,
+      weeklyViews: 39,
+      acceptanceRate: 82,
+      responseTime: '2.5 hours',
+      completedEvents: 20,
+      repeatClients: 6,
+      averageEventDuration: '3.8 hours',
+      topGenreBookings: {
+        'House': 8,
+        'Techno': 6,
+        'Electronic': 4,
+        'Progressive': 1
+      }
+    };
+  } else if (/^\d{4}-\d{2}$/.test(month)) {
+    // Custom month in format YYYY-MM
+    stats = {
+      onTimePerformance: 88,
+      totalEvents: 10,
+      clientRetention: 65,
+      earnings: 9000,
+      totalBookings: 5,
+      rating: 4.5,
+      totalReviews: 12,
+      monthlyEarnings: 9000,
+      profileViews: 120,
+      weeklyViews: 20,
+      acceptanceRate: 75,
+      responseTime: '3.5 hours',
+      completedEvents: 9,
+      repeatClients: 2,
+      averageEventDuration: '3 hours',
+      topGenreBookings: {
+        'House': 3,
+        'Techno': 2,
+        'Electronic': 1,
+        'Progressive': 0
+      }
+    };
+  } else {
+    stats = {
+      onTimePerformance: 90,
+      totalEvents: 15,
+      clientRetention: 70,
+      earnings: 12000,
+      totalBookings: 8,
+      rating: 4.6,
+      totalReviews: 18,
+      monthlyEarnings: 12000,
+      profileViews: 180,
+      weeklyViews: 30,
+      acceptanceRate: 80,
+      responseTime: '3 hours',
+      completedEvents: 15,
+      repeatClients: 5,
+      averageEventDuration: '3.5 hours',
+      topGenreBookings: {
+        'House': 6,
+        'Techno': 5,
+        'Electronic': 3,
+        'Progressive': 1
+      }
+    };
   }
+  return { success: true, data: { ...stats } };
 };
 
-export const uploadDJMedia = async (djId, mediaFile, mediaType) => {
-  try {
-    // Simulate file upload
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    console.log('Uploading media:', { djId, mediaType, fileName: mediaFile.name });
-    
-    // Simulate successful upload
-    const mediaUrl = `/uploads/dj/${djId}/${Date.now()}_${mediaFile.name}`;
-    
-    return {
-      success: true,
-      data: {
-        mediaUrl,
-        mediaType,
-        fileName: mediaFile.name,
-        uploadedAt: new Date().toISOString()
-      }
-    };
-  } catch (error) {
-    return { success: false, error: 'Failed to upload media' };
-  }
+export const updateDJPricing = async (djId, pricing) => {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  // Simulate pricing update
+  const dummyPerformanceImages = [
+    '/uploads/dj/1/performance1.jpg',
+    '/uploads/dj/1/performance2.jpg',
+    '/uploads/dj/1/performance3.jpg'
+  ];
+  const dummyDJProfile = {
+    id: djId,
+    name: 'DJ Alex Thunder',
+    bio: 'Professional DJ with 8+ years of experience in electronic music, house, and techno.',
+    genres: ['House', 'Techno', 'Electronic', 'Progressive'],
+    topGenre: 'House',
+    experience: 8,
+    hourlyRate: pricing.hourlyRate,
+    eventRate: pricing.eventRate,
+    profileImage: '/placeholder.svg',
+    performanceImages: dummyPerformanceImages,
+    phone: '+91 9876543210',
+    email: 'alex.thunder@email.com',
+    location: 'Mumbai, India',
+    rating: 4.8,
+    totalBookings: 12,
+    profileViews: 234,
+    socialLinks: {
+      soundcloud: 'https://soundcloud.com/alexthunder',
+      youtube: 'https://youtube.com/@alexthunder',
+      instagram: 'https://instagram.com/alexthunder'
+    }
+  };
+  return { success: true, data: dummyDJProfile };
 };
 
-export const getDJStats = async (djId) => {
-  try {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 250));
-    
-    return {
-      success: true,
-      data: {
-        totalBookings: 12,
-        rating: 4.8,
-        totalReviews: 25,
-        monthlyEarnings: 45000,
-        earnings: 45000,
-        profileViews: 234,
-        weeklyViews: 47,
-        acceptanceRate: 85,
-        responseTime: '2 hours',
-        completedEvents: 28,
-        repeatClients: 8,
-        averageEventDuration: '4 hours',
-        topGenreBookings: {
-          'House': 12,
-          'Techno': 8,
-          'Electronic': 6,
-          'Progressive': 2
-        }
-      }
-    };
-  } catch (error) {
-    return { success: false, error: 'Failed to fetch DJ stats' };
-  }
-};
-
-// DJ Wallet APIs
-export const getDJWallet = async (djId) => {
-  try {
-    await new Promise(resolve => setTimeout(resolve, 400));
-    return {
-      success: true,
-      data: {
-        balance: 12000,
-        transactions: [
-          { id: 1, type: 'credit', amount: 5000, date: '2024-06-10', description: 'Booking Payment - Club Infinity' },
-          { id: 2, type: 'debit', amount: 2000, date: '2024-06-12', description: 'Withdrawal to Bank' },
-          { id: 3, type: 'credit', amount: 7000, date: '2024-06-15', description: 'Booking Payment - Skybar Lounge' },
-        ]
-      }
-    };
-  } catch (error) {
-    return { success: false, error: 'Failed to fetch wallet info' };
-  }
-};
-
-export const updateDJWallet = async (djId, action, amount) => {
-  try {
-    await new Promise(resolve => setTimeout(resolve, 400));
-    // Dummy logic: just return success
-    return {
-      success: true,
-      data: {
-        newBalance: action === 'add' ? 12000 + amount : 12000 - amount,
-        transaction: {
-          id: Date.now(),
-          type: action === 'add' ? 'credit' : 'debit',
-          amount,
-          date: new Date().toISOString().slice(0, 10),
-          description: action === 'add' ? 'Wallet Top-up' : 'Withdrawal to Bank'
-        }
-      }
-    };
-  } catch (error) {
-    return { success: false, error: 'Failed to update wallet' };
-  }
+export const uploadDJMedia = async (djId, file, type) => {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  // Simulate a media upload and return a dummy URL
+  const mediaUrl = `/uploads/dj/${djId}/${type}_${Date.now()}.jpg`;
+  return { success: true, data: { mediaUrl } };
 };
 
 export default api;

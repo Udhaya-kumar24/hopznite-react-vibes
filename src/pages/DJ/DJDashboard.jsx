@@ -7,14 +7,21 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Calendar } from '@/components/ui/calendar.jsx';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar as CalendarIcon, Music, Star, DollarSign, Clock, MapPin, User, Camera, Settings, Bell, Check, X, Upload, Eye, Home, MessageSquare, BarChart3, Menu } from 'lucide-react';
+import { Calendar as CalendarIcon, Music, Star, DollarSign, Clock, MapPin, User, Camera, Settings, Bell, Check, X, Upload, Home, MessageSquare, BarChart3, Menu } from 'lucide-react';
 import { toast } from 'sonner';
 import { getDJProfile, updateDJProfile, getDJAvailability, updateDJAvailability, getDJBookingRequests, respondToBookingRequest, getDJReviews, updateDJPricing, getDJStats, getVenueById, getEventManagementCompanyById, getDJWallet, updateDJWallet, uploadDJMedia } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import * as RechartsPrimitive from 'recharts';
+import DJProfileTab from '../../components/dj-dashboard/DJProfileTab';
+import DJAvailabilityTab from '../../components/dj-dashboard/DJAvailabilityTab';
+import DJBookingsTab from '../../components/dj-dashboard/DJBookingsTab';
+import DJWalletTab from '../../components/dj-dashboard/DJWalletTab';
+import DJReviewsTab from '../../components/dj-dashboard/DJReviewsTab';
+import DJAnalyticsTab from '../../components/dj-dashboard/DJAnalyticsTab';
+import DJOverviewTab from '../../components/dj-dashboard/DJOverviewTab';
 
 const DJDashboard = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -22,44 +29,37 @@ const DJDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [loading, setLoading] = useState(false);
   
-  const [profileData, setProfileData] = useState({
-    name: 'DJ Alex Thunder',
-    bio: 'Professional DJ with 8+ years of experience in electronic music, house, and techno.',
-    genres: ['House', 'Techno', 'Electronic', 'Progressive'],
-    topGenre: 'House',
-    experience: 8,
-    hourlyRate: 5000,
-    eventRate: 25000,
-    profileImage: '/placeholder.svg',
-    phone: '+91 9876543210',
-    email: 'alex.thunder@email.com',
-    location: 'Mumbai, India'
-  });
-
+  const [profileData, setProfileData] = useState(null);
   const [availability, setAvailability] = useState([]);
   const [bookingRequests, setBookingRequests] = useState([]);
   const [reviews, setReviews] = useState([]);
-  const [stats, setStats] = useState({
-    totalBookings: 12,
-    rating: 4.8,
-    earnings: 45000,
-    profileViews: 234
-  });
-
-  const [newAvailability, setNewAvailability] = useState({
-    date: '',
-    startTime: '',
-    endTime: '',
-    status: 'available'
-  });
-
-  const [selectedBookingDetails, setSelectedBookingDetails] = useState(null);
+  const [stats, setStats] = useState(null);
 
   const [wallet, setWallet] = useState({ balance: 0, transactions: [] });
   const [walletLoading, setWalletLoading] = useState(false);
   const [addMoneyAmount, setAddMoneyAmount] = useState('');
 
-  const [newGenre, setNewGenre] = useState('');
+  const [performanceImages, setPerformanceImages] = useState([null, null, null]);
+  const [performancePreviews, setPerformancePreviews] = useState([null, null, null]);
+
+  const [selectedDayStatus, setSelectedDayStatus] = useState(null);
+
+  const [bulkModalOpen, setBulkModalOpen] = useState(false);
+  const [bulkRange, setBulkRange] = useState({ start: '', end: '' });
+  const [bulkStatus, setBulkStatus] = useState('available');
+  const [bulkError, setBulkError] = useState('');
+
+  const [manageModalOpen, setManageModalOpen] = useState(false);
+  const [manageDate, setManageDate] = useState(null);
+  const [manageStatus, setManageStatus] = useState('not_available');
+
+  const [selectedBookingDetails, setSelectedBookingDetails] = useState(null);
+
+  const [statsMonth, setStatsMonth] = useState('thisMonth');
+
+  const [bookingPage, setBookingPage] = useState(1);
+  const [bookingPageSize, setBookingPageSize] = useState(10);
+  const [totalBookings, setTotalBookings] = useState(0);
 
   const sidebarItems = [
     { id: 'overview', label: 'Overview', icon: Home },
@@ -71,38 +71,46 @@ const DJDashboard = () => {
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
   ];
 
-  const quickActions = [
-    { key: 'availability', label: 'Update Availability', icon: CalendarIcon, tab: 'availability' },
-    { key: 'profile', label: 'Edit Profile', icon: User, tab: 'profile' },
-    { key: 'wallet', label: 'Wallet', icon: DollarSign, tab: 'wallet' },
-  ];
-
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchDashboardData();
+    fetchDashboardData(statsMonth);
     fetchWallet();
-  }, []);
+  }, [statsMonth]);
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = async (month = statsMonth) => {
     setLoading(true);
     try {
+      let apiMonth = month;
+      if (month && month.startsWith('custom-')) {
+        // Format: custom-YYYY-MM
+        const parts = month.split('-');
+        if (parts.length === 3) {
+          apiMonth = `${parts[1]}-${parts[2]}`;
+        } else {
+          apiMonth = 'thisMonth';
+        }
+      }
       const [profileRes, availabilityRes, bookingsRes, reviewsRes, statsRes] = await Promise.all([
         getDJProfile(1),
         getDJAvailability(1),
         getDJBookingRequests(1),
         getDJReviews(1),
-        getDJStats(1)
+        getDJStats(1, apiMonth)
       ]);
-
-      if (profileRes.success) setProfileData(profileRes.data);
-      if (availabilityRes.success) setAvailability(availabilityRes.data);
-      if (bookingsRes.success) setBookingRequests(bookingsRes.data);
-      if (reviewsRes.success) setReviews(reviewsRes.data);
-      if (statsRes.success) setStats(statsRes.data);
+      if (profileRes.success) setProfileData(profileRes.data); else setProfileData(null);
+      if (availabilityRes.success) setAvailability(availabilityRes.data); else setAvailability([]);
+      if (bookingsRes.success) setBookingRequests(bookingsRes.data); else setBookingRequests([]);
+      if (reviewsRes.success) setReviews(reviewsRes.data); else setReviews([]);
+      if (statsRes.success) setStats(statsRes.data); else setStats(null);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       toast.error('Failed to load dashboard data');
+      setProfileData(null);
+      setAvailability([]);
+      setBookingRequests([]);
+      setReviews([]);
+      setStats(null);
     } finally {
       setLoading(false);
     }
@@ -120,23 +128,32 @@ const DJDashboard = () => {
     setWalletLoading(true);
     const res = await updateDJWallet(1, 'add', parseInt(addMoneyAmount));
     if (res.success) {
-      setWallet(prev => ({
-        balance: res.data.newBalance,
-        transactions: [res.data.transaction, ...prev.transactions],
-      }));
+      // After top-up, re-fetch wallet from API
+      const walletRes = await getDJWallet(1);
+      if (walletRes.success) setWallet(walletRes.data);
       setAddMoneyAmount('');
       toast.success('Money added to wallet!');
     } else {
-      toast.error('Failed to add money');
+      toast.error(res.error || 'Failed to add money');
     }
     setWalletLoading(false);
   };
 
   const handleProfileUpdate = async () => {
     try {
-      const response = await updateDJProfile(1, profileData);
+      // Upload performance images and collect URLs (if any)
+      const uploadedUrls = [];
+      for (const file of performanceImages || []) {
+        if (file) {
+          const res = await uploadDJMedia(1, file, 'performance');
+          if (res.success) uploadedUrls.push(res.data.mediaUrl);
+        }
+      }
+      // Update profile with image URLs
+      const response = await updateDJProfile(1, { ...profileData, performanceImages: uploadedUrls });
       if (response.success) {
         toast.success('Profile updated successfully!');
+        await fetchDashboardData(); // Always re-fetch after update
       } else {
         toast.error('Failed to update profile');
       }
@@ -244,15 +261,28 @@ const DJDashboard = () => {
     }
   };
 
-  const handleAddGenre = () => {
-    if (newGenre && !profileData.genres.includes(newGenre)) {
-      setProfileData(prev => ({ ...prev, genres: [...prev.genres, newGenre] }));
-      setNewGenre('');
+  const handleAddGenre = async (genre) => {
+    if (!profileData || !genre || profileData.genres.includes(genre)) return;
+    const updatedGenres = [...profileData.genres, genre];
+    const response = await updateDJProfile(1, { ...profileData, genres: updatedGenres });
+    if (response.success) {
+      toast.success('Genre added!');
+      await fetchDashboardData();
+    } else {
+      toast.error('Failed to add genre');
     }
   };
 
-  const handleRemoveGenre = (genre) => {
-    setProfileData(prev => ({ ...prev, genres: prev.genres.filter(g => g !== genre) }));
+  const handleRemoveGenre = async (genre) => {
+    if (!profileData || !genre) return;
+    const updatedGenres = profileData.genres.filter(g => g !== genre);
+    const response = await updateDJProfile(1, { ...profileData, genres: updatedGenres });
+    if (response.success) {
+      toast.success('Genre removed!');
+      await fetchDashboardData();
+    } else {
+      toast.error('Failed to remove genre');
+    }
   };
 
   const handleProfileImageChange = async (e) => {
@@ -277,6 +307,9 @@ const DJDashboard = () => {
   };
 
   const CustomDayContent = ({ date }) => {
+    if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+      return <span />;
+    }
     const dateStr = date.toISOString().slice(0, 10);
     const status = getDateStatus(dateStr);
     let bgColor = '';
@@ -285,7 +318,7 @@ const DJDashboard = () => {
     else if (status === 'busy') bgColor = 'bg-gray-400 text-white';
     return (
       <span
-        className={`w-full h-full flex items-center justify-center rounded-full ${bgColor}`}
+        className={`w-full h-full flex items-center justify-center rounded ${bgColor}`}
         style={{ minHeight: 32, minWidth: 32 }}
       >
         {date.getDate()}
@@ -294,594 +327,334 @@ const DJDashboard = () => {
   };
 
   const handleCalendarSelect = (date) => {
+    if (!(date instanceof Date) || isNaN(date)) {
+      setSelectedDate(null);
+      setSelectedBookingDetails(null);
+      return;
+    }
     setSelectedDate(date);
     const dateStr = date.toISOString().slice(0, 10);
     const slot = availability.find(a => a.date === dateStr);
-    if (slot && slot.status !== 'available') {
+    if (slot && (slot.status === 'booked' || slot.status === 'busy')) {
       setSelectedBookingDetails(slot);
-      toast.info(`Event: ${slot.status === 'booked' ? 'Booking' : slot.status}`);
+      toast.info(`Event: ${slot.status === 'booked' ? 'Booking' : 'Busy'}`);
     } else {
       setSelectedBookingDetails(null);
-      if (slot && slot.status === 'available') {
-        toast.info('Available');
-      } else {
-        toast.info('No events for this date');
-      }
+      // Do not show any toast or popup for available or no slot
     }
   };
+
+  const handlePerformanceImageChange = (index, file) => {
+    if (!file) return;
+    const updatedImages = [...performanceImages];
+    updatedImages[index] = file;
+    setPerformanceImages(updatedImages);
+
+    // Preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const updatedPreviews = [...performancePreviews];
+      updatedPreviews[index] = reader.result;
+      setPerformancePreviews(updatedPreviews);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemovePerformanceImage = (index) => {
+    const updatedImages = [...performanceImages];
+    updatedImages[index] = null;
+    setPerformanceImages(updatedImages);
+    const updatedPreviews = [...performancePreviews];
+    updatedPreviews[index] = null;
+    setPerformancePreviews(updatedPreviews);
+  };
+
+  const getCurrentWeek = () => {
+    if (!(selectedDate instanceof Date) || isNaN(selectedDate)) {
+      // Return current week from today if selectedDate is invalid
+      const today = new Date();
+      const start = new Date(today);
+      start.setDate(today.getDate() - today.getDay());
+      return Array.from({ length: 7 }, (_, i) => {
+        const d = new Date(start);
+        d.setDate(start.getDate() + i);
+        return d;
+      });
+    }
+    const today = selectedDate;
+    const start = new Date(today);
+    start.setDate(today.getDate() - today.getDay()); // Sunday
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      return d;
+    });
+  };
+
+  useEffect(() => {
+    if (!(selectedDate instanceof Date) || isNaN(selectedDate)) {
+      setSelectedDayStatus('not_available');
+      return;
+    }
+    const dateStr = selectedDate.toISOString().slice(0, 10);
+    const slot = availability.find(a => a.date === dateStr);
+    setSelectedDayStatus(slot ? slot.status : 'not_available');
+  }, [selectedDate, availability]);
+
+  const handleSetDayAvailability = async (status) => {
+    if (!(selectedDate instanceof Date) || isNaN(selectedDate)) return;
+    const dateStr = selectedDate.toISOString().slice(0, 10);
+    let updated = availability.filter(a => a.date !== dateStr);
+    if (status === 'available') {
+      updated.push({ date: dateStr, status: 'available', time: '00:00-23:59' });
+    }
+    const response = await updateDJAvailability(1, updated);
+    if (response.success) {
+      toast.success('Availability updated!');
+      setAvailability(updated);
+      setSelectedDayStatus(status);
+    } else {
+      toast.error('Failed to update availability');
+    }
+  };
+
+  const handleBulkApply = async () => {
+    setBulkError('');
+    if (!bulkRange.start || !bulkRange.end) {
+      setBulkError('Please select both start and end dates.');
+      return;
+    }
+    if (bulkRange.end < bulkRange.start) {
+      setBulkError('End date must be after start date.');
+      return;
+    }
+    const start = new Date(bulkRange.start);
+    const end = new Date(bulkRange.end);
+    const newAvailability = [...availability];
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      if (!(d instanceof Date) || isNaN(d)) continue;
+      const dateStr = d.toISOString().slice(0, 10);
+      const idx = newAvailability.findIndex(a => a.date === dateStr);
+      if (idx !== -1) newAvailability.splice(idx, 1);
+      if (bulkStatus === 'available') {
+        newAvailability.push({ date: dateStr, status: 'available', time: '00:00-23:59' });
+      }
+    }
+    const response = await updateDJAvailability(1, newAvailability);
+    if (response.success) {
+      toast.success('Bulk availability updated!');
+      setBulkModalOpen(false);
+      await fetchDashboardData();
+    } else {
+      toast.error('Failed to update bulk availability');
+    }
+  };
+
+  const openManageModal = (date) => {
+    setManageDate(date);
+    if (!(date instanceof Date) || isNaN(date)) {
+      setManageStatus('not_available');
+      setManageModalOpen(true);
+      return;
+    }
+    const dateStr = date.toISOString().slice(0, 10);
+    const slot = availability.find(a => a.date === dateStr);
+    setManageStatus(slot && slot.status === 'available' ? 'available' : 'not_available');
+    setManageModalOpen(true);
+  };
+
+  const handleManageSave = async () => {
+    if (!(manageDate instanceof Date) || isNaN(manageDate)) return;
+    const dateStr = manageDate.toISOString().slice(0, 10);
+    let updated = availability.filter(a => a.date !== dateStr);
+    if (manageStatus === 'available') {
+      updated.push({ date: dateStr, status: 'available', time: '00:00-23:59' });
+    }
+    const response = await updateDJAvailability(1, updated);
+    if (response.success) {
+      toast.success('Availability updated!');
+      setManageModalOpen(false);
+      await fetchDashboardData();
+    } else {
+      toast.error('Failed to update availability');
+    }
+  };
+
+  const fetchBookingRequests = async (page = bookingPage, pageSize = bookingPageSize) => {
+    const res = await getDJBookingRequests(1, page, pageSize);
+    if (res.success) {
+      setBookingRequests(res.data);
+      setTotalBookings(res.total);
+    } else {
+      setBookingRequests([]);
+      setTotalBookings(0);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'bookings') {
+      fetchBookingRequests(bookingPage, bookingPageSize);
+    }
+  }, [activeTab, bookingPage, bookingPageSize]);
 
   const renderContent = () => {
     switch (activeTab) {
       case 'overview':
         return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="bg-card border-border">
-                <CardHeader>
-                  <CardTitle className="flex items-center text-foreground">
-                    <CalendarIcon className="w-5 h-5 mr-2 text-primary" />
-                    Recent Bookings
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {bookingRequests.slice(0, 3).map((booking) => (
-                      <div
-                        key={booking.id}
-                        className="flex items-center justify-between p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted"
-                        onClick={() => navigate(`/events/${booking.id}`)}
-                      >
-                        <div>
-                          <p className="font-medium text-foreground">{booking.venueName}</p>
-                          <p className="text-sm text-muted-foreground">{new Date(booking.date).toLocaleDateString()}</p>
-                        </div>
-                        <Badge variant={booking.status === 'accepted' ? 'default' : booking.status === 'pending' ? 'secondary' : 'destructive'}>
-                          {booking.status}
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-card border-border">
-                <CardHeader>
-                  <CardTitle className="flex items-center text-foreground">
-                    <Music className="w-5 h-5 mr-2 text-primary" />
-                    Quick Actions
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {quickActions.map((action) => (
-                    <Button 
-                      key={action.key}
-                      className="w-full justify-start bg-primary hover:bg-primary/90"
-                      onClick={() => setActiveTab(action.tab)}
-                    >
-                      <action.icon className="mr-2 h-4 w-4" />
-                      {action.label}
-                    </Button>
-                  ))}
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+          <DJOverviewTab
+            profileData={profileData}
+            stats={stats}
+            wallet={wallet}
+            bookingRequests={bookingRequests}
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+            onUpgrade={() => toast.info('Upgrade to Premium clicked!')}
+            onTopUp={() => setActiveTab('wallet')}
+            onSetupLocation={() => toast.info('Setup Location clicked!')}
+            onViewAllBookings={() => setActiveTab('bookings')}
+            onManageAvailability={() => setActiveTab('availability')}
+            availability={availability}
+            CustomDayContent={CustomDayContent}
+          />
         );
 
       case 'profile':
         return (
-          <Card className="bg-card border-border">
-            <CardHeader>
-              <CardTitle className="flex items-center text-foreground">
-                <User className="w-5 h-5 mr-2 text-primary" />
-                Profile Setup
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center space-x-6">
-                <Avatar className="w-24 h-24">
-                  <AvatarImage src={profileData.profileImage} />
-                  <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
-                    {profileData.name.split(' ').map(n => n[0]).join('')}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <Button asChild variant="outline">
-                    <label htmlFor="profile-upload" className="flex items-center cursor-pointer">
-                      <Camera className="w-4 h-4 mr-2" />
-                      Change Photo
-                    </label>
-                  </Button>
-                  <input id="profile-upload" type="file" accept="image/*" className="hidden" onChange={handleProfileImageChange} />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="name">DJ Name</Label>
-                    <Input 
-                      id="name" 
-                      value={profileData.name}
-                      onChange={(e) => setProfileData(prev => ({...prev, name: e.target.value}))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="topGenre">Top Genre</Label>
-                    <Input 
-                      id="topGenre" 
-                      value={profileData.topGenre}
-                      onChange={(e) => setProfileData(prev => ({...prev, topGenre: e.target.value}))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="experience">Years of Experience</Label>
-                    <Input 
-                      id="experience" 
-                      type="number"
-                      value={profileData.experience}
-                      onChange={(e) => setProfileData(prev => ({...prev, experience: parseInt(e.target.value)}))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="hourlyRate">Hourly Rate (₹)</Label>
-                    <Input 
-                      id="hourlyRate" 
-                      type="number"
-                      value={profileData.hourlyRate}
-                      onChange={(e) => setProfileData(prev => ({...prev, hourlyRate: parseInt(e.target.value)}))}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="bio">Bio</Label>
-                    <Textarea 
-                      id="bio" 
-                      value={profileData.bio}
-                      onChange={(e) => setProfileData(prev => ({...prev, bio: e.target.value}))}
-                      className="min-h-[100px]"
-                    />
-                  </div>
-                  <div>
-                    <Label>Genres</Label>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {profileData.genres.map((genre, index) => (
-                        <Badge key={index} variant="secondary" className="flex items-center gap-1">
-                          {genre}
-                          <Button size="icon" variant="ghost" className="p-0 ml-1" onClick={() => handleRemoveGenre(genre)}>
-                            <X className="w-3 h-3" />
-                          </Button>
-                        </Badge>
-                      ))}
-                    </div>
-                    <div className="flex gap-2 mt-2">
-                      <Input
-                        placeholder="Add genre"
-                        value={newGenre}
-                        onChange={e => setNewGenre(e.target.value)}
-                        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddGenre(); } }}
-                        className="w-32"
-                      />
-                      <Button onClick={handleAddGenre} size="sm">Add</Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <Button onClick={handleProfileUpdate} className="bg-primary hover:bg-primary/90">
-                Update Profile
-              </Button>
-            </CardContent>
-          </Card>
+          <DJProfileTab
+            profileData={profileData}
+            setProfileData={setProfileData}
+            performanceImages={performanceImages}
+            performancePreviews={performancePreviews}
+            handleProfileImageChange={handleProfileImageChange}
+            handlePerformanceImageChange={handlePerformanceImageChange}
+            handleRemovePerformanceImage={handleRemovePerformanceImage}
+            handleProfileUpdate={handleProfileUpdate}
+            handleAddGenre={handleAddGenre}
+            handleRemoveGenre={handleRemoveGenre}
+          />
         );
 
       case 'availability':
         return (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="bg-card border-border">
-              <CardHeader>
-                <CardTitle className="text-foreground">Availability Calendar</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={handleCalendarSelect}
-                  className="rounded-md border"
-                  components={{ DayContent: CustomDayContent }}
-                />
-              </CardContent>
-            </Card>
-            
-            <div className="space-y-6">
-              <Card className="bg-card border-border">
-                <CardHeader>
-                  <CardTitle className="text-foreground">Add New Availability</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="availDate">Date</Label>
-                    <Input 
-                      id="availDate"
-                      type="date"
-                      value={newAvailability.date}
-                      onChange={(e) => setNewAvailability(prev => ({...prev, date: e.target.value}))}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="startTime">Start Time</Label>
-                      <Input 
-                        id="startTime"
-                        type="time"
-                        value={newAvailability.startTime}
-                        onChange={(e) => setNewAvailability(prev => ({...prev, startTime: e.target.value}))}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="endTime">End Time</Label>
-                      <Input 
-                        id="endTime"
-                        type="time"
-                        value={newAvailability.endTime}
-                        onChange={(e) => setNewAvailability(prev => ({...prev, endTime: e.target.value}))}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="status">Status</Label>
-                    <Select 
-                      value={newAvailability.status} 
-                      onValueChange={(value) => setNewAvailability(prev => ({...prev, status: value}))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="available">Available</SelectItem>
-                        <SelectItem value="busy">Busy</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <Button onClick={handleAddAvailability} className="w-full bg-primary hover:bg-primary/90">
-                    Add Availability
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-card border-border">
-                <CardHeader>
-                  <CardTitle className="text-foreground">Current Availability</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 max-h-60 overflow-y-auto">
-                    {availability.map((slot, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                        <div>
-                          <p className="font-medium text-foreground">{new Date(slot.date).toLocaleDateString()}</p>
-                          <p className="text-sm text-muted-foreground">{slot.time}</p>
-                        </div>
-                        <Badge variant={slot.status === 'available' ? 'default' : 'secondary'}>
-                          {slot.status}
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+          <DJAvailabilityTab
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+            availability={availability}
+            setAvailability={setAvailability}
+            selectedDayStatus={selectedDayStatus}
+            setSelectedDayStatus={setSelectedDayStatus}
+            bulkModalOpen={bulkModalOpen}
+            setBulkModalOpen={setBulkModalOpen}
+            bulkRange={bulkRange}
+            setBulkRange={setBulkRange}
+            bulkStatus={bulkStatus}
+            setBulkStatus={setBulkStatus}
+            bulkError={bulkError}
+            setBulkError={setBulkError}
+            handleBulkApply={handleBulkApply}
+            manageModalOpen={manageModalOpen}
+            setManageModalOpen={setManageModalOpen}
+            manageDate={manageDate}
+            setManageDate={setManageDate}
+            manageStatus={manageStatus}
+            setManageStatus={setManageStatus}
+            openManageModal={openManageModal}
+            handleManageSave={handleManageSave}
+            handleCalendarSelect={handleCalendarSelect}
+            CustomDayContent={CustomDayContent}
+            getCurrentWeek={getCurrentWeek}
+            handleSetDayAvailability={handleSetDayAvailability}
+            X={X}
+          />
         );
 
       case 'bookings':
         return (
-          <Card className="bg-card border-border">
-            <CardHeader>
-              <CardTitle className="flex items-center text-foreground">
-                <CalendarIcon className="w-5 h-5 mr-2 text-primary" />
-                Booking Requests
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {bookingRequests.map((request) => (
-                  <div key={request.id} className="p-4 bg-muted/50 rounded-lg border">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-lg text-foreground">{request.venueName}</h3>
-                        <p className="text-muted-foreground mb-2">{request.eventType}</p>
-                        <div className="space-y-1 text-sm text-muted-foreground">
-                          <div className="flex items-center">
-                            <CalendarIcon className="w-4 h-4 mr-2" />
-                            {new Date(request.date).toLocaleDateString()}
-                          </div>
-                          <div className="flex items-center">
-                            <Clock className="w-4 h-4 mr-2" />
-                            {request.time}
-                          </div>
-                          <div className="flex items-center">
-                            <MapPin className="w-4 h-4 mr-2" />
-                            {request.location}
-                          </div>
-                          <div className="flex items-center">
-                            <DollarSign className="w-4 h-4 mr-2" />
-                            ₹{request.price.toLocaleString()}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-2 ml-4">
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => navigate(`/events/${request.id}`)}
-                            >
-                              <Eye className="w-4 h-4 mr-1" />
-                              View Details
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-md">
-                            <DialogHeader>
-                              <DialogTitle>Booking Details</DialogTitle>
-                            </DialogHeader>
-                            {selectedBookingDetails && (
-                              <div className="space-y-4">
-                                <div>
-                                  <h4 className="font-semibold">{selectedBookingDetails.venueName}</h4>
-                                  <p className="text-sm text-muted-foreground">{selectedBookingDetails.eventType}</p>
-                                </div>
-                                <div className="space-y-2">
-                                  <p><strong>Date:</strong> {new Date(selectedBookingDetails.date).toLocaleDateString()}</p>
-                                  <p><strong>Time:</strong> {selectedBookingDetails.time}</p>
-                                  <p><strong>Location:</strong> {selectedBookingDetails.location}</p>
-                                  <p><strong>Fee:</strong> ₹{selectedBookingDetails.price.toLocaleString()}</p>
-                                </div>
-                                {selectedBookingDetails.details && (
-                                  <div className="border-t pt-4">
-                                    <h5 className="font-semibold mb-2">Contact Information</h5>
-                                    <p><strong>Name:</strong> {selectedBookingDetails.details.name}</p>
-                                    {selectedBookingDetails.details.contact && (
-                                      <>
-                                        <p><strong>Phone:</strong> {selectedBookingDetails.details.contact.phone}</p>
-                                        <p><strong>Email:</strong> {selectedBookingDetails.details.contact.email}</p>
-                                      </>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </DialogContent>
-                        </Dialog>
-                        
-                        {request.status === 'pending' && (
-                          <>
-                            <Button 
-                              size="sm" 
-                              className="bg-green-600 hover:bg-green-700"
-                              onClick={() => handleBookingResponse(request.id, 'accepted')}
-                            >
-                              <Check className="w-4 h-4 mr-1" />
-                              Accept
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="destructive"
-                              onClick={() => handleBookingResponse(request.id, 'declined')}
-                            >
-                              <X className="w-4 h-4 mr-1" />
-                              Decline
-                            </Button>
-                          </>
-                        )}
-                        {request.status === 'accepted' && (
-                          <Badge className="bg-green-100 text-green-800 border-green-200">Accepted</Badge>
-                        )}
-                        {request.status === 'declined' && (
-                          <Badge variant="destructive">Declined</Badge>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+          <>
+            {/* Top bar: left Booking Details with icon, right Show entries */}
+            <div className="w-full max-w-6xl mx-auto flex items-center justify-between gap-2 mb-4 px-1">
+              <div className="flex items-center gap-2 font-bold text-lg text-foreground">
+                <CalendarIcon className="w-6 h-6 text-primary" />
+                Booking Details
               </div>
-            </CardContent>
-          </Card>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Show</span>
+                <select
+                  className="border border-border rounded-md px-2 py-1 text-sm focus:outline-none bg-background text-foreground shadow-sm"
+                  value={bookingPageSize}
+                  onChange={e => {
+                    setBookingPageSize(e.target.value === 'all' ? 'all' : parseInt(e.target.value));
+                    setBookingPage(1);
+                  }}
+                >
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                  <option value={100}>100</option>
+                  <option value="all">All</option>
+                </select>
+                <span className="text-sm text-muted-foreground">entries</span>
+              </div>
+            </div>
+            <DJBookingsTab
+              bookingRequests={bookingRequests}
+              handleBookingResponse={handleBookingResponse}
+              selectedBookingDetails={selectedBookingDetails}
+              setSelectedBookingDetails={setSelectedBookingDetails}
+              handleViewBookingDetails={handleViewBookingDetails}
+              navigate={navigate}
+            />
+            {/* Pagination Controls - only flex row, no card box */}
+            {bookingPageSize !== 'all' && (
+              <div className="w-full max-w-6xl mx-auto flex items-center justify-end gap-2 mt-8 px-1">
+                <button
+                  className="px-3 py-1 rounded-md border border-border text-sm bg-background hover:bg-accent hover:text-accent-foreground transition disabled:opacity-50"
+                  onClick={() => setBookingPage(p => Math.max(1, p - 1))}
+                  disabled={bookingPage === 1}
+                >
+                  Prev
+                </button>
+                <span className="text-sm text-muted-foreground">Page <span className="font-semibold text-foreground">{bookingPage}</span> of <span className="font-semibold text-foreground">{Math.ceil(totalBookings / bookingPageSize)}</span></span>
+                <button
+                  className="px-3 py-1 rounded-md border border-border text-sm bg-background hover:bg-accent hover:text-accent-foreground transition disabled:opacity-50"
+                  onClick={() => setBookingPage(p => p + 1)}
+                  disabled={bookingPage >= Math.ceil(totalBookings / bookingPageSize)}
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
         );
 
       case 'wallet':
         return (
-          <Card className="bg-card border-border">
-            <CardHeader>
-              <CardTitle className="flex items-center text-foreground">
-                <DollarSign className="w-5 h-5 mr-2 text-primary" />
-                Wallet
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {walletLoading ? (
-                <div>Loading...</div>
-              ) : (
-                <>
-                  <div className="mb-4">
-                    <div className="text-lg font-bold">Balance: ₹{wallet.balance}</div>
-                  </div>
-                  <div className="mb-4 flex gap-2">
-                    <Input
-                      type="number"
-                      placeholder="Add money"
-                      value={addMoneyAmount}
-                      onChange={e => setAddMoneyAmount(e.target.value)}
-                      className="w-32"
-                    />
-                    <Button onClick={handleAddMoney} disabled={walletLoading} className="bg-primary">Add</Button>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold mb-2">Transactions</h4>
-                    <div className="space-y-2 max-h-48 overflow-y-auto">
-                      {wallet.transactions.map(tx => (
-                        <div key={tx.id} className="flex justify-between p-2 bg-muted/50 rounded">
-                          <span>{tx.description}</span>
-                          <span className={tx.type === 'credit' ? 'text-green-600' : 'text-red-600'}>
-                            {tx.type === 'credit' ? '+' : '-'}₹{tx.amount}
-                          </span>
-                          <span className="text-xs text-muted-foreground">{tx.date}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
-            </CardContent>
-          </Card>
+          <DJWalletTab
+            wallet={wallet}
+            walletLoading={walletLoading}
+            addMoneyAmount={addMoneyAmount}
+            setAddMoneyAmount={setAddMoneyAmount}
+            handleAddMoney={handleAddMoney}
+            setWallet={setWallet}
+          />
         );
 
       case 'reviews':
         return (
-          <Card className="bg-card border-border">
-            <CardHeader>
-              <CardTitle className="flex items-center text-foreground">
-                <Star className="w-5 h-5 mr-2 text-primary" />
-                Performance Reviews
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {reviews.map((review) => (
-                  <div key={review.id} className="p-4 bg-muted/50 rounded-lg border">
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-semibold text-foreground">{review.venue}</h3>
-                      <div className="flex items-center">
-                        {[...Array(5)].map((_, i) => (
-                          <Star 
-                            key={i} 
-                            className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} 
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <p className="text-muted-foreground mb-2">{review.comment}</p>
-                    <p className="text-xs text-muted-foreground">{new Date(review.date).toLocaleDateString()}</p>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <DJReviewsTab
+            reviews={reviews}
+            rating={stats.rating}
+            totalReviews={stats.totalReviews}
+            responseRate={stats.acceptanceRate}
+          />
         );
 
       case 'analytics':
-        // Example chart data
-        const chartData = [
-          { name: 'Jan', Bookings: 3, Earnings: 12000 },
-          { name: 'Feb', Bookings: 5, Earnings: 18000 },
-          { name: 'Mar', Bookings: 2, Earnings: 9000 },
-          { name: 'Apr', Bookings: 6, Earnings: 22000 },
-          { name: 'May', Bookings: 4, Earnings: 15000 },
-          { name: 'Jun', Bookings: 7, Earnings: 25000 },
-        ];
         return (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <Card className="bg-card border-border">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-foreground">Total Bookings</CardTitle>
-                  <CalendarIcon className="h-4 w-4 text-primary" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-foreground">{stats.totalBookings}</div>
-                  <p className="text-xs text-muted-foreground">+2 from last month</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-card border-border">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-foreground">Rating</CardTitle>
-                  <Star className="h-4 w-4 text-primary" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-foreground">{stats.rating}</div>
-                  <p className="text-xs text-muted-foreground">Based on {stats.totalReviews || 25} reviews</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-card border-border">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-foreground">Earnings</CardTitle>
-                  <DollarSign className="h-4 w-4 text-primary" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-foreground">₹{stats.earnings.toLocaleString()}</div>
-                  <p className="text-xs text-muted-foreground">This month</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-card border-border">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-foreground">Profile Views</CardTitle>
-                  <Music className="h-4 w-4 text-primary" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-foreground">{stats.profileViews}</div>
-                  <p className="text-xs text-muted-foreground">This week</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="bg-card border-border">
-                <CardHeader>
-                  <CardTitle className="text-foreground">Monthly Earnings</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-foreground">₹{stats.monthlyEarnings?.toLocaleString() || stats.earnings.toLocaleString()}</div>
-                  <p className="text-muted-foreground">This month</p>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-card border-border">
-                <CardHeader>
-                  <CardTitle className="text-foreground">Profile Views</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-foreground">{stats.profileViews}</div>
-                  <p className="text-muted-foreground">Total views</p>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-card border-border">
-                <CardHeader>
-                  <CardTitle className="text-foreground">Acceptance Rate</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-foreground">{stats.acceptanceRate || 85}%</div>
-                  <p className="text-muted-foreground">Booking acceptance</p>
-                </CardContent>
-              </Card>
-
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="bg-card border-border">
-                <CardHeader>
-                  <CardTitle className="text-foreground">Bookings & Earnings Trend</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ChartContainer
-                    config={{ Bookings: { color: '#6366f1' }, Earnings: { color: '#f59e42' } }}
-                    style={{ width: '100%', height: 300 }}
-                  >
-                    <RechartsPrimitive.LineChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                      <RechartsPrimitive.CartesianGrid strokeDasharray="3 3" />
-                      <RechartsPrimitive.XAxis dataKey="name" />
-                      <RechartsPrimitive.YAxis />
-                      <RechartsPrimitive.Tooltip content={<ChartTooltipContent />} />
-                      <RechartsPrimitive.Legend />
-                      <RechartsPrimitive.Line type="monotone" dataKey="Bookings" stroke="#6366f1" strokeWidth={2} />
-                      <RechartsPrimitive.Line type="monotone" dataKey="Earnings" stroke="#f59e42" strokeWidth={2} yAxisId={1} />
-                    </RechartsPrimitive.LineChart>
-                  </ChartContainer>
-                </CardContent>
-              </Card>
-            </div>
-          </>
+          <DJAnalyticsTab
+            stats={stats}
+            statsMonth={statsMonth}
+            onChangeMonth={setStatsMonth}
+          />
         );
 
       default:
