@@ -528,12 +528,14 @@ export const getReviews = async (djId) => {
 };
 
 export const addReview = async (djId, reviewData) => {
-  await new Promise(resolve => setTimeout(resolve, 800));
-  
+  await new Promise(resolve => setTimeout(resolve, 600));
   return {
-    id: Date.now(),
-    ...reviewData,
-    date: new Date().toISOString()
+    success: true,
+    data: {
+      ...reviewData,
+      id: Date.now(),
+      createdAt: new Date().toISOString(),
+    }
   };
 };
 
@@ -1133,6 +1135,18 @@ export const updatePubProfile = async (pubId, profileData) => {
       ...profileData,
       id: pubId,
       updatedAt: new Date().toISOString(),
+    }
+  };
+};
+
+export const createEvent = async (eventData) => {
+  await new Promise(resolve => setTimeout(resolve, 800));
+  return {
+    success: true,
+    data: {
+      ...eventData,
+      id: Date.now(),
+      createdAt: new Date().toISOString(),
     }
   };
 };

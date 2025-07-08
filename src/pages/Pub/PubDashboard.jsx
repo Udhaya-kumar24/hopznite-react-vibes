@@ -7,9 +7,12 @@ import DJDiscoveryTab from '@/components/pub-dashboard/DJDiscoveryTab';
 import TopDJsTab from '@/components/pub-dashboard/TopDJsTab';
 import BookingManagementTab from '@/components/pub-dashboard/BookingManagementTab';
 import NotificationsTab from '@/components/pub-dashboard/NotificationsTab';
-import { getEvents, getBookings, getDJList, updatePubProfile } from '@/services/api';
+import MyEventsTab from '@/components/pub-dashboard/MyEventsTab';
+import { getEvents, getBookings, getDJList, updatePubProfile, createEvent } from '@/services/api';
 import DJs from '../DJs';
 import { toast } from 'sonner';
+import PubDJsTab from '@/components/pub-dashboard/PubDJsTab';
+import EventCreateModal from '@/components/pub-dashboard/EventCreateModal';
 
 const PubDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -27,6 +30,7 @@ const PubDashboard = () => {
   const [bookings, setBookings] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [bookingStatus, setBookingStatus] = useState('pending');
+  const [eventsTabData, setEventsTabData] = useState([]);
 
   // Overview tab state
   const [overviewStats, setOverviewStats] = useState({
@@ -38,6 +42,8 @@ const PubDashboard = () => {
     recentBookings: [],
     availableDJs: [],
   });
+
+  const [showCreateEvent, setShowCreateEvent] = useState(false);
 
   useEffect(() => {
     // Fetch overview data
@@ -68,6 +74,34 @@ const PubDashboard = () => {
       });
     };
     if (activeTab === 'overview') fetchOverview();
+
+    // Fetch events for MyEventsTab
+    const fetchEventsTab = async () => {
+      const [eventsRes, bookingsRes] = await Promise.all([
+        getEvents(),
+        getBookings(1),
+      ]);
+      // Map events/bookings to UI format
+      const events = eventsRes.success ? eventsRes.data.map((e, i) => ({
+        title: e.title,
+        status: i % 2 === 0 ? 'completed' : (i % 3 === 0 ? 'pending' : 'confirmed'),
+        price: e.price,
+        date: e.date,
+        time: e.time,
+        duration: '3h',
+        venue: e.venue,
+        dj: {
+          name: e.dj,
+          genre: e.genre,
+          rating: 4.8,
+          reviews: 120,
+        },
+        paymentStatus: i % 2 === 0 ? 'complete' : (i % 3 === 0 ? 'pending' : 'due'),
+        paymentLabel: i % 2 === 0 ? 'Payment Complete' : (i % 3 === 0 ? 'Payment Pending' : 'Payment Due'),
+      })) : [];
+      setEventsTabData(events);
+    };
+    if (activeTab === 'bookings') fetchEventsTab();
   }, [activeTab]);
 
   // Handlers (to be implemented)
@@ -88,10 +122,18 @@ const PubDashboard = () => {
     }
   };
   const handleMediaChange = () => {};
-  const handleCreateEvent = () => {};
+  const handleCreateEvent = async (form) => {
+    const res = await createEvent(form);
+    if (res.success) {
+      setEventsTabData(prev => [res.data, ...prev]);
+    }
+  };
   const handleBookDJ = () => {};
   const handleRebook = () => {};
   const handleBookingStatusChange = (status) => setBookingStatus(status);
+  const handleRateDJ = () => {};
+  const handleEventDetails = () => {};
+  const handleEventMessage = () => {};
 
   const sidebarItems = [
     { id: 'overview', label: 'Dashboard', icon: Home },
@@ -107,17 +149,19 @@ const PubDashboard = () => {
       case 'calendar':
         return <EventCalendarTab events={events} onCreateEvent={handleCreateEvent} newEvent={newEvent} setNewEvent={setNewEvent} />;
       case 'djs':
-        return <DJs />
-        // return <DJDiscoveryTab filters={filters} setFilters={setFilters} djs={djs} onBook={handleBookDJ} />;
+        return <PubDJsTab />
       case 'topdjs':
         return <TopDJsTab topDjs={topDjs} onBook={handleBookDJ} />;
       case 'bookings':
-        return <BookingManagementTab bookings={bookings.filter(b => b.status === bookingStatus)} onRebook={handleRebook} onStatusChange={handleBookingStatusChange} />;
+        return <>
+          <MyEventsTab events={eventsTabData} onRate={handleRateDJ} onDetails={handleEventDetails} onMessage={handleEventMessage} onCreateEvent={() => setShowCreateEvent(true)} />
+          <EventCreateModal open={showCreateEvent} onClose={() => setShowCreateEvent(false)} onCreate={handleCreateEvent} />
+        </>;
       case 'notifications':
         return <NotificationsTab notifications={notifications} />;
       case 'overview':
       default:
-        return (
+  return (
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <div className="bg-card rounded-lg p-4 border border-border">
@@ -130,17 +174,17 @@ const PubDashboard = () => {
                 <div className="text-2xl font-bold">{overviewStats.activeDJs}</div>
                 <p className="text-xs text-muted-foreground">Available this week</p>
               </div>
-            </div>
+      </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="col-span-2 bg-card rounded-lg border border-border p-4">
                 <div className="flex items-center justify-between mb-4">
                   <div className="font-semibold text-lg">Recent bookings</div>
                   <Button size="sm" variant="outline">View All</Button>
-                </div>
-                <div className="space-y-4">
+      </div>
+            <div className="space-y-4">
                   {overviewStats.recentBookings.map((b, i) => (
                     <div key={i} className="flex items-center justify-between border-b pb-2">
-                      <div>
+                <div>
                         <div className="font-medium">{b.djName}</div>
                         <div className="text-xs text-muted-foreground">{b.date}</div>
                       </div>
@@ -159,7 +203,7 @@ const PubDashboard = () => {
                 <div className="space-y-2">
                   {overviewStats.availableDJs.map((dj, i) => (
                     <div key={dj.id} className="flex items-center justify-between border rounded px-2 py-2">
-                      <div>
+                <div>
                         <div className="font-medium">{dj.name}</div>
                         <div className="text-xs text-muted-foreground">{dj.genres?.join(', ')}</div>
                       </div>
@@ -190,7 +234,7 @@ const PubDashboard = () => {
                 onClick={() => setSidebarOpen(!sidebarOpen)}
               >
                 <Menu className="h-4 w-4" />
-              </Button>
+            </Button>
             </div>
           </div>
           <nav className="flex-1 p-4">
@@ -204,7 +248,7 @@ const PubDashboard = () => {
                 >
                   <item.icon className="h-4 w-4" />
                   {sidebarOpen && <span className="ml-2">{item.label}</span>}
-                </Button>
+            </Button>
               ))}
             </div>
           </nav>
