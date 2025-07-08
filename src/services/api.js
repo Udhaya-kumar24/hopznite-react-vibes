@@ -1125,4 +1125,16 @@ export const uploadDJMedia = async (djId, file, type) => {
   return { success: true, data: { mediaUrl } };
 };
 
+export const updatePubProfile = async (pubId, profileData) => {
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  return {
+    success: true,
+    data: {
+      ...profileData,
+      id: pubId,
+      updatedAt: new Date().toISOString(),
+    }
+  };
+};
+
 export default api;

@@ -285,7 +285,7 @@ const DJs = () => {
               variants={itemVariants}
             >
               <div>
-                <h1 className="text-3xl font-bold text-foreground mb-2">Top DJs in Chennai</h1>
+                <h1 className="text-3xl font-bold text-foreground mb-2">DJs</h1>
                 <p className="text-muted-foreground">Book the best talent for your next event</p>
               </div>
             </motion.div>

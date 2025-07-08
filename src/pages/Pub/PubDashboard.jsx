@@ -1,107 +1,216 @@
-
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Calendar, Users, Music, TrendingUp } from 'lucide-react';
+import { Menu, Home, Calendar as CalendarIcon, Music, Users, TrendingUp, Bell, Star, BookOpen } from 'lucide-react';
+import PubProfileTab from '@/components/pub-dashboard/PubProfileTab';
+import EventCalendarTab from '@/components/pub-dashboard/EventCalendarTab';
+import DJDiscoveryTab from '@/components/pub-dashboard/DJDiscoveryTab';
+import TopDJsTab from '@/components/pub-dashboard/TopDJsTab';
+import BookingManagementTab from '@/components/pub-dashboard/BookingManagementTab';
+import NotificationsTab from '@/components/pub-dashboard/NotificationsTab';
+import { getEvents, getBookings, getDJList, updatePubProfile } from '@/services/api';
+import DJs from '../DJs';
+import { toast } from 'sonner';
 
 const PubDashboard = () => {
-  return (
-    <div className="container mx-auto p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Pub Dashboard</h1>
-        <p className="text-muted-foreground">Manage your venue, events, and DJ bookings</p>
-      </div>
+  const [activeTab, setActiveTab] = useState('overview');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Events</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">8</div>
-            <p className="text-xs text-muted-foreground">This month</p>
-          </CardContent>
-        </Card>
+  // Placeholder state for each tab
+  const [profile, setProfile] = useState({});
+  const [mediaPreviews, setMediaPreviews] = useState([]);
+  const [uploading, setUploading] = useState(false);
+  const [events, setEvents] = useState([]);
+  const [newEvent, setNewEvent] = useState({});
+  const [filters, setFilters] = useState({});
+  const [djs, setDjs] = useState([]);
+  const [topDjs, setTopDjs] = useState([]);
+  const [bookings, setBookings] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const [bookingStatus, setBookingStatus] = useState('pending');
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Bookings</CardTitle>
-            <Music className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">15</div>
-            <p className="text-xs text-muted-foreground">Active bookings</p>
-          </CardContent>
-        </Card>
+  // Overview tab state
+  const [overviewStats, setOverviewStats] = useState({
+    totalBookings: 0,
+    totalEvents: 0,
+    activeDJs: 0,
+    revenue: 0,
+    capacity: 0,
+    recentBookings: [],
+    availableDJs: [],
+  });
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Revenue</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₹1,25,000</div>
-            <p className="text-xs text-muted-foreground">This month</p>
-          </CardContent>
-        </Card>
+  useEffect(() => {
+    // Fetch overview data
+    const fetchOverview = async () => {
+      const [eventsRes, bookingsRes, djsRes] = await Promise.all([
+        getEvents(),
+        getBookings(1), // 1 is dummy pub owner/user id
+        getDJList(),
+      ]);
+      // Calculate stats
+      const totalEvents = eventsRes.success ? eventsRes.data.length : 0;
+      const totalBookings = bookingsRes.length;
+      const activeDJs = djsRes.success ? djsRes.data.filter(dj => dj.available).length : 0;
+      const availableDJs = djsRes.success ? djsRes.data.filter(dj => dj.available) : [];
+      // Dummy revenue and capacity
+      const revenue = bookingsRes.reduce((sum, b) => sum + (b.amount || 0), 0);
+      const capacity = 250;
+      // Recent bookings (show last 3)
+      const recentBookings = bookingsRes.slice(0, 3);
+      setOverviewStats({
+        totalBookings,
+        totalEvents,
+        activeDJs,
+        revenue,
+        capacity,
+        recentBookings,
+        availableDJs,
+      });
+    };
+    if (activeTab === 'overview') fetchOverview();
+  }, [activeTab]);
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Capacity</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">250</div>
-            <p className="text-xs text-muted-foreground">Max capacity</p>
-          </CardContent>
-        </Card>
-      </div>
+  // Handlers (to be implemented)
+  const handleSaveProfile = async () => {
+    setUploading(true);
+    try {
+      const res = await updatePubProfile(1, profile);
+      if (res.success) {
+        setProfile(res.data);
+        toast.success('Profile updated successfully!');
+      } else {
+        toast.error('Failed to update profile');
+      }
+    } catch (e) {
+      toast.error('Error updating profile');
+    } finally {
+      setUploading(false);
+    }
+  };
+  const handleMediaChange = () => {};
+  const handleCreateEvent = () => {};
+  const handleBookDJ = () => {};
+  const handleRebook = () => {};
+  const handleBookingStatusChange = (status) => setBookingStatus(status);
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Upcoming Events</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Saturday Night Fever</p>
-                  <p className="text-sm text-muted-foreground">June 15, 2024 - DJ Sonic</p>
-                </div>
-                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">Upcoming</span>
+  const sidebarItems = [
+    { id: 'overview', label: 'Dashboard', icon: Home },
+    { id: 'djs', label: 'Browse DJs', icon: Music },
+    { id: 'bookings', label: 'My Events', icon: BookOpen },
+    { id: 'profile', label: 'Profile Setup', icon: Users },
+  ];
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'profile':
+        return <PubProfileTab profile={profile} setProfile={setProfile} onSave={handleSaveProfile} uploading={uploading} mediaPreviews={mediaPreviews} onMediaChange={handleMediaChange} />;
+      case 'calendar':
+        return <EventCalendarTab events={events} onCreateEvent={handleCreateEvent} newEvent={newEvent} setNewEvent={setNewEvent} />;
+      case 'djs':
+        return <DJs />
+        // return <DJDiscoveryTab filters={filters} setFilters={setFilters} djs={djs} onBook={handleBookDJ} />;
+      case 'topdjs':
+        return <TopDJsTab topDjs={topDjs} onBook={handleBookDJ} />;
+      case 'bookings':
+        return <BookingManagementTab bookings={bookings.filter(b => b.status === bookingStatus)} onRebook={handleRebook} onStatusChange={handleBookingStatusChange} />;
+      case 'notifications':
+        return <NotificationsTab notifications={notifications} />;
+      case 'overview':
+      default:
+        return (
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="bg-card rounded-lg p-4 border border-border">
+                <div className="flex items-center justify-between mb-2"><span className="text-sm font-medium">Total Bookings</span><Music className="h-4 w-4 text-muted-foreground" /></div>
+                <div className="text-2xl font-bold">{overviewStats.totalBookings}</div>
+                <p className="text-xs text-muted-foreground">+12 from last month</p>
               </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Hip-Hop Night</p>
-                  <p className="text-sm text-muted-foreground">June 22, 2024 - DJ Blaze</p>
-                </div>
-                <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Confirmed</span>
+              <div className="bg-card rounded-lg p-4 border border-border">
+                <div className="flex items-center justify-between mb-2"><span className="text-sm font-medium">Active DJs</span><Users className="h-4 w-4 text-muted-foreground" /></div>
+                <div className="text-2xl font-bold">{overviewStats.activeDJs}</div>
+                <p className="text-xs text-muted-foreground">Available this week</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="col-span-2 bg-card rounded-lg border border-border p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="font-semibold text-lg">Recent bookings</div>
+                  <Button size="sm" variant="outline">View All</Button>
+                </div>
+                <div className="space-y-4">
+                  {overviewStats.recentBookings.map((b, i) => (
+                    <div key={i} className="flex items-center justify-between border-b pb-2">
+                      <div>
+                        <div className="font-medium">{b.djName}</div>
+                        <div className="text-xs text-muted-foreground">{b.date}</div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${b.status === 'confirmed' ? 'bg-black text-white' : 'bg-gray-100 text-gray-800'}`}>{b.status}</span>
+                        <span className="font-semibold">${b.amount}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="bg-card rounded-lg border border-border p-4">
+                <div className="font-semibold text-lg mb-4">Quick Actions</div>
+                <Button className="w-full mb-4 bg-black text-white"><Music className="mr-2 h-4 w-4" />Browse DJs</Button>
+                <div className="font-semibold text-md mb-2">Available DJs</div>
+                <div className="space-y-2">
+                  {overviewStats.availableDJs.map((dj, i) => (
+                    <div key={dj.id} className="flex items-center justify-between border rounded px-2 py-2">
+                      <div>
+                        <div className="font-medium">{dj.name}</div>
+                        <div className="text-xs text-muted-foreground">{dj.genres?.join(', ')}</div>
+                      </div>
+                      <span className={`w-3 h-3 rounded-full ${dj.available ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+    }
+  };
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Button className="w-full justify-start">
-              <Calendar className="mr-2 h-4 w-4" />
-              Create New Event
-            </Button>
-            <Button variant="outline" className="w-full justify-start">
-              <Music className="mr-2 h-4 w-4" />
-              Browse DJs
-            </Button>
-            <Button variant="outline" className="w-full justify-start">
-              <Users className="mr-2 h-4 w-4" />
-              Manage Venue
-            </Button>
-          </CardContent>
-        </Card>
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="flex">
+        {/* Sidebar */}
+        <div className={`${sidebarOpen ? 'w-64' : 'w-16'} transition-all duration-300 bg-card border-r border-border flex flex-col`}>
+          <div className="p-4 border-b border-border">
+            <div className="flex items-center justify-between">
+              {sidebarOpen && (
+                <h2 className="text-xl font-bold text-foreground">Pub Dashboard</h2>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+              >
+                <Menu className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          <nav className="flex-1 p-4">
+            <div className="space-y-2">
+              {sidebarItems.map((item) => (
+                <Button
+                  key={item.id}
+                  variant={activeTab === item.id ? "default" : "ghost"}
+                  className={`w-full justify-start ${!sidebarOpen && 'px-2'}`}
+                  onClick={() => setActiveTab(item.id)}
+                >
+                  <item.icon className="h-4 w-4" />
+                  {sidebarOpen && <span className="ml-2">{item.label}</span>}
+                </Button>
+              ))}
+            </div>
+          </nav>
+        </div>
+        {/* Main Content */}
+        <div className="flex-1">{renderContent()}</div>
       </div>
     </div>
   );
