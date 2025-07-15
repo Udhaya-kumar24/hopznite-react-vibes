@@ -150,7 +150,8 @@ export const getDJList = async () => {
         location: "Mumbai",
         available: true,
         image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400",
-        bio: "Professional DJ with 8+ years of experience in electronic dance music."
+        bio: "Professional DJ with 8+ years of experience in electronic dance music.",
+        role: "DJ"
       },
       { 
         id: 2, 
@@ -162,7 +163,8 @@ export const getDJList = async () => {
         location: "Delhi",
         available: false,
         image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400",
-        bio: "Hip-hop specialist known for high-energy performances and crowd engagement."
+        bio: "Hip-hop specialist known for high-energy performances and crowd engagement.",
+        role: "DJ"
       },
       { 
         id: 3, 
@@ -174,7 +176,8 @@ export const getDJList = async () => {
         location: "Bangalore",
         available: true,
         image: "https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=400",
-        bio: "House music expert with a unique style that keeps the dance floor packed."
+        bio: "House music expert with a unique style that keeps the dance floor packed.",
+        role: "DJ"
       },
       { 
         id: 4, 
@@ -186,7 +189,8 @@ export const getDJList = async () => {
         location: "Chennai",
         available: false,
         image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400",
-        bio: "Techno master creating immersive electronic experiences."
+        bio: "Techno master creating immersive electronic experiences.",
+        role: "DJ"
       },
       { 
         id: 5, 
@@ -198,7 +202,8 @@ export const getDJList = async () => {
         location: "Hyderabad",
         available: true,
         image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400",
-        bio: "Trance specialist taking audiences on melodic journeys."
+        bio: "Trance specialist taking audiences on melodic journeys.",
+        role: "DJ"
       },
       { 
         id: 6, 
@@ -210,7 +215,8 @@ export const getDJList = async () => {
         location: "Chennai",
         available: true,
         image: "https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=400",
-        bio: "Bollywood beats specialist for high-energy parties."
+        bio: "Bollywood beats specialist for high-energy parties.",
+        role: "DJ"
       },
       { 
         id: 7, 
@@ -222,7 +228,8 @@ export const getDJList = async () => {
         location: "Mumbai",
         available: false,
         image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400",
-        bio: "Smooth R&B grooves for a classy night."
+        bio: "Smooth R&B grooves for a classy night.",
+        role: "DJ"
       },
       { 
         id: 8, 
@@ -234,7 +241,8 @@ export const getDJList = async () => {
         location: "Delhi",
         available: true,
         image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400",
-        bio: "High-octane EDM DJ for the biggest festivals."
+        bio: "High-octane EDM DJ for the biggest festivals.",
+        role: "DJ"
       },
       { 
         id: 9, 
@@ -246,7 +254,8 @@ export const getDJList = async () => {
         location: "Chennai",
         available: true,
         image: "https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=400",
-        bio: "The queen of hip-hop, bringing fresh beats."
+        bio: "The queen of hip-hop, bringing fresh beats.",
+        role: "DJ"
       },
       { 
         id: 10, 
@@ -258,7 +267,8 @@ export const getDJList = async () => {
         location: "Bangalore",
         available: false,
         image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400",
-        bio: "Deep and dark techno journeys."
+        bio: "Deep and dark techno journeys.",
+        role: "DJ"
       }
     ]
   };
