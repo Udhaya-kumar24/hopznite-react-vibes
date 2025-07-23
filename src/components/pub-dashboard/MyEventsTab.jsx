@@ -58,11 +58,11 @@ const MyEventsTab = ({ events = [], onRate, onDetails, onMessage, onCreateEvent 
       </div>
       <div className="space-y-6">
         {filtered.map((event, i) => (
-          <div key={i} className="bg-white border rounded-xl p-6 shadow flex flex-col gap-3">
+          <div key={i} className="bg-card border border-border rounded-xl p-6 shadow flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <div className="text-xl font-semibold">{event.title}</div>
+              <div className="text-xl font-semibold text-card-foreground">{event.title}</div>
               <div className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[event.status]}`}>{event.status.charAt(0).toUpperCase() + event.status.slice(1)}</div>
-              <div className="text-2xl font-bold ml-4">${event.price}</div>
+              <div className="text-2xl font-bold ml-4 text-card-foreground">${event.price}</div>
               <div className="text-xs text-muted-foreground ml-1">Reference Price</div>
             </div>
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -71,23 +71,23 @@ const MyEventsTab = ({ events = [], onRate, onDetails, onMessage, onCreateEvent 
               <span>📍 {event.venue}</span>
             </div>
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-2xl text-muted-foreground">{event.dj?.avatar || <span>🎵</span>}</div>
+              <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-2xl text-muted-foreground">{event.dj?.avatar || <span>🎵</span>}</div>
               <div className="flex-1">
-                <div className="font-semibold">{event.dj?.name}</div>
+                <div className="font-semibold text-card-foreground">{event.dj?.name}</div>
                 <div className="text-xs text-muted-foreground">{event.dj?.genre} <span className="ml-2">⭐ {event.dj?.rating} ({event.dj?.reviews})</span></div>
               </div>
               <div className={`px-3 py-1 rounded-full text-xs font-semibold ${paymentColors[event.paymentStatus]}`}>{event.paymentLabel}</div>
-              {event.status === 'completed' && <Button size="sm" className="bg-black text-white" onClick={() => handleOpenRate(event)}>Rate DJ</Button>}
+              {event.status === 'completed' && <Button size="sm" className="bg-primary text-primary-foreground" onClick={() => handleOpenRate(event)}>Rate DJ</Button>}
               <Button size="sm" variant="outline" onClick={() => handleOpenDetails(event)}>Details</Button>
               {event.status !== 'completed' && <Button size="sm" variant="outline" onClick={() => onMessage(event)}>Message</Button>}
             </div>
             {event.status === 'completed' && (
-              <div className="bg-green-50 text-green-800 rounded p-3 text-sm flex items-center gap-2">
+              <div className="bg-green-950/30 text-green-400 rounded p-3 text-sm flex items-center gap-2">
                 <span className="font-semibold">✔ Payment Completed:</span> You have successfully paid the DJ directly after the event.
               </div>
             )}
             {event.status !== 'completed' && (
-              <div className="bg-blue-50 text-blue-800 rounded p-3 text-sm flex items-center gap-2">
+              <div className="bg-blue-950/30 text-blue-400 rounded p-3 text-sm flex items-center gap-2">
                 <span className="font-semibold">💡 Reference Pricing:</span> This is the agreed reference price. You will pay the DJ directly after the event completion.
               </div>
             )}

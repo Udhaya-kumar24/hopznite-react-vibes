@@ -3,6 +3,9 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { getDJList, getDJById, getDJAvailability, bookDJ } from '../../services/api';
 import { format, parseISO, addDays } from 'date-fns';
+import DJCard from '../DJCard';
+import { Badge } from '../ui/badge';
+import { Search, Filter, ChevronDown, ChevronUp, X, Music, Clock, MapPin } from 'lucide-react';
 
 const getDayLabel = (dateStr) => {
   const date = parseISO(dateStr);
@@ -52,16 +55,56 @@ const PubDJsTab = () => {
   const [selectedEnd, setSelectedEnd] = useState(null);
   const [referencePricing, setReferencePricing] = useState([]);
   const [selectedPricing, setSelectedPricing] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedGenres, setSelectedGenres] = useState([]);
+  const [availabilityFilter, setAvailabilityFilter] = useState('all');
+  const [showFilters, setShowFilters] = useState(false);
+  const [priceRange, setPriceRange] = useState([0, 50000]);
+  const [locationFilter, setLocationFilter] = useState('');
+  const [filterOptions, setFilterOptions] = useState({ genres: [], locations: [], availability: ['all', 'available', 'busy'] });
 
   useEffect(() => {
     const fetchDJs = async () => {
       setLoading(true);
       const res = await getDJList();
-      if (res.success) setDjs(res.data);
+      if (res.success) {
+        setDjs(res.data);
+        // Extract genres and locations for filter options
+        const genres = Array.from(new Set(res.data.flatMap(dj => dj.genres || [dj.genre])));
+        const locations = Array.from(new Set(res.data.map(dj => dj.location).filter(Boolean)));
+        setFilterOptions({ genres, locations, availability: ['all', 'available', 'busy'] });
+      }
       setLoading(false);
     };
     fetchDJs();
   }, []);
+
+  // Filtering logic
+  const filteredDJs = djs.filter(dj => {
+    const matchesSearch = dj.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (dj.genre && dj.genre.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (dj.location && dj.location.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesGenre = selectedGenres.length === 0 || selectedGenres.some(genre => (dj.genres || [dj.genre]).map(g => g.toLowerCase()).includes(genre.toLowerCase()));
+    const matchesAvailability = availabilityFilter === 'all' ||
+      (availabilityFilter === 'available' && dj.available) ||
+      (availabilityFilter === 'busy' && !dj.available);
+    const matchesLocation = !locationFilter || (dj.location && dj.location.toLowerCase().includes(locationFilter.toLowerCase()));
+    const matchesPrice = dj.price >= priceRange[0] && dj.price <= priceRange[1];
+    return matchesSearch && matchesGenre && matchesAvailability && matchesLocation && matchesPrice;
+  });
+
+  const handleGenreToggle = (genre) => {
+    setSelectedGenres(prev => prev.includes(genre) ? prev.filter(g => g !== genre) : [...prev, genre]);
+  };
+  const clearAllFilters = () => {
+    setSearchTerm('');
+    setSelectedGenres([]);
+    setAvailabilityFilter('all');
+    setLocationFilter('');
+    setPriceRange([0, 50000]);
+    setShowFilters(false);
+  };
+  const activeFiltersCount = [searchTerm ? 1 : 0, selectedGenres.length, availabilityFilter !== 'all' ? 1 : 0, locationFilter ? 1 : 0, priceRange[0] > 0 || priceRange[1] < 50000 ? 1 : 0].reduce((a, b) => a + b, 0);
 
   const handleViewDetails = async (dj) => {
     setSelectedDJ(dj);
@@ -140,33 +183,145 @@ const PubDJsTab = () => {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-4">Browse DJs</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {djs.map((dj) => (
-          <div key={dj.id} className="bg-white border rounded-xl shadow p-0 overflow-hidden flex flex-col">
-            <div className="relative h-40 bg-gray-100 flex items-center justify-center">
-              <img src={dj.image} alt={dj.name} className="object-cover w-full h-full" />
-              <span className={`absolute top-2 left-2 w-3 h-3 rounded-full ${dj.available ? 'bg-green-500' : 'bg-gray-400'}`}></span>
-              <span className="absolute top-2 right-2 bg-black text-white text-xs px-2 py-1 rounded">{dj.available ? 'Fully Available' : 'Busy'}</span>
-            </div>
-            <div className="p-4 flex-1 flex flex-col">
-              <div className="font-semibold text-lg">{dj.name}</div>
-              <div className="text-sm text-muted-foreground mb-2">{dj.genres?.join(', ')}</div>
-              <div className="flex flex-col gap-1 text-xs mb-2">
-                <div><span className="font-medium">Location:</span> {dj.location || '-'}</div>
-                <div><span className="font-medium">Experience:</span> {dj.experience || '5+ years'}</div>
-                <div><span className="font-medium">Equipment:</span> {dj.equipment || 'Full Setup Included'}</div>
-                <div><span className="font-medium">Next Available:</span> {dj.nextAvailable || 'Dec 15, 2024'}</div>
-                <div><span className="font-medium">Price Range:</span> ${dj.price - 300} - ${dj.price + 300}</div>
+    <div className="p-6 min-h-screen bg-background">
+      <h1 className="text-3xl font-bold mb-4 text-foreground">Browse DJs</h1>
+      {/* Search & Filter Bar */}
+      <div className="bg-background/80 backdrop-blur-sm border border-border rounded-xl p-4 mb-6">
+        <div className="flex flex-col lg:flex-row gap-4 items-center">
+          {/* Search Bar */}
+          <div className="relative flex-1 w-full">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Search DJs by name, genre, or location..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="pl-10 bg-background/50"
+            />
+          </div>
+          {/* Filter Toggle Button */}
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setShowFilters(!showFilters)} className="flex items-center gap-2">
+              <Filter className="h-4 w-4" />
+              Filters
+              {activeFiltersCount > 0 && <Badge variant="secondary" className="ml-1">{activeFiltersCount}</Badge>}
+              {showFilters ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </Button>
+            {activeFiltersCount > 0 && (
+              <Button variant="ghost" onClick={clearAllFilters} className="flex items-center gap-2">
+                <X className="h-4 w-4" />
+                Clear
+              </Button>
+            )}
+          </div>
+        </div>
+        {/* Collapsible Filter Panel */}
+        {showFilters && (
+          <div className="overflow-hidden mt-4">
+            <div className="border-t border-border pt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Availability Filter */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-primary" />
+                  <h3 className="font-semibold text-sm">Availability</h3>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {filterOptions.availability.map(filter => (
+                    <button
+                      key={filter}
+                      onClick={() => setAvailabilityFilter(filter)}
+                      className={`px-3 py-1.5 text-xs rounded-lg border transition-all duration-200 ${availabilityFilter === filter ? 'bg-primary text-primary-foreground border-primary' : 'bg-transparent border-border text-muted-foreground hover:border-primary/50'}`}
+                    >
+                      {filter === 'all' ? 'All' : filter === 'available' ? 'Available' : 'Busy'}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="flex gap-2 mt-auto">
-                <Button variant="outline" className="flex-1" onClick={() => handleViewDetails(dj)}>View Details</Button>
-                <Button className="flex-1 bg-black text-white" onClick={() => handleBookNow(dj)}>Book Now</Button>
+              {/* Location Filter */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-primary" />
+                  <h3 className="font-semibold text-sm">Location</h3>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {filterOptions.locations.map(location => (
+                    <button
+                      key={location}
+                      onClick={() => setLocationFilter(locationFilter === location ? '' : location)}
+                      className={`px-3 py-1.5 text-xs rounded-lg border transition-all duration-200 ${locationFilter === location ? 'bg-primary text-primary-foreground border-primary' : 'bg-transparent border-border text-muted-foreground hover:border-primary/50'}`}
+                    >
+                      {location}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Price Range Filter */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-primary font-semibold">₹</span>
+                  <h3 className="font-semibold text-sm">Price Range</h3>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex gap-2 text-xs text-muted-foreground">
+                    <span>₹{priceRange[0].toLocaleString()}</span>
+                    <span>-</span>
+                    <span>₹{priceRange[1].toLocaleString()}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      placeholder="Min"
+                      value={priceRange[0]}
+                      onChange={e => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])}
+                      className="text-xs"
+                    />
+                    <Input
+                      type="number"
+                      placeholder="Max"
+                      value={priceRange[1]}
+                      onChange={e => setPriceRange([priceRange[0], parseInt(e.target.value) || 50000])}
+                      className="text-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+              {/* Active Filters Summary */}
+              <div className="space-y-3">
+                <h3 className="font-semibold text-sm">Active Filters</h3>
+                <div className="space-y-2">
+                  {searchTerm && <Badge variant="secondary" className="text-xs">Search: {searchTerm}</Badge>}
+                  {selectedGenres.map(genre => <Badge key={genre} variant="secondary" className="text-xs">{genre}</Badge>)}
+                  {availabilityFilter !== 'all' && <Badge variant="secondary" className="text-xs">{availabilityFilter}</Badge>}
+                  {locationFilter && <Badge variant="secondary" className="text-xs">{locationFilter}</Badge>}
+                  {(priceRange[0] > 0 || priceRange[1] < 50000) && <Badge variant="secondary" className="text-xs">₹{priceRange[0].toLocaleString()} - ₹{priceRange[1].toLocaleString()}</Badge>}
+                </div>
+              </div>
+            </div>
+            {/* Genre Filters */}
+            <div className="mt-6">
+              <div className="flex items-center gap-2 mb-3">
+                <Music className="h-4 w-4 text-primary" />
+                <h3 className="font-semibold text-sm">Genres</h3>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {filterOptions.genres.map((genre, index) => (
+                  <button
+                    key={genre}
+                    onClick={() => handleGenreToggle(genre)}
+                    className={`px-3 py-1.5 text-xs rounded-lg border transition-all duration-200 ${selectedGenres.includes(genre) ? 'bg-primary text-primary-foreground border-primary' : 'bg-transparent border-border text-muted-foreground hover:border-primary/50'}`}
+                  >
+                    {genre}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
-        ))}
+        )}
+      </div>
+      {/* DJ Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+        {filteredDJs.length > 0 ? filteredDJs.map(dj => (
+          <DJCard key={dj.id} dj={dj} />
+        )) : <div className="text-muted-foreground col-span-full">No DJs found.</div>}
       </div>
       {/* Details Modal */}
       {showDetailsModal && djDetails && (
