@@ -3,7 +3,7 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { getDJList, getDJById, getDJAvailability, bookDJ } from '../../services/api';
 import { format, parseISO, addDays } from 'date-fns';
-import DJCard from '../DJCard';
+import DJCardDetails from '../DJCardDetails';
 import { Badge } from '../ui/badge';
 import { Search, Filter, ChevronDown, ChevronUp, X, Music, Clock, MapPin } from 'lucide-react';
 
@@ -320,7 +320,12 @@ const PubDJsTab = () => {
       {/* DJ Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredDJs.length > 0 ? filteredDJs.map(dj => (
-          <DJCard key={dj.id} dj={dj} />
+          <DJCardDetails 
+            key={dj.id} 
+            dj={dj}
+            handleViewDetails={handleViewDetails} 
+            handleBookNow={handleBookNow}
+          />
         )) : <div className="text-muted-foreground col-span-full">No DJs found.</div>}
       </div>
       {/* Details Modal */}
